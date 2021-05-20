@@ -1,0 +1,22 @@
+5                         ! nVal: number of distinct values that the parameter can take
+4                         ! col: column in data file giving the index series
+"b1_1"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+-0.6                      ! Initial guess
+'Gaussian'                ! Prior distribution
+-0.6,0.5                  ! Prior parameters
+"b1_2"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+-0.6                      ! Initial guess
+'Gaussian'                ! Prior distribution
+-0.6,0.62                 ! Prior parameters
+"b1_3"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+-0.6                      ! Initial guess
+'Gaussian'                ! Prior distribution
+-0.6,0.71                 ! Prior parameters
+"b1_4"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+-0.6                      ! Initial guess
+'Gaussian'                ! Prior distribution
+-0.6,0.8                  ! Prior parameters
+"b1_5"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+-0.6                      ! Initial guess
+'Gaussian'                ! Prior distribution
+-0.6,0.87                 ! Prior parameters

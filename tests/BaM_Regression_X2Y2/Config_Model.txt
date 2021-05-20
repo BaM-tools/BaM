@@ -1,0 +1,20 @@
+"Linear"                  ! Model ID 
+2                         ! nX: number of input variables
+2                         ! nY: number of output variables
+4                         ! nPar: number of parameters theta
+"X1effectOnY1"            ! Parameter Name
+0                         ! Initial guess
+'Gaussian'                ! Prior distribution
+0,200                     ! Prior parameters
+"X2effectOnY1"            ! Parameter Name
+0                         ! Initial guess
+'Gaussian'                ! Prior distribution
+0,200                     ! Prior parameters
+"X1effectOnY2"            ! Parameter Name
+0                         ! Initial guess
+'Gaussian'                ! Prior distribution
+0,200                     ! Prior parameters
+"X2effectOnY2"            ! Parameter Name
+0                         ! Initial guess
+'Gaussian'                ! Prior distribution
+0,200                     ! Prior parameters

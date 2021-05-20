@@ -1,0 +1,11 @@
+10                             !!! Number of prediction experiments
+'Config_PredPrior.txt'         !!! Config file for experiments - an many lines as the number above
+'Config_Pred1.txt'             !!! Config file for experiments - an many lines as the number above
+'Config_Pred2.txt'             !!! Config file for experiments - an many lines as the number above
+'Config_Pred3.txt'             !!! Config file for experiments - an many lines as the number above
+'Config_Pred4.txt'             !!! Config file for experiments - an many lines as the number above
+'Config_Pred_RC_H2_1.34.txt'             !!! Config file for experiments - an many lines as the number above
+'Config_Pred_RC_H2_1.93.txt'             !!! Config file for experiments - an many lines as the number above
+'Config_Pred_RC_H2_2.40.txt'             !!! Config file for experiments - an many lines as the number above
+'Config_Pred_RC_H2_2.76.txt'             !!! Config file for experiments - an many lines as the number above
+'Config_Pred_RC_H2_3.04.txt'             !!! Config file for experiments - an many lines as the number above

@@ -1,0 +1,349 @@
+program BaM_main
+
+use kinds_dmsl_kit
+use utilities_dmsl_kit,only:number_string
+use ModelLibrary_tools,only:modelType
+use BayesianEstimation_tools, only:priorListType
+use BaM_tools, only:plist,parlist,slist,parType,&
+                    LoadBamObjects,BaM_ReadData,BaM_Fit,BaM_CookMCMC,BaM_SummarizeMCMC,&
+                    Config_Read,Config_Read_Model,Config_Read_Xtra,Config_Read_Data,&
+                    Config_Read_RemnantSigma,Config_Read_MCMC,Config_Read_RunOptions,&
+                    Config_Read_Residual,Config_Read_Cook,Config_Read_Summary,&
+                    Config_Read_Pred_Master,Config_Read_Pred,Config_Finalize,&
+                    BaM_ConsoleMessage,BaM_LoadMCMC,BaM_Residual,&
+                    BaM_Prediction,XspagType,BaM_ReadSpag
+implicit none
+
+!-----------------------
+! Constants
+character(250),parameter::Config_file="Config_BaM.txt"
+character(250),parameter::priorCorrFile="PriorCorrelation.txt"
+real(mrk),parameter::defaultstd=0.1_mrk
+!-----------------------
+! Config files
+character(250)::workspace
+character(250)::Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
+                Config_MCMC,Config_Cooking,Config_summary,&
+                Config_Residual,Config_Pred_Master
+character(250),pointer::Config_RemnantSigma(:),Config_Pred(:)
+character(250),allocatable::Config_RemnantList(:)
+!-----------------------
+! run options
+logical::DoMCMC,DoSummary,DoResidual,DoPred
+!-----------------------
+! MCMC properties
+integer(mik)::nAdapt,nCycles,nSlim,InitStdMode
+real(mrk):: BurnFactor,MinMoveRate,MaxMoveRate,DownMult,UpMult
+character(250)::MCMCFile
+real(mrk), allocatable::theta_std0(:)
+type(parlist),allocatable::RemnantSigma_std0(:)
+!-----------------------
+! Data
+integer(mik),allocatable::XCol(:),XuCol(:),XbCol(:),XbindxCol(:)
+integer(mik),allocatable::YCol(:),YuCol(:),YbCol(:),YbindxCol(:)
+real(mrk), allocatable::X(:,:),Y(:,:),Xu(:,:),Yu(:,:),Xb(:,:),Yb(:,:)
+integer(mik), allocatable::Xbindx(:,:),Ybindx(:,:)
+!-----------------------
+! Inference
+Type(ParType), pointer::theta(:)
+real(mrk), pointer::theta0(:)
+type(parlist),allocatable::RemnantSigma0(:)
+type(plist),allocatable::Prior_RemnantSigma(:)
+type(slist),allocatable::ParName_RemnantSigma(:)
+character(250),allocatable::RemnantSigma_funk(:)
+type(ModelType)::model
+!-----------------------
+! Post-processing
+real(mrk), pointer::maxpost(:),mcmc(:,:),logpost(:)
+character(250)::Residual_File,Cooking_File,Summary_File
+!-----------------------
+! Prediction
+integer(mik)::npred
+logical::DoParametric
+logical,allocatable::DoRemnant(:),DoTranspose(:),DoEnvelop(:),DoState(:),&
+                     DoTranspose_S(:),DoEnvelop_S(:)
+character(250),allocatable::XSpag_Files(:),YSpag_Files(:),Envelop_Files(:),&
+                            SpagFiles_S(:),EnvelopFiles_S(:)
+logical::PrintCounter
+type(XspagType)::Xspag
+!-----------------------
+! Misc.
+integer(mik)::i,err,nobs,nc,nhead,nsim
+logical::IsMCMCLoaded
+character(250)::mess,datafile
+!-----------------------
+
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! WELCOME !!!
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+call BaM_ConsoleMessage(1,'')
+IsMCMCLoaded=.false.
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! READ CONFIG FILES
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+call BaM_ConsoleMessage(100,'')
+
+! Read main config file
+call Config_Read(trim(Config_file),&
+                 workspace,&
+                 Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
+                 Config_RemnantSigma,Config_MCMC,&
+                 Config_Cooking,Config_Summary,&
+                 Config_Residual,Config_Pred_Master,&
+                 err,mess) 
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+
+! Read run options
+call Config_Read_RunOptions(trim(workspace)//trim(Config_RunOptions),&
+                            DoMCMC,DoSummary,&
+                            DoResidual,DoPred,&
+                            err,mess)
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+
+! model setup
+call Config_Read_Model(trim(workspace)//trim(Config_Model),&
+                       model%ID,model%nX,model%nY,&
+                       theta,&
+                       err,mess)
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+model%ID="MDL_"//trim(model%ID)
+call Config_Read_Xtra(file=trim(workspace)//trim(Config_Xtra),&
+                      ID=model%ID,xtra=model%xtra,err=err,mess=mess) 
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+                       
+! read data
+allocate(Xcol(model%nX),XuCol(model%nX),XbCol(model%nX),XbindxCol(model%nX))
+allocate(Ycol(model%nY),YuCol(model%nY),YbCol(model%nY),YbindxCol(model%nY))
+call Config_Read_Data(file=trim(workspace)//trim(Config_Data),&
+                      DataFile=datafile,nHeader=nhead,nobs=nobs,ncol=nc,&
+                      XCol=XCol,XuCol=XuCol,XbCol=XbCol,XbindxCol=XbindxCol,&
+                      YCol=YCol,YuCol=YuCol,YbCol=YbCol,YbindxCol=YbindxCol,&
+                      err=err,mess=mess)
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+
+allocate(X(nobs,model%nX),Xu(nobs,model%nX),Xb(nobs,model%nX),Xbindx(nobs,model%nX))
+allocate(Y(nobs,model%nY),Yu(nobs,model%nY),Yb(nobs,model%nY),Ybindx(nobs,model%nY))                 
+call BaM_ReadData(file=datafile,nrow=nobs,ncol=nc,nHeader=nhead,&
+                  XCol=XCol,XuCol=XuCol,XbCol=XbCol,XbindxCol=XbindxCol,&
+                  YCol=YCol,YuCol=YuCol,YbCol=YbCol,YbindxCol=YbindxCol,&
+                  X=X,Y=Y,Xu=Xu,Yu=Yu,Xb=Xb,Yb=Yb,Xbindx=Xbindx,Ybindx=Ybindx,&
+                  err=err,mess=mess)
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+
+! set remnant error model
+allocate(RemnantSigma_funk(model%nY),RemnantSigma0(model%nY),Prior_RemnantSigma(model%nY))
+allocate(Config_RemnantList(model%nY),Parname_RemnantSigma(model%nY))
+do i=1,model%nY
+    Config_RemnantList(i)=trim(workspace)//trim(Config_RemnantSigma(i))
+enddo
+call Config_Read_RemnantSigma(files=Config_RemnantList,&
+                      RemnantSigma_funk=RemnantSigma_funk,&
+                      Parname=Parname_RemnantSigma,&
+                      RemnantSigma0=RemnantSigma0,&
+                      Prior_RemnantSigma=Prior_RemnantSigma,&
+                      err=err,mess=mess)
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+
+! Finalize configuration 
+call Config_Finalize(workspace=trim(workspace),&
+                     datafile=datafile,nrow=nobs,ncol=nc,nHeader=nHead,&
+                     theta=theta,&
+                     theta0=theta0,err=err,mess=mess)
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+                           
+! Load all info into BAM objects
+call LoadBamObjects(X=X,Xu=Xu,Xb=Xb,Xbindx=Xbindx,& ! observed inputs and their uncertainties
+                    Y=Y,Yu=Yu,Yb=Yb,Ybindx=Ybindx,& ! observed outputs and their uncertainties
+                    ID=model%ID,&               ! Model ID 
+                    theta=theta,&               ! parameters theta
+                    RemnantSigma_funk=RemnantSigma_funk,& ! chosen f in { residual var = f(Qrc) }
+                    Parname_RemnantSigma=Parname_RemnantSigma,& ! names
+                    Prior_RemnantSigma=Prior_RemnantSigma,& ! priors
+                    priorCorrFile=trim(workspace)//trim(priorCorrFile),&
+                    xtra=model%xtra,&
+                    nstate=model%nState,err=err,mess=mess)! error handling
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+
+! MCMC Config file
+allocate(theta_std0(size(theta0)),RemnantSigma_std0(model%nY))
+call Config_Read_MCMC(trim(workspace)//trim(Config_MCMC),&
+                  theta0,RemnantSigma0,defaultStd,&
+                  nAdapt,nCycles,InitStdMode,&
+                  MinMoveRate,MaxMoveRate,DownMult,UpMult,&
+                  theta_std0,RemnantSigma_std0,&
+                  MCMCfile,&
+                  err,mess)
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+! Also read Cook-MCMC to get burn & nslim
+call Config_Read_Cook(trim(workspace)//trim(Config_Cooking),&
+                      burnFactor,nSlim,Cooking_File,err,mess)
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+
+call BaM_ConsoleMessage(101,model%ID)
+
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! MCMC SAMPLING
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+if(DoMCMC) then
+    call BaM_ConsoleMessage(4,'')
+    ! Go!
+    call BaM_Fit(theta0=theta0,RemnantSigma0=RemnantSigma0, &!initial values for teta and remnant std
+                 theta_std0=theta_std0,RemnantSigma_std0=RemnantSigma_std0,& ! initial values for the std of jump distribution
+                 nAdapt=nAdapt,nCycles=nCycles,& 
+                 MinMoveRate=MinMoveRate,MaxMoveRate=MaxMoveRate,&
+                 DownMult=DownMult,UpMult=UpMult,&
+                 OutFile=trim(workspace)//trim(MCMCfile), & ! Output file (for MCMC samples)
+                 err=err,mess=mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    call BaM_ConsoleMessage(5, trim(trim(workspace)//trim(MCMCfile)))
+    ! load MCMC samples and write cooked samples
+    call BaM_ConsoleMessage(6,'')
+    call BaM_LoadMCMC(MCMCFile=trim(workspace)//trim(MCMCfile),&
+                  burnFactor=burnFactor,Nslim=Nslim,& ! Read properties
+                  maxpost=maxpost,mcmc=mcmc,logpost=logpost,&
+                  err=err,mess=mess)!out
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    IsMCMCLoaded=.true.
+    call BaM_CookMCMC(mcmc=mcmc,logpost=logpost,&
+                      OutFile=trim(workspace)//trim(Cooking_File),&
+                      err=err,mess=mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    call BaM_ConsoleMessage(7,'')
+endif
+
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! LOAD cooked MCMC (used for subsequent analyses) if not done yet
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+if(.not.IsMCMCLoaded) then
+    if(DoSummary .or. DoResidual) then
+        call BaM_LoadMCMC(MCMCFile=trim(workspace)//trim(Cooking_File),&
+                      burnFactor=0._mrk,Nslim=1,& ! Read properties
+                      maxpost=maxpost,mcmc=mcmc,logpost=logpost,&
+                      err=err,mess=mess)!out
+        if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+        IsMCMCLoaded=.true.
+    endif
+endif
+
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! MCMC SUMMARY
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+if(DoSummary) then
+    call BaM_ConsoleMessage(8,'')
+    ! config file
+    call Config_Read_Summary(trim(workspace)//trim(Config_Summary),&
+                          Summary_File,err,mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    ! summarize
+    call BaM_SummarizeMCMC(mcmc=mcmc,logpost=logpost,&
+                      OutFile=trim(workspace)//trim(Summary_File),&
+                      err=err,mess=mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    call BaM_ConsoleMessage(9,'')
+endif
+
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! Residual diagnostics
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+if(DoResidual) then
+    call BaM_ConsoleMessage(10,'')
+    ! read config file
+    call Config_Read_Residual(trim(workspace)//trim(Config_Residual),&
+                                   Residual_File,err,mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    ! Perform runs
+    call BaM_Residual(maxpost=maxpost,&
+                      OutFile=trim(workspace)//trim(Residual_File),&
+                      err=err,mess=mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    call BaM_ConsoleMessage(11,'')
+endif
+
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! Prediction experiments
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+if(DoPred) then
+    call BaM_ConsoleMessage(12,'')
+    ! read master config file
+    call Config_Read_Pred_Master(trim(workspace)//trim(Config_Pred_Master),&
+                                 npred,Config_Pred,err,mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    allocate(XSpag_Files(model%nX))
+    allocate(DoRemnant(model%nY),YSpag_Files(model%nY),DoTranspose(model%nY),&
+             DoEnvelop(model%nY),Envelop_Files(model%nY))
+    allocate(Xspag%nspag(model%nX))
+    allocate(Xspag%spag(model%nX))
+    allocate(DoState(model%nState),SpagFiles_S(model%nState),DoTranspose_S(model%nState),&
+             DoEnvelop_S(model%nState),EnvelopFiles_S(model%nState))
+    do i=1,npred
+        call BaM_ConsoleMessage(14,trim(number_string(i))//'/'//trim(number_string(npred)))
+        ! read individual pred config files
+        call Config_Read_Pred(trim(workspace)//trim(Config_Pred(i)),&
+                            XSpag_Files,Xspag%nobs,Xspag%nspag,&
+                            DoParametric,DoRemnant,nsim,YSpag_Files,&
+                            DoTranspose,DoEnvelop,Envelop_Files,PrintCounter,&
+                            DoState,SpagFiles_S,DoTranspose_S,DoEnvelop_S,EnvelopFiles_S,&
+                            err,mess)
+        if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+        ! read spaghettis
+        call BaM_ReadSpag(Xspag,XSpag_Files,err,mess)
+        if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+        ! Do Prediction
+        if(nsim>0) then ! prior sampling
+            call BaM_Prediction(nsim=nsim,&
+                          Xspag=Xspag,DoParametric=DoParametric,DoRemnant=DoRemnant,&
+                          SpagFiles=trim(workspace)//YSpag_Files,PrintCounter=PrintCounter,&
+                          DoTranspose=DoTranspose,DoEnvelop=DoEnvelop,&
+                          EnvelopFiles=trim(workspace)//Envelop_Files,&
+                          DoState=DoState,DoTranspose_S=DoTranspose_S,DoEnvelop_S=DoEnvelop_S,&
+                          SpagFiles_S=trim(workspace)//SpagFiles_S,&
+                          EnvelopFiles_S=trim(workspace)//EnvelopFiles_S,&
+                          err=err,mess=mess)
+            if(err>0) then; call BaM_ConsoleMessage(17,trim(mess));endif
+        else ! posterior sampling
+            if(.not.IsMCMCLoaded) then
+                call BaM_LoadMCMC(MCMCFile=trim(workspace)//trim(Cooking_File),&
+                      burnFactor=0._mrk,Nslim=1,& ! Read properties
+                      maxpost=maxpost,mcmc=mcmc,logpost=logpost,&
+                      err=err,mess=mess)!out
+                if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+                IsMCMCLoaded=.true.
+            endif
+            call BaM_Prediction(mcmc=mcmc,maxpost=maxpost,&
+                          Xspag=Xspag,DoParametric=DoParametric,DoRemnant=DoRemnant,&
+                          SpagFiles=trim(workspace)//YSpag_Files,PrintCounter=PrintCounter,&
+                          DoTranspose=DoTranspose,DoEnvelop=DoEnvelop,&
+                          EnvelopFiles=trim(workspace)//Envelop_Files,&
+                          DoState=DoState,DoTranspose_S=DoTranspose_S,DoEnvelop_S=DoEnvelop_S,&
+                          SpagFiles_S=trim(workspace)//SpagFiles_S,&
+                          EnvelopFiles_S=trim(workspace)//EnvelopFiles_S,&
+                          err=err,mess=mess)
+            if(err>0) then; call BaM_ConsoleMessage(17,trim(mess));endif
+        endif
+    enddo
+    call BaM_ConsoleMessage(13,'')
+endif
+
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! ALL DONE !!!
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+
+call BaM_ConsoleMessage(999, '')
+read(*,*)
+end program BaM_main

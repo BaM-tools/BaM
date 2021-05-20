@@ -1,0 +1,32 @@
+"Sediment"                ! Model ID 
+3                         ! nX: number of input variables
+1                         ! nY: number of output variables
+7                         ! nPar: number of parameters theta
+"multiplier"              ! Parameter name
+12.                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,10000.                 ! Prior parameters
+"power"                   ! Parameter name
+1.5                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,10000.                 ! Prior parameters
+"exp_coeff"               ! Parameter name
+4.5                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,10000.                 ! Prior parameters
+"Soulsby_p1"                  ! Parameter name
+0.3                    ! Initial guess
+'FIX'                ! Prior distribution
+0.3,100.0             ! Prior parameters
+"Soulsby_p2"                  ! Parameter name
+1.2                    ! Initial guess
+'FIX'                ! Prior distribution
+1.2,100.0             ! Prior parameters
+"Soulsby_p3"                  ! Parameter name
+0.055                    ! Initial guess
+'FIX'                ! Prior distribution
+0.055,100.0             ! Prior parameters
+"Soulsby_p4"                  ! Parameter name
+0.02                    ! Initial guess
+'FIX'                ! Prior distribution
+0.02,100.0            ! Prior parameters

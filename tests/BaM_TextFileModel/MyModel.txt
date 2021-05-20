@@ -1,0 +1,7 @@
+3              ! number of input variables
+t,T1,T2        ! list of input variables, comma-separated (time, temperature at site 1, temperature at site 2)
+4              ! number of parameters
+P0,r2T,K1,K2   ! list of parameters, comma-separated (initial population, growth-to-temperature ratio, upper limit at site 1, upper limit at site 2
+2              ! number of output variables
+K1/( 1+ ((K1-P0)/P0) * exp(-r2T*T1*t) ) ! Formula for P(t) at site 1
+K2/( 1+ ((K2-P0)/P0) * exp(-r2T*T2*t) ) ! Formula for P(t) at site 2

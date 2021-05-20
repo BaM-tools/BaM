@@ -1,0 +1,4 @@
+.true.  ! Do MCMC?
+.true.  ! Do MCMC summary?
+.true.  ! Do Residual diagnostics?
+.false. ! Do Predictions?

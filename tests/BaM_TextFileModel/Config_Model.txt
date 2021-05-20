@@ -1,0 +1,20 @@
+"TextFile"                ! Model ID 
+3                         ! nX: number of input variables
+2                         ! nY: number of output variables
+4                         ! nPar: number of parameters theta
+"P0"                      ! Initial population
+100                       ! Initial guess
+'Gaussian'                ! Prior distribution
+100,10                    ! Prior parameters
+"r2T"                     ! r-to-T ratio; actual growth rate r is equal to T*r2T
+0.001                     ! Initial guess
+'LogNormal'               ! Prior distribution
+-7.,1.                    ! Prior parameters
+"K1"                      ! Upper limit at site 1
+10000                     ! Initial guess
+'LogNormal'               ! Prior distribution
+9.,1.                     ! Prior parameters
+"K2"                      ! Upper limit at site 2
+10000                     ! Initial guess
+'LogNormal'               ! Prior distribution
+9.,1.                     ! Prior parameters

@@ -1,0 +1,36 @@
+"SFDTidalJones"                ! Model ID 
+3                         ! nX: number of input variables
+1                         ! nY: number of output variables
+8                         ! nPar: number of parameters theta
+"Dt"                      ! Parameter Name
+120.                      ! Initial guess
+'Gaussian'               ! Prior distribution
+120,10                  ! Prior parameters
+"K"                       ! Parameter Name
+30.                       ! Initial guess
+'Gaussian'               ! Prior distribution
+30,5                  ! Prior parameters
+"B"                       ! Parameter Name
+140.                      ! Initial guess
+'Gaussian'               ! Prior distribution
+140,15                 ! Prior parameters
+"h0"                      ! Parameter Name
+-15.5                      ! Initial guess
+'Gaussian'                ! Prior distribution
+-15.5,1.                 ! Prior parameters
+"M"                       ! Parameter Name
+1.67                      ! Initial guess
+'Gaussian'                ! Prior distribution
+1.67,0.025                ! Prior parameters
+"L"                       ! Parameter Name
+35000.                    ! Initial guess
+'Gaussian'               ! Prior distribution
+35000,200                ! Prior parameters
+"delta"                   ! Parameter Name
+0.5                       ! Initial guess
+'Gaussian'                ! Prior distribution
+0.5,1                 ! Prior parameters
+"alpha"                   ! Parameter Name
+0.1                       ! Initial guess
+'Gaussian'                ! Prior distribution
+0.1,1                  ! Prior parameters

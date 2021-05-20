@@ -1,0 +1,20 @@
+"Sediment"                ! Model ID 
+2                         ! nX: number of input variables
+1                         ! nY: number of output variables
+4                         ! nPar: number of parameters theta
+"multiplier"              ! Parameter name
+12.                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,10000.                 ! Prior parameters
+"power"                   ! Parameter name
+1.5                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,10000.                 ! Prior parameters
+"exp_coeff"               ! Parameter name
+4.5                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,10000.                 ! Prior parameters
+"tau_cr"                  ! Parameter name
+0.0308                    ! Initial guess
+'Gaussian'                ! Prior distribution
+0.0308,0.0001             ! Prior parameters

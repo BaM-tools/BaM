@@ -1,0 +1,48 @@
+"Orthorectification"      ! Model ID 
+3                         ! nX: number of input variables
+2                         ! nY: number of output variables
+11                        ! nPar: number of parameters theta
+"x0"                      ! Parameter name
+10.                       ! Initial guess
+'Gaussian'                ! Prior distribution
+10.,1.                ! Prior parameters
+"y0"                      ! Parameter name
+-1.                        ! Initial guess
+'Gaussian'                ! Prior distribution
+-1.,1.                 ! Prior parameters
+"z0"                      ! Parameter name
+12.6                      ! Initial guess
+'Gaussian'                ! Prior distribution
+12.6,1.                 ! Prior parameters
+"azim"                    ! Parameter name
+3.14                      ! Initial guess
+'Gaussian'                 ! Prior distribution
+3.14, 0.785                  ! Prior parameters
+"roll"                    ! Parameter name CONVENTION: si on filme à l'horizontal, -pi/2
+-1.57                        ! Initial guess
+'Gaussian'                ! Prior distribution
+-1.57, 0.3925             ! Prior parameters
+"pitch"                    ! Parameter name CONVENTION: si on filme vers le bas, négatif
+-1.0                      ! Initial guess
+'Gaussian'                 ! Prior distribution
+-1.0, 0.25         ! Prior parameters
+"f"                       ! Parameter name
+0.01                      ! Initial guess
+'Gaussian'                ! Prior distribution
+0.01,0.01                 ! Prior parameters
+"c0"                      ! Parameter name CONVENTION: (0,0) est le coin supérieur gauche
+360.                      ! Initial guess
+'FIX'                ! Prior distribution
+360.,30.                  ! Prior parameters
+"l0"                  ! Parameter name
+288.                      ! Initial guess
+'FIX'                ! Prior distribution
+!288.,30.                  ! Prior parameters
+"lambda"                  ! Parameter name
+0.00001                   ! Initial guess
+'FIX'                ! Prior distribution
+!0.1,0.1            ! Prior parameters
+"k"                       ! Parameter name
+1.                        ! Initial guess
+'FIX'                ! Prior distribution
+                  ! Prior parameters

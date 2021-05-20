@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectCreator="Intel Fortran" Keyword="Console Application" Version="11.0" ProjectIdGuid="{751D27FC-8AFC-4B8F-9F1B-8B98E3CF7737}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="$(DMSL_ROOT)\DMSL_BATEAU_IVF_STATIX_PLAIN\Debug" Interfaces="true" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="1900000000" AdditionalDependencies="$(DMSL_ROOT)\DMSL_BATEAU_IVF_STATIX_PLAIN\Debug\DMSL_BATEAU_IVF_STATIX_PLAIN.lib"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
+		<Configuration Name="Release|Win32">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(DMSL_ROOT)\DMSL_BATEAU_IVF_STATIX_PLAIN\Release"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole" StackReserveSize="1900000000" AdditionalDependencies="$(DMSL_ROOT)\DMSL_BATEAU_IVF_STATIX_PLAIN\Release\DMSL_BATEAU_IVF_STATIX_PLAIN.lib"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Header Files" Filter="fi;fd"/>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<Filter Name="BMSL">
+		<File RelativePath="..\..\..\BMSL\src\Aggregation_tools.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\BayesianEstimation_tools.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\DataRW_tools.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\Dates_tools.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\Distribution_tools.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\EmpiricalStats_tools.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\MCMC_tools.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\MCMCStrategy_tools_NoRFortran.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\TimeSeries_tools.f90"/></Filter>
+		<Filter Name="Models">
+		<File RelativePath="..\..\src\Models\AlgaeBiomass_model.f90"/>
+		<File RelativePath="..\..\src\Models\BaRatin_model.f90"/>
+		<File RelativePath="..\..\src\Models\BaRatinBAC_model.f90"/>
+		<File RelativePath="..\..\src\Models\DynamicVegetation_model.f90"/>
+		<File RelativePath="..\..\src\Models\GR4J_model.f90"/>
+		<File RelativePath="..\..\src\Models\Linear_model.f90"/>
+		<File RelativePath="..\..\src\Models\Mixture_model.f90"/>
+		<File RelativePath="..\..\src\Models\Orthorectification_model.f90"/>
+		<File RelativePath="..\..\src\Models\Recession_model.f90"/>
+		<File RelativePath="..\..\src\Models\SedimentTransport_model.f90"/>
+		<File RelativePath="..\..\src\Models\Segmentation2_model.f90"/>
+		<File RelativePath="..\..\src\Models\Segmentation_model.f90"/>
+		<File RelativePath="..\..\src\Models\SFDTidal2_model.f90"/>
+		<File RelativePath="..\..\src\Models\SFDTidal4_model.f90"/>
+		<File RelativePath="..\..\src\Models\SFDTidal_model.f90"/>
+		<File RelativePath="..\..\src\Models\SFDTidalJones_model.f90"/>
+		<File RelativePath="..\..\src\Models\StageFallDischarge_model.f90"/>
+		<File RelativePath="..\..\src\Models\StageGradientDischarge_model.f90"/>
+		<File RelativePath="..\..\src\Models\SuspendedLoad_model.f90"/>
+		<File RelativePath="..\..\src\Models\SWOT_model.f90"/>
+		<File RelativePath="..\..\src\Models\TextFile_model.f90"/>
+		<File RelativePath="..\..\src\Models\Vegetation_model.f90"/></Filter>
+		<File RelativePath="..\..\src\BaM_main.f90"/>
+		<File RelativePath="..\..\src\BaM_tools.f90"/>
+		<File RelativePath="..\..\src\ModelLibrary_tools.f90"/></Filter></Files>
+	<Globals/></VisualStudioProject>

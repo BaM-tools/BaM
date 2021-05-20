@@ -1,0 +1,28 @@
+"BaRatin"                 ! Model ID 
+1                         ! nX: number of input variables
+1                         ! nY: number of output variables
+6                         ! nPar: number of parameters theta
+"k1"                      ! Parameter Name
+-0.5                      ! Initial guess
+'Gaussian'                ! Prior distribution
+-0.5,0.25                  ! Prior parameters
+"a1"                      ! Parameter Name
+53                        ! Initial guess
+'Gaussian'                ! Prior distribution
+53,10                     ! Prior parameters
+"c1"                      ! Parameter Name
+1.5                       ! Initial guess
+'Gaussian'                ! Prior distribution
+1.5,0.025                 ! Prior parameters
+"k2"                      ! Parameter Name
+1.5                       ! Initial guess
+'Gaussian'                ! Prior distribution
+1.5,0.5                   ! Prior parameters
+"a2"                      ! Parameter Name
+144                       ! Initial guess
+'Gaussian'                ! Prior distribution
+144,45                    ! Prior parameters
+"c2"                      ! Parameter Name
+1.67                      ! Initial guess
+'Gaussian'                ! Prior distribution
+1.67,0.025                ! Prior parameters

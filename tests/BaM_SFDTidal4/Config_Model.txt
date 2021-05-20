@@ -1,0 +1,36 @@
+"SFDTidal4"                ! Model ID 
+2                         ! nX: number of input variables
+1                         ! nY: number of output variables
+8                         ! nPar: number of parameters theta
+"Dt"                      ! Parameter Name
+60.                      ! Initial guess
+'Gaussian'               ! Prior distribution
+60,10                  ! Prior parameters
+"K"                       ! Parameter Name
+40.                       ! Initial guess
+'Gaussian'               ! Prior distribution
+40,5                  ! Prior parameters
+"B"                       ! Parameter Name
+300.                      ! Initial guess
+'Gaussian'               ! Prior distribution
+300,50                 ! Prior parameters
+"h0"                      ! Parameter Name
+4                      ! Initial guess
+'Gaussian'                ! Prior distribution
+4,1.                 ! Prior parameters
+"M"                       ! Parameter Name
+1.67                      ! Initial guess
+'Gaussian'                ! Prior distribution
+1.67,0.025                ! Prior parameters
+"L"                       ! Parameter Name
+12850.                    ! Initial guess
+'Gaussian'               ! Prior distribution
+12850,300                ! Prior parameters
+"delta"                   ! Parameter Name
+0                       ! Initial guess
+'Gaussian'                ! Prior distribution
+0,1                  ! Prior parameters
+"P"                   ! Parameter Name
+30                       ! Initial guess
+'Gaussian'                ! Prior distribution
+30,30                  ! Prior parameters

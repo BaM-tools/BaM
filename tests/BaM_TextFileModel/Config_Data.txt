@@ -1,0 +1,12 @@
+'BaM_TextFileModel\PopulationData.txt' 		!!! Absolute path to data file
+1							!!! number of header lines
+101							!!! Nobs, number of rows in data file (excluding header lines)
+8							!!! number of columns in the data file
+1,2,3						!!! columns for X (observed inputs) in data file - comma-separated if several
+0,0,0						!!! columns for Xu (random uncertainty in X, EXPRESSED AS A STANDARD DEVIATION - use 0 for a no-error assumption)
+0,0,0						!!! columns for Xb (systematic uncertainty in X, EXPRESSED AS A STANDARD DEVIATION - use 0 for a no-error assumption)
+0,0,0						!!! columns for Xb_indx (index of systematic errors in X - use 0 for a no-error assumption)
+6,7							!!! columns for Y (observed outputs) in data file - comma-separated if several
+8,8							!!! columns for Yu (uncertainty in Y, EXPRESSED AS A STANDARD DEVIATION - use 0 for a no-error assumption)
+0,0							!!! columns for Yb (systematic uncertainty in Y, EXPRESSED AS A STANDARD DEVIATION - use 0 for a no-error assumption)
+0,0							!!! columns for Yb_indx (index of systematic errors in Y - use 0 for a no-error assumption)

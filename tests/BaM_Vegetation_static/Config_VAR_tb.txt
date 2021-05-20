@@ -1,0 +1,22 @@
+5                         ! nVal: number of distinct values that the parameter can take
+5                         ! col: column in data file giving the index series
+"tb_1"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+0.2                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,1.                     ! Prior parameters
+"tb_2"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+0.2                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,1.                     ! Prior parameters
+"tb_3"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+0.2                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,1.                     ! Prior parameters
+"tb_4"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+0.2                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,1.                     ! Prior parameters
+"tb_5"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+0.2                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,1.                     ! Prior parameters

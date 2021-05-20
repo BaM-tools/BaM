@@ -1,0 +1,5 @@
+4                             !!! Number of prediction experiments
+'Config_Pred_grid_07.txt'         !!! Config file for experiments - an many lines as the number above
+'Config_Pred_grid_1.txt'         !!! Config file for experiments - an many lines as the number above
+'Config_Pred_Ut.txt'         !!! Config file for experiments - an many lines as the number above
+'Config_Pred_MPt.txt'         !!! Config file for experiments - an many lines as the number above

@@ -1,0 +1,22 @@
+5                         ! nVal: number of distinct values that the parameter can take
+4                         ! col: column in data file giving the index series
+"k2_1"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+1.05                      ! Initial guess
+'Gaussian'                ! Prior distribution
+1.05,1.6                  ! Prior parameters
+"k2_2"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+1.08                      ! Initial guess
+'Gaussian'                ! Prior distribution
+1.08,1.64                 ! Prior parameters
+"k2_3"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+1.11                      ! Initial guess
+'Gaussian'                ! Prior distribution
+1.11,1.7                  ! Prior parameters
+"k2_4"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+1.15                      ! Initial guess
+'Gaussian'                ! Prior distribution
+1.15,1.76                 ! Prior parameters
+"k2_5"                    ! Parameter Name - unused for VARPAR, naming is automatic based on name of parent parameters
+1.19                      ! Initial guess
+'Gaussian'                ! Prior distribution
+1.2,1.81                  ! Prior parameters

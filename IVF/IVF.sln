@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "BaM", "BaM\BaM.vfproj", "{751D27FC-8AFC-4B8F-9F1B-8B98E3CF7737}"
+EndProject
+Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "BaM_MiniDMSL", "BaM_MiniDMSL\BaM_MiniDMSL.vfproj", "{BA640CC1-EDB3-4300-BFDF-4232A78B333D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{751D27FC-8AFC-4B8F-9F1B-8B98E3CF7737}.Debug|Win32.ActiveCfg = Debug|Win32
+		{751D27FC-8AFC-4B8F-9F1B-8B98E3CF7737}.Debug|Win32.Build.0 = Debug|Win32
+		{751D27FC-8AFC-4B8F-9F1B-8B98E3CF7737}.Release|Win32.ActiveCfg = Release|Win32
+		{751D27FC-8AFC-4B8F-9F1B-8B98E3CF7737}.Release|Win32.Build.0 = Release|Win32
+		{BA640CC1-EDB3-4300-BFDF-4232A78B333D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BA640CC1-EDB3-4300-BFDF-4232A78B333D}.Debug|Win32.Build.0 = Debug|Win32
+		{BA640CC1-EDB3-4300-BFDF-4232A78B333D}.Release|Win32.ActiveCfg = Release|Win32
+		{BA640CC1-EDB3-4300-BFDF-4232A78B333D}.Release|Win32.Build.0 = Release|Win32
+		{94D9A0CB-1FF5-49C4-BDE7-C4EAFF45F66F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{94D9A0CB-1FF5-49C4-BDE7-C4EAFF45F66F}.Debug|Win32.Build.0 = Debug|Win32
+		{94D9A0CB-1FF5-49C4-BDE7-C4EAFF45F66F}.Release|Win32.ActiveCfg = Release|Win32
+		{94D9A0CB-1FF5-49C4-BDE7-C4EAFF45F66F}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,24 @@
+"SuspendedLoad"           ! Model ID 
+1                         ! nX: number of input variables
+1                         ! nY: number of output variables
+5                         ! nPar: number of parameters theta
+"coefficient"             ! Parameter Name
+67000.                     ! Initial guess
+'FlatPrior+'                ! Prior distribution
+67000.,20000.                ! Prior parameters
+"bQ"                      ! Parameter Name
+149.                      ! Initial guess
+'Gaussian'                ! Prior distribution
+149.,20.                   ! Prior parameters
+"cQ"                      ! Parameter Name
+8.33333                      ! Initial guess
+'FIX'                     ! Prior distribution
+8.33333,0.25                 ! Prior parameters
+"bR"                      ! Parameter Name
+149.                      ! Initial guess
+'Gaussian'                ! Prior distribution
+149.,10.                   ! Prior parameters
+"cR"                      ! Parameter Name
+5.5                       ! Initial guess
+'FIX'                ! Prior distribution
+5.5,0.25                 ! Prior parameters

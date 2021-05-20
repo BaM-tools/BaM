@@ -1,0 +1,5 @@
+"Camenen"                      ! base formula: "MPM" (Meyer-Peter & Mueller), "Camenen", "Nielsen", "Smart"
+"Constant"                     ! Critical Shear Stress formula: "Constant" (tau_cr is treated as a parameter), "Soulsby", "SoulsbyWhitehouse"
+"FIX"                          ! Coefficient option: treatment of coefficients in Critical Shear Stress formula: "FIX" (hard-coded values), "PAR" (treated as parameters)
+"FIX","FIX","FIX","FIX"        ! pseudo-parameters options for d,s,v and g (in this order): "FIX" (fixed to the values given next line), "IN" (treated as inputs, values read from data file), "PAR" (treated as parameters)
+0.000506,2.65,0.000001,9.81    ! pseudo-par values (only used if option="FIX" above)

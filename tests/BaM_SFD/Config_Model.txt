@@ -1,0 +1,36 @@
+"SFD"                     ! Model ID 
+2                         ! nX: number of input variables
+1                         ! nY: number of output variables
+8                         ! nPar: number of parameters theta
+"p1_KB"                   ! Parameter Name
+6000.                     ! Initial guess
+'Gaussian'                ! Prior distribution
+6000.,901.5               ! Prior parameters
+"p2_h0"                   ! Parameter Name
+-5                        ! Initial guess
+'Gaussian'                ! Prior distribution
+-5.,1.                    ! Prior parameters
+"p3_M"                    ! Parameter Name
+1.6667                    ! Initial guess
+'Gaussian'                ! Prior distribution
+1.6667,0.025              ! Prior parameters
+"p4_L"                    ! Parameter Name
+3900.                     ! Initial guess
+'Gaussian'                ! Prior distribution
+3900.,50.                 ! Prior parameters
+"p5_h0prime"              ! Parameter Name
+-5                        ! Initial guess
+'Gaussian'                ! Prior distribution
+-5.,1.                    ! Prior parameters
+"p6_KBS0"     			  ! Parameter Name
+171.                      ! Initial guess
+'Gaussian'                ! Prior distribution
+171.,46.                  ! Prior parameters
+"p7_delta"                ! Parameter Name
+-0.01                     ! Initial guess
+'Gaussian'                ! Prior distribution
+0.,0.025                  ! Prior parameters
+"p8_Mprime"               ! Parameter Name
+1.6667                    ! Initial guess
+'Gaussian'                ! Prior distribution
+1.6667,0.025              ! Prior parameters

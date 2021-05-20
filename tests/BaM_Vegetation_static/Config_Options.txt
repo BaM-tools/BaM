@@ -1,0 +1,7 @@
+"Growth_Yin1_temporal"            ! ID of the Growth formula
+5                        ! number of years
+5.                       ! Newton - xscale
+1000.                    ! Newton - fscale
+0.00001                  ! Newton - xtol
+0.0000000001             ! Newton - ftol
+100                      ! Newton - maxiter

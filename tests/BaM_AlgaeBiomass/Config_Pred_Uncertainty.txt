@@ -1,0 +1,16 @@
+'BaM_AlgaeBiomass\temperature.txt','BaM_AlgaeBiomass\irradiance.txt','BaM_AlgaeBiomass\depth.txt','BaM_AlgaeBiomass\turbidity.txt','BaM_AlgaeBiomass\removal.txt'    !!! Files containing spaghettis for each input variable (size nX)
+2922                                           !!! Nobs, number of observations per spaghetti (common to all files!)
+1,1,1,1,1                                      !!! Nspag, number of spaghettis for each input variable (size nX)
+.true.                                         !!! Propagate parametric uncertainty?
+.false.                                        !!! Propagate remnant uncertainty for each output variable? (size nY)
+-1                                             !!! Nsim[prior]. If <=0: posterior sampling (nsim is given by mcmc sample); if >0: sample nsim replicates from prior distribution
+'PredictedBiomass.spag'                        !!! Files containing spaghettis for each output variable (size nY)
+.true.                                         !!! Post-processing: transpose spag file (so that each column is a spaghetti)? (size nY)
+.true.                                         !!! Post-processing: create envelops? (size nY)
+'PredictedBiomass.env'                         !!! Post-processing: name of envelop files (size nY)
+.true.                                         !!! Print progress in console during computations?
+.true.,.true.,.true.,.true.,.true.             !!! Do state prediction? (size nState)
+'PredictedFb.spag','PredictedFt.spag','PredictedFi.spag','PredictedFn.spag','PredictedRhyd.spag'                !!! Files containing spaghettis for each state variable (size nState)
+.true.,.true.,.true.,.true.,.true.             !!! Post-processing: transpose spag file (so that each column is a spaghetti)? (size nState)
+.true.,.true.,.true.,.true.,.true.             !!! Post-processing: create envelops? (size nState)
+'PredictedFb.env','PredictedFt.env','PredictedFi.env','PredictedFn.env','PredictedRhyd.env'                     !!! Post-processing: name of envelop files (size nState)

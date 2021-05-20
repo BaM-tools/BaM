@@ -1,0 +1,28 @@
+"GR4J"                  ! Model ID 
+2                         ! nX: number of input variables
+1                         ! nY: number of output variables
+6                         ! nPar: number of parameters theta
+"X1"                      ! Parameter Name
+400.                      ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,10000.                 ! Prior parameters
+"X2"                      ! Parameter Name
+0.                        ! Initial guess
+'Gaussian'                ! Prior distribution
+0.,200.                   ! Prior parameters
+"X3"                      ! Parameter Name
+100.                      ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,10000.                 ! Prior parameters
+"X4"                      ! Parameter Name
+1.                        ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,10000.                 ! Prior parameters
+"InitProd"                ! Parameter Name
+0.5                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,1.                     ! Prior parameters
+"InitRouting"             ! Parameter Name
+0.5                       ! Initial guess
+'Uniform'                 ! Prior distribution
+0.,1.                     ! Prior parameters

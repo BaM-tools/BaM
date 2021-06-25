@@ -46,6 +46,7 @@ use Vegetation_model
 use SWOT_model
 use SuspendedLoad_model
 use SFDTidal_model
+use SFDTidal_Sw_correction_model
 use SFDTidal2_model
 use SFDTidalJones_model
 use SFDTidal4_model
@@ -76,6 +77,7 @@ Character(100), parameter, PUBLIC:: &
                     MDL_SWOT="MDL_SWOT",& ! Rating curve from space with SWOT
                     MDL_SuspendedLoad="MDL_SuspendedLoad",& ! Suspended Load
                     MDL_SFDTidal="MDL_SFDTidal",& ! Stage-Fall-Discharge rating curve for tidal rivers
+                    MDL_SFDTidal_Sw_correction="MDL_SFDTidal_Sw_correction",& ! Stage-Fall-Discharge rating curve for tidal rivers with linear discharge interpolation during the tidal wave passage
                     MDL_SFDTidal2="MDL_SFDTidal2",& ! Stage-Fall-Discharge rating curve for tidal rivers with water slope correction
                     MDL_SFDTidalJones="MDL_SFDTidalJones",& ! Stage-Fall-Discharge rating curve for tidal rivers with water slope correction
                     MDL_SFDTidal4="MDL_SFDTidal4",& ! Stage-Fall-Discharge rating curve for tidal rivers with water slope correction
@@ -165,6 +167,8 @@ case(MDL_SuspendedLoad)
     call SuspendedLoad_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_SFDTidal)
     call SFDTidal_GetParNumber(npar=npar,err=err,mess=mess)
+case(MDL_SFDTidal_Sw_correction)
+    call SFDTidal_Sw_correction_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_SFDTidal2)
     call SFDTidal2_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_SFDTidalJones)
@@ -287,6 +291,9 @@ case(MDL_SuspendedLoad)
 case(MDL_SFDTidal)
     call SFDTidal_Apply(IN=X,theta=theta,OUT=Y(:,1),&
                         ComputationOption=model%xtra%cs1,feas=vfeas,err=err,mess=mess)
+case(MDL_SFDTidal_Sw_correction)
+    call SFDTidal_Sw_correction_Apply(IN=X,theta=theta,Q=Y(:,1),interp=state(:,1),&
+                        feas=vfeas,err=err,mess=mess)
 case(MDL_SFDTidal2)
     call SFDTidal2_Apply(IN=X,theta=theta,OUT=Y(:,1),&
                         feas=vfeas,err=err,mess=mess)
@@ -409,6 +416,8 @@ case(MDL_SuspendedLoad)
 case(MDL_SFDTidal)
     ! nothing to read
     !call SFDTidal_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
+case(MDL_SFDTidal_Sw_correction)
+    ! nothing to read
 case(MDL_SFDTidal2)
     ! nothing to read
 case(MDL_SFDTidalJones)
@@ -544,6 +553,11 @@ case(MDL_SFDTidal)
     model%nDpar=0
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
+case(MDL_SFDTidal_Sw_correction)
+    model%nDpar=0
+    model%nState=1
+    allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
+    model%StateName=(/'interp'/)
 case(MDL_SFDTidal2)
     model%nDpar=0
     model%nState=0

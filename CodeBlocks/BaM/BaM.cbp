@@ -76,12 +76,6 @@
 		<Unit filename="../../../BMSL/src/TimeSeries_tools.f90">
 			<Option weight="23" />
 		</Unit>
-		<Unit filename="../../src/BaM_main.f90">
-			<Option weight="100" />
-		</Unit>
-		<Unit filename="../../src/BaM_tools.f90">
-			<Option weight="99" />
-		</Unit>
 		<Unit filename="../../../miniDMSL/src/dynamicModelLibrary.f90">
 			<Option weight="7" />
 		</Unit>
@@ -106,6 +100,12 @@
 		<Unit filename="../../../miniDMSL/src/utilities_dmsl_kit.f90">
 			<Option weight="2" />
 		</Unit>
+		<Unit filename="../../src/BaM_main.f90">
+			<Option weight="100" />
+		</Unit>
+		<Unit filename="../../src/BaM_tools.f90">
+			<Option weight="99" />
+		</Unit>
 		<Unit filename="../../src/ModelLibrary_tools.f90">
 			<Option weight="98" />
 		</Unit>
@@ -125,6 +125,7 @@
 		<Unit filename="../../src/Models/SFDTidal2_model.f90" />
 		<Unit filename="../../src/Models/SFDTidal4_model.f90" />
 		<Unit filename="../../src/Models/SFDTidalJones_model.f90" />
+		<Unit filename="../../src/Models/SFDTidal_Sw_correction_model.f90" />
 		<Unit filename="../../src/Models/SFDTidal_model.f90" />
 		<Unit filename="../../src/Models/SWOT_model.f90" />
 		<Unit filename="../../src/Models/SedimentTransport_model.f90" />
@@ -138,6 +139,10 @@
 		<Unit filename="../../src/Models/TidalRemenieras_model.f90" />
 		<Unit filename="../../src/Models/Tidal_model.f90" />
 		<Unit filename="../../src/Models/Vegetation_model.f90" />
-		<Extensions />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

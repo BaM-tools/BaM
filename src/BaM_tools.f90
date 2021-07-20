@@ -9,7 +9,7 @@ module BaM_tools
 !~**********************************************************************
 !~* Comments: A generalisation of BaRatin, for a model with possibly
 !~*           several inputs/outputs
-!~*           or alternatively, a simplified version of BATEAU_DK 
+!~*           or alternatively, a simplified version of BATEAU_DK
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
@@ -39,7 +39,7 @@ public :: &! main subroutines to handle the probabilistic model behind BaM
           BaM_ConsoleMessage,&
           ! Post-processing tools
           BaM_LoadMCMC,BaM_Residual,BaM_Prediction,BaM_ReadSpag
-          
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! variables globally available to this module
 
@@ -82,7 +82,7 @@ type:: InferenceType
     integer(mik)::nVar=undefIN ! Number of varying parameters theta
     integer(mik)::nStok=undefIN ! Number of stochastic parameters theta
     type(ParType), allocatable:: theta(:) ! properties of theta parameters (size nTheta)
-    integer(mik),allocatable::L(:,:) ! localisation matrix (size nobs * nTheta): L(t,i)=index where to find ith theta value at time t in a flatten vector theta. 
+    integer(mik),allocatable::L(:,:) ! localisation matrix (size nobs * nTheta): L(t,i)=index where to find ith theta value at time t in a flatten vector theta.
     real(mrk), allocatable::X(:,:),Y(:,:) ! observed series of inputs/outputs (nobs*nX, nobs*nY)
     real(mrk), allocatable::Xu(:,:),Yu(:,:) ! series of stdevs for random observation errors (nobs*nX, nobs*nY)
     real(mrk), allocatable::Xb(:,:),Yb(:,:) ! series of stdevs for systematic observation errors (nobs*nX, nobs*nY)
@@ -94,7 +94,7 @@ type:: InferenceType
     character(250),allocatable::RemnantSigma_funk(:) ! function for std of remnant errors (size nY)
     integer(mik)::nDpar ! number of derived parameters
     character(250),allocatable::DparName(:) ! names of derived parameters
-    integer(mik),allocatable::DparIndx(:) ! indices corresponding to combinations of VAR par values, used to deduce Derived parameters 
+    integer(mik),allocatable::DparIndx(:) ! indices corresponding to combinations of VAR par values, used to deduce Derived parameters
     real(mrk)::priorLogDet=undefRN ! log-determinant of the prior correlation matrix C
     real(mrk),allocatable::priorM(:,:) ! matrix (Cinv - I) used to compute the joint prior via a Gaussian copula
     real(mrk)::mv=-9999._mrk
@@ -132,7 +132,7 @@ Contains
 
 subroutine LoadBamObjects(X,Xu,Xb,Xbindx,& ! observed inputs and their uncertainties
                           Y,Yu,Yb,Ybindx,& ! observed outputs and their uncertainties
-                          ID,&             ! Model ID 
+                          ID,&             ! Model ID
                           theta,&          ! theta parameter object
                           RemnantSigma_funk,& ! chosen f in { residual var = f(Qrc) }
                           Parname_RemnantSigma,& ! parameter names
@@ -188,8 +188,8 @@ type(slist), intent(in):: Parname_RemnantSigma(:)
 type(plist), intent(in):: Prior_RemnantSigma(:)
 character(*),intent(in)::RemnantSigma_funk(:),priorCorrFile
 type(data_ricz_type),intent(in),optional:: xtra
-integer(mik), intent(out)::err,nstate        
-character(*),intent(out)::mess                   
+integer(mik), intent(out)::err,nstate
+character(*),intent(out)::mess
 ! locals
 character(250),parameter::procname='LoadBamObjects'
 integer(mik)::i,j,k
@@ -401,7 +401,7 @@ else
     ! compute Cinv-I
     do i=1,k
         INFER%priorM(i,i)=INFER%priorM(i,i)-1._mrk
-    enddo                   
+    enddo
 endif
 
 end subroutine LoadBamObjects
@@ -486,10 +486,10 @@ end subroutine BaM_ReadData
 
 subroutine BaM_Fit(theta0,RemnantSigma0, &!initial values for teta and remnant std
                    theta_std0,RemnantSigma_std0,& ! initial values for the std of jump distribution
-                   nAdapt,nCycles,& 
+                   nAdapt,nCycles,&
                    MinMoveRate,MaxMoveRate,&
                    DownMult,UpMult,&
-                   OutFile, & ! Output file (for MCMC samples)
+                   OutFile,MonitorFile, & ! Output and monitoring files (for MCMC samples)
                    err,mess)! error handling
 !^**********************************************************************
 !^* Purpose: Performs MCMC sampling
@@ -519,7 +519,7 @@ real(mrk), intent(in)::theta0(:),theta_std0(:)
 type(parlist), intent(in)::RemnantSigma0(:),RemnantSigma_std0(:)
 integer(mik), intent(in)::nAdapt,nCycles
 real(mrk), intent(in)::MinMoveRate,MaxMoveRate,DownMult,UpMult
-character(*), intent(in)::OutFile
+character(*), intent(in)::OutFile,MonitorFile
 ! OUTPUTS
 integer(mik), intent(out)::err
 character(*),intent(out)::mess
@@ -559,8 +559,9 @@ call Adaptive_Metro_OAAT(f=Posterior_wrapper,x=start,&
                 nAdapt=nAdapt,nCycles=nCycles,&
                 MinMoveRate=MinMoveRate,MaxMoveRate=MaxMoveRate,&
                 DownMult=DownMult,UpMult=UpMult,&
-                OutFile=OutFile,headers=headers, err=err,mess=mess)        
-                
+                OutFile=OutFile,MonitorFile=MonitorFile,headers=headers,&
+                err=err,mess=mess)
+
 end subroutine BaM_Fit
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -694,7 +695,7 @@ end subroutine BaM_CookMCMC
 
 subroutine BaM_Residual(maxpost,OutFile,err,mess)
 !^**********************************************************************
-!^* Purpose: Runs the model on calibration data using maxpost par 
+!^* Purpose: Runs the model on calibration data using maxpost par
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
@@ -824,9 +825,9 @@ subroutine BaM_Prediction(mcmc,maxpost,nsim,&
                           Xspag,DoParametric,DoRemnant,&
                           SpagFiles,DoTranspose,DoEnvelop,EnvelopFiles,&
                           DoState,SpagFiles_S,DoTranspose_S,DoEnvelop_S,EnvelopFiles_S,&
-                          PrintCounter,err,mess)
+                          PrintCounter,MonitorFile,err,mess)
 !^**********************************************************************
-!^* Purpose: Runs the model on calibration data using maxpost par 
+!^* Purpose: Runs the model on calibration data using maxpost par
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
@@ -854,7 +855,8 @@ subroutine BaM_Prediction(mcmc,maxpost,nsim,&
 !^*    13.DoTranspose_S, size model%nState, transpose state spaghettis? (so that each column is one spag)
 !^*    14.DoEnvelop_S, size model%nState, compute state uncertainty envelops?
 !^*    15.EnvelopFiles_S, size model%nState, Name of envelop file for each state variable
-!^*    16.PrintCounter, print a counter in console during computations?
+!^*    16.[PrintCounter], print a counter in console during computations?
+!^*    17.[MonitorFile], file to monitor computations
 !^* OUT
 !^*    1.err, error code; <0:Warning, ==0:OK, >0: Error
 !^*    2.mess, error message
@@ -870,6 +872,7 @@ logical, intent(in)::DoParametric,DoRemnant(:),DoTranspose(:),DoEnvelop(:),&
 logical, intent(in), optional::PrintCounter
 character(*),intent(in)::SpagFiles(:),EnvelopFiles(:),&
                          SpagFiles_S(:),EnvelopFiles_S(:)
+character(*),intent(in),optional::MonitorFile
 integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
@@ -877,7 +880,7 @@ character(250),parameter::procname='BaM_Prediction'
 logical, parameter::printC_def=.false.
 integer(mik),parameter::Nrefresh=1 ! used for counter
 logical::printC,IsMaxpost,feas
-integer(mik)::Nrep,next,rep,i,t,indx,compt,unt(MODEL%nY),unt_S(MODEL%nState),f
+integer(mik)::Nrep,next,rep,i,t,indx,compt,unt(MODEL%nY),unt_S(MODEL%nState),f,untMonitor
 real(mrk),allocatable::mode(:),MC(:,:),X(:,:),Ysim(:,:),Dpar(:),state(:,:)
 real(mrk)::theta(INFER%nFit),sig,dev
 character(250)::fmt
@@ -935,6 +938,12 @@ if(any(DoState)) then
         endif
     enddo
 endif
+if(present(MonitorFile)) then
+    call getSpareUnit(untMonitor,err,mess)
+    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+    open(unit=untMonitor,file=MonitorFile,status='replace')
+endif
+
 ! GO!
 allocate(X(Xspag%nobs,MODEL%nX),Ysim(Xspag%nobs,MODEL%nY))
 allocate(Dpar(INFER%nDpar),state(Xspag%nobs,MODEL%nState))
@@ -942,10 +951,11 @@ do rep=1,Nrep
     ! reinitialize
     X=MODEL%unfeasFlag;Ysim=MODEL%unfeasFlag
     !print counter if requested
-    if(printC) then
+    if(printC .or. present(MonitorFile)) then
         if(rep==1) next=Nrefresh
         if(rep>=0.01*next*Nrep) then
-            write(*,'(I4,A)') next,'% DONE'
+            if(printC) then;write(*,'(I4,A)') next,'% DONE';endif
+            if(present(MonitorFile)) call writeMonitor(untMonitor,rep,Nrep)
             next=next+Nrefresh
         endif
     endif
@@ -969,23 +979,23 @@ do rep=1,Nrep
                     Dpar=Dpar,state=state,feas=feas,err=err,mess=mess)
     if(err>0) then
         mess=trim(procname)//':'//trim(mess)
-        call CloseAllFiles(unt,unt_S)
+        call CloseAllFiles(unt,unt_S,untMonitor)
         return
     endif
-    
+
     ! write states to file
     do i=1,MODEL%nState
         if(DoState(i)) then
             write(unt_S(i),trim(fmt)) state(:,i)
         endif
     enddo
-    
+
     ! add structural error
     compt=INFER%nFit
     do i=1,MODEL%nY
         if(DoRemnant(i)) then
             do t=1,Xspag%nobs
-                if(Ysim(t,i)==MODEL%unfeasflag) cycle ! don't add an error to junk...                 
+                if(Ysim(t,i)==MODEL%unfeasflag) cycle ! don't add an error to junk...
                 ! compute sdev
                 call Sigmafunk_Apply(funk=infer%RemnantSigma_funk(i),&
                                  par=MC(rep,(compt+1):(compt+INFER%nremnant(i))),&
@@ -994,7 +1004,7 @@ do rep=1,Nrep
                 if(err>0) then
                     mess=trim(procname)//':'//trim(mess)
                     feas=.false.
-                    call CloseAllFiles(unt,unt_S)
+                    call CloseAllFiles(unt,unt_S,untMonitor)
                     return
                 endif
                 ! generate error
@@ -1002,7 +1012,7 @@ do rep=1,Nrep
                           gen=dev,feas=feas,err=err,mess=mess)
                 if(err/=0) then
                     mess=trim(procname)//':'//trim(mess)
-                    call CloseAllFiles(unt,unt_S)
+                    call CloseAllFiles(unt,unt_S,untMonitor)
                     return
                 endif
                 if(feas) Ysim(t,i)=Ysim(t,i)+dev
@@ -1015,15 +1025,28 @@ enddo
 deallocate(mode,MC,X,Ysim)
 call CloseAllFiles(unt,unt_S)
 ! Post-process
+if(present(MonitorFile)) call writeMonitor(untMonitor,Nrep,Nrep)
 call BaM_ProcessSpag(Xspag%nobs,nrep,SpagFiles,DoTranspose,DoEnvelop,&
-                           EnvelopFiles,PrintCounter,err,mess)
-if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+                     EnvelopFiles,PrintCounter,err,mess)
+if(err/=0) then
+    mess=trim(procname)//':'//trim(mess)
+    if(present(MonitorFile)) close(untMonitor)
+    return
+endif
+if(present(MonitorFile)) call writeMonitor(untMonitor,Nrep+1,Nrep)
 if(any(DoState)) then
+    if(present(MonitorFile)) call writeMonitor(untMonitor,Nrep+2,Nrep)
     call BaM_ProcessSpag(Xspag%nobs,nrep,pack(SpagFiles_S,DoState),&
                          pack(DoTranspose_S,DoState),pack(DoEnvelop_S,DoState),&
                          pack(EnvelopFiles_S,DoState),PrintCounter,err,mess)
-    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+    if(err/=0) then
+        mess=trim(procname)//':'//trim(mess)
+        if(present(MonitorFile)) close(untMonitor)
+        return
+    endif
+    if(present(MonitorFile)) call writeMonitor(untMonitor,Nrep+3,Nrep)
 endif
+if(present(MonitorFile)) close(untMonitor)
 
 end subroutine BaM_Prediction
 
@@ -1031,7 +1054,7 @@ end subroutine BaM_Prediction
 
 subroutine BaM_ReadSpag(Xspag,Spag_Files,err,mess)
 !^**********************************************************************
-!^* Purpose: Read spaghettis of input variables 
+!^* Purpose: Read spaghettis of input variables
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
@@ -1081,8 +1104,8 @@ end subroutine BaM_ReadSpag
 subroutine BaM_ProcessSpag(nobs,nrep,SpagFiles,DoTranspose,DoEnvelop,&
                            EnvelopFiles,PrintCounter,err,mess)
 !^**********************************************************************
-!^* Purpose: Processing spaghettis from a prediction experiment 
-!^*          (transposing & computing enveloppes) 
+!^* Purpose: Processing spaghettis from a prediction experiment
+!^*          (transposing & computing enveloppes)
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
@@ -1113,8 +1136,8 @@ use utilities_dmsl_kit,only:getSpareUnit,number_string
 integer(mik),intent(in)::nobs,nrep
 character(*),intent(in)::SpagFiles(:),EnvelopFiles(:)
 logical,intent(in)::DoTranspose(:),DoEnvelop(:),PrintCounter
-integer(mik), intent(out)::err        
-character(*),intent(out)::mess                   
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
 ! locals
 character(250),parameter::procname='BaM_ProcessSpag'
 integer(mik),parameter::nEnv=7
@@ -1137,7 +1160,7 @@ fmt3='('//trim(number_string(nEnv))//trim(fmt_string)//')'
 
 if(PrintCounter) call BaM_ConsoleMessage(15,'')
 do i=1,size(SpagFiles)
-    if( DoTranspose(i) .or. DoEnvelop(i) ) then ! need to allocate big Spag matrix if not done yet        
+    if( DoTranspose(i) .or. DoEnvelop(i) ) then ! need to allocate big Spag matrix if not done yet
         if(.not.allocated(Spag)) allocate(Spag(nrep,nobs))
     else ! nothing to do, cycle
         cycle
@@ -1194,7 +1217,7 @@ do i=1,size(SpagFiles)
                     if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
                     call GetEmpiricalQuantile(p=0.84_mrk,x=arr,IsXSorted=.true.,q=Env(5),err=err,mess=mess)
                     if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
-                    ! Get mean and stdev            
+                    ! Get mean and stdev
                     call GetEmpiricalStats(x=arr,mean=Env(6),std=Env(7),err=err,mess=mess)
                     if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
                 endif
@@ -1325,7 +1348,7 @@ integer(mik),intent(in)::id
 character(*), intent(in)::mess
 
 select case(id)
-case (1) ! Welcome! 
+case (1) ! Welcome!
     write(*,*) ''
     write(*,*) '*********************************'
     write(*,*) '*********************************'
@@ -1355,7 +1378,7 @@ case(6)
     write(*,*) '*********************************'
     write(*,*) '**  Cooking MCMC samples...    **'
     write(*,*) ''
-case(7) 
+case(7)
     write(*,*) ''
     write(*,*) '** Cooking MCMC samples: DONE! **'
     write(*,*) '*********************************'
@@ -1425,14 +1448,14 @@ case(999) ! Ciao!
     write(*,*) ''
     write(*,*) 'Thanx for using me...'
     write(*,*) 'Press [enter] and I''ll go away'
-case (-1) ! Fatal Error - general 
+case (-1) ! Fatal Error - general
     write(*,*) ""
     write(*,*) "BaM: a FATAL ERROR has occured:"
     write(*,*) trim(mess)
     write(*,*) "Execution will stop"
     write(*,*) ""
     call BaM_Fatal_Exit
-case(-2) ! Fatal Error - Open File 
+case(-2) ! Fatal Error - Open File
     write(*,*) ""
     write(*,*) "BaM: a FATAL ERROR has occured"
     write(*,*) "while opening the following file."
@@ -1502,7 +1525,7 @@ case default
     call BaM_Fatal_Exit
 end select
 
-end subroutine BaM_ConsoleMessage 
+end subroutine BaM_ConsoleMessage
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !==============!
@@ -1516,7 +1539,7 @@ subroutine Config_Read(file,&
                        Config_RemnantSigma,Config_MCMC,&
                        Config_Cooking,Config_summary,&
                        Config_Residual,Config_Pred,&
-                       err,mess)                                 
+                       err,mess)
 !^**********************************************************************
 !^* Purpose: Read main config file
 !^**********************************************************************
@@ -1587,14 +1610,14 @@ read(unt,*,iostat=err) Config_Pred
 if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
 close(unt)
 
-end subroutine Config_Read  
+end subroutine Config_Read
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 subroutine Config_Read_Model(file,&
                              ID,nX,nY,&
                              theta,&
-                             err,mess)                                 
+                             err,mess)
 !^**********************************************************************
 !^* Purpose: Read config file for a model
 !^**********************************************************************
@@ -1638,7 +1661,7 @@ read(unt,*,iostat=err) nY
 if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
 read(unt,*,iostat=err) ntheta
 if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
-if(associated(theta)) nullify(theta);allocate(theta(nTheta))    
+if(associated(theta)) nullify(theta);allocate(theta(nTheta))
 do i=1,ntheta
     call Config_Read_Par(unt,theta(i),err,mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
@@ -1655,11 +1678,11 @@ if(ntheta>=2) then
     enddo
 endif
 
-end subroutine Config_Read_Model  
+end subroutine Config_Read_Model
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine Config_Read_Xtra(file,ID,xtra,err,mess)                                 
+subroutine Config_Read_Xtra(file,ID,xtra,err,mess)
 !^**********************************************************************
 !^* Purpose: Read Xtra config files for a model
 !^**********************************************************************
@@ -1695,7 +1718,7 @@ err=0;mess=''
 call XtraRead(file=file,ID=ID,xtra=xtra,err=err,mess=mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 
-end subroutine Config_Read_Xtra  
+end subroutine Config_Read_Xtra
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1766,7 +1789,7 @@ read(unt,*,iostat=err) YbindxCol
 if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
 close(unt)
 
-end subroutine Config_Read_Data  
+end subroutine Config_Read_Data
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1831,7 +1854,7 @@ do i=1,n
     Prior_RemnantSigma(i)%p=prior
 enddo
 
-end subroutine Config_Read_RemnantSigma  
+end subroutine Config_Read_RemnantSigma
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1934,7 +1957,7 @@ endif
 
 close(unt)
 
-end subroutine Config_Read_MCMC  
+end subroutine Config_Read_MCMC
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1977,7 +2000,7 @@ err=0;mess=''
 call getSpareUnit(unt,err,mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 inquire(file=trim(file),exist=exist)
-if(exist) then ! 
+if(exist) then !
     open(unit=unt,file=trim(file), status='old', iostat=err)
     if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
     read(unt,*,iostat=err) DoMCMC
@@ -1988,7 +2011,7 @@ if(exist) then !
     if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
     read(unt,*,iostat=err) DoPred
     if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
-    close(unt)    
+    close(unt)
 else ! default settings - MCMC + MCMC summary + Maxpost_calib simulations
     DoMCMC=.true.
     DoSummary=.true.
@@ -1996,7 +2019,7 @@ else ! default settings - MCMC + MCMC summary + Maxpost_calib simulations
     DoPred=.false.
 endif
 
-end subroutine Config_Read_RunOptions  
+end subroutine Config_Read_RunOptions
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2037,9 +2060,9 @@ open(unit=unt,file=trim(file), status='old', iostat=err)
 if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
 read(unt,*,iostat=err) Residual_File
 if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
-close(unt)    
+close(unt)
 
-end subroutine Config_Read_Residual  
+end subroutine Config_Read_Residual
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2085,9 +2108,9 @@ read(unt,*,iostat=err) BurnFactor
 if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
 read(unt,*,iostat=err) nSlim
 if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
-close(unt)    
+close(unt)
 
-end subroutine Config_Read_Cook  
+end subroutine Config_Read_Cook
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2128,9 +2151,9 @@ open(unit=unt,file=trim(file), status='old', iostat=err)
 if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
 read(unt,*,iostat=err) Summary_File
 if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
-close(unt)    
+close(unt)
 
-end subroutine Config_Read_Summary  
+end subroutine Config_Read_Summary
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2177,9 +2200,9 @@ do i=1,npred
     read(unt,*,iostat=err) Pred_Files(i)
     if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
 enddo
-close(unt)    
+close(unt)
 
-end subroutine Config_Read_Pred_Master  
+end subroutine Config_Read_Pred_Master
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2263,16 +2286,16 @@ if(nstate>0) then ! read whether state prediction is required
         if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
     endif
 endif
-close(unt)    
+close(unt)
 
-end subroutine Config_Read_Pred  
+end subroutine Config_Read_Pred
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 subroutine Config_Finalize(workspace,&
                            datafile,nrow,ncol,nHeader,&
                            theta,&
-                           theta0,err,mess)                                 
+                           theta0,err,mess)
 !^**********************************************************************
 !^* Purpose: Finalize configuration handling VAR/STOK parameters and specifying theta0
 !^**********************************************************************
@@ -2343,9 +2366,9 @@ do i=1,size(theta)
         file=theta(i)%config
         open(unit=unt,file=trim(workspace)//trim(file), status='old', iostat=err)
         if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
-        read(unt,*,iostat=err) theta(i)%nval        
+        read(unt,*,iostat=err) theta(i)%nval
         if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
-        read(unt,*,iostat=err) col       
+        read(unt,*,iostat=err) col
         if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
         ! read each parameter block
         if(allocated(theta(i)%init)) deallocate(theta(i)%init);allocate(theta(i)%init(theta(i)%nval))
@@ -2374,10 +2397,10 @@ nFit=sum(theta%nval)-count(theta%partype==FIX)
 if(associated(theta0)) nullify(theta0);allocate (theta0(nFit))
 k=0
 do i=1,size(theta)
-   if(theta(i)%partype/=FIX) then 
+   if(theta(i)%partype/=FIX) then
        theta0( (k+1):(k+theta(i)%nval) )=theta(i)%init
        k=k+theta(i)%nval
-   endif 
+   endif
 enddo
 
 end subroutine Config_Finalize
@@ -2428,13 +2451,13 @@ else
     open(unit=unt,file=trim(file),status='old',iostat=err)
     if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
     do j=1,size(C,dim=1)
-        read(unt,*,iostat=err) C(j,:)       
+        read(unt,*,iostat=err) C(j,:)
         if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
     enddo
-    close(unt)    
+    close(unt)
 endif
 
-end subroutine Config_Read_PriorCorr  
+end subroutine Config_Read_PriorCorr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !==============!
@@ -2491,7 +2514,7 @@ character(250),parameter::procname='GetLogPost'
 real(mrk)::prior,lik, Hlik, logp,sig,mu
 real(mrk)::yhat(model%nY),bigY(infer%nObs,model%nY),&
            state(infer%nObs,model%nstate)
-real(mrk),allocatable::v(:) 
+real(mrk),allocatable::v(:)
 integer(mik)::n,i,j,k
 
 !Init
@@ -2543,12 +2566,12 @@ if(allocated(infer%priorM)) then ! used has specified a prior correlation => Gau
             if (.not. feas) return
         enddo
     enddo
-    
+
     ! compute Gaussian copula term
     ! NOTE: the correct computation encompasses an additional term -0.5_mrk*infer%priorLogDet
-    ! This term is not here because there seems to be a bug in DMSL's computation of the 
+    ! This term is not here because there seems to be a bug in DMSL's computation of the
     ! log-determinant within sub choles_invrt
-    ! (more accurately: in choles_dcmp_engine1, if uninitialized variable posDefinite is set to 
+    ! (more accurately: in choles_dcmp_engine1, if uninitialized variable posDefinite is set to
     ! false by the compiler, which seems to be the case with IVF, then computation does not proceed)
     ! The log-determinant is just a constant wrt to infer parameters, so this omission is not a problem
     ! in the context of Bayesian - MCMC estimation. But still, need to check with Dmitri.
@@ -2587,7 +2610,7 @@ call ApplyModel_BaM(model=model,X=Xtrue,theta=theta,Y=bigY,&
                 Dpar=Dpar,state=state,feas=feas,err=err,mess=mess)
 if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
 if(.not. feas) return
-! Add up likelihood contributions                
+! Add up likelihood contributions
 do i=1,n
     Yhat=bigY(i,:)
     do j=1,model%nY
@@ -2609,8 +2632,8 @@ do i=1,n
                 feas=feas,isnull=isnull,err=err,mess=mess)
         if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
         if( (.not. feas) .or. isnull) return
-        lik=lik+logp  
-    enddo  
+        lik=lik+logp
+    enddo
 enddo
 !----------------------------------------------------------------
 
@@ -2633,7 +2656,7 @@ do j=1,model%nX
                     loga=.true.,pdf=logp,feas=feas,isnull=isnull,err=err,mess=mess)
         if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
         if( (.not. feas) .or. isnull) return
-        Hlik=Hlik+logp    
+        Hlik=Hlik+logp
     enddo
 enddo
 !----------------------------------------------------------------
@@ -2653,7 +2676,7 @@ subroutine Posterior_wrapper(x,feas,isnull,fx,fAux,err,mess)
 !^**********************************************************************
 !^* Last modified:10/07/2015
 !^**********************************************************************
-!^* Comments: 
+!^* Comments:
 !^**********************************************************************
 !^* References:
 !^**********************************************************************
@@ -2728,8 +2751,8 @@ do j=1,MODEL%nY
 enddo
 
 !---------------------------
-    
-call GetLogPost(theta=theta,gamma=gamma,Xtrue=Xtrue,Xbias=Xbias,Ybias=Ybias,& 
+
+call GetLogPost(theta=theta,gamma=gamma,Xtrue=Xtrue,Xbias=Xbias,Ybias=Ybias,&
                 model=MODEL,infer=INFER,&
                 lp=fx,Dpar=DPar,feas=feas, isnull=isnull,err=err,mess=mess)
 if(err>0) then;mess=trim(procname)//':'//trim(mess);feas=.false.;return;endif
@@ -2789,7 +2812,7 @@ end subroutine SigmaFunk_Apply
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-pure subroutine Sigmafunk_GetParNumber(funk, npar, err, mess)   
+pure subroutine Sigmafunk_GetParNumber(funk, npar, err, mess)
 !^**********************************************************************
 !^* Purpose: Get number of parameters of the selected Sigmafunk
 !^**********************************************************************
@@ -2945,12 +2968,12 @@ case default
     BaM_message='unknown message ID'
 end select
 
-end function BaM_message 
+end function BaM_message
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 subroutine BaM_Fatal_Exit
-! action taken on fatal error 
+! action taken on fatal error
 read(*,*);STOP
 end subroutine BaM_Fatal_Exit
 
@@ -3026,7 +3049,7 @@ case default
     read(unt,*,iostat=err) par%prior(1)%par(:) ! read prior pars
     if(err/=0) then;mess=trim(procname)//':ReadError';return;endif
 endselect
-end subroutine Config_Read_Par  
+end subroutine Config_Read_Par
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -3072,17 +3095,17 @@ read(unt,*,iostat=err) prior%dist
 if(err/=0) then;mess=trim(procname)//':ReadError';return;endif
 prior%dist=trim(prior%dist)
 if(trim(prior%dist)==FIX_str) then
-    read(unt,*,iostat=err) 
+    read(unt,*,iostat=err)
     if(err/=0) then;mess=trim(procname)//':ReadError';return;endif
 else
     call GetParNumber(DistID=prior%dist, npar=np, err=err, mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
     if(allocated(prior%par)) deallocate(prior%par)
-    allocate(prior%par(np))        
+    allocate(prior%par(np))
     read(unt,*,iostat=err) prior%par(:)
     if(err/=0) then;mess=trim(procname)//':ReadError';return;endif
 endif
-end subroutine Config_Read_Par_STD  
+end subroutine Config_Read_Par_STD
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -3150,9 +3173,9 @@ do i=1,np
     call Config_Read_Par_STD(unt,parname(i),RemnantSigma0(i),Prior_RemnantSigma(i),err,mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 enddo
-close(unt) 
+close(unt)
 
-end subroutine Config_Read_RemnantSigma_engine  
+end subroutine Config_Read_RemnantSigma_engine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -3216,7 +3239,7 @@ end subroutine GetHeaders
 
 subroutine BaM_getPriorMC(MC,mode,err,mess)
 !^**********************************************************************
-!^* Purpose: Get prior Monte Carlo simulations and prior mode 
+!^* Purpose: Get prior Monte Carlo simulations and prior mode
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
@@ -3265,7 +3288,7 @@ do k=1,INFER%nFit
         if(.not.feas) then
             err=1;mess=trim(procname)//':'//trim(BaM_Message(9));return
         endif
-    endif 
+    endif
 enddo
 compt=INFER%nFit
 
@@ -3297,22 +3320,26 @@ enddo
 end subroutine BaM_getPriorMC
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine CloseAllFiles(unt,unt_S)
+subroutine CloseAllFiles(unt,unt_S,untMonitor)
 ! close all files opened during prediction experiments
 integer(mik),intent(in)::unt(:),unt_S(:)
+integer(mik),intent(in),optional::untMonitor
 ! locals
 integer(mik)::i
 logical::opened
 
 do i=1,size(unt)
-    inquire (UNIT=unt(i), OPENED=opened) 
+    inquire (UNIT=unt(i), OPENED=opened)
     if(opened) close(unt(i))
 enddo
 do i=1,size(unt_S)
-    inquire (UNIT=unt_S(i), OPENED=opened) 
+    inquire (UNIT=unt_S(i), OPENED=opened)
     if(opened) close(unt_S(i))
 enddo
-
+if(present(untMonitor)) then
+    inquire (UNIT=untMonitor,OPENED=opened)
+    if(opened) close(untMonitor)
+endif
 end subroutine CloseAllFiles
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3360,7 +3387,7 @@ else ! at least one varying / stok parameter, run model step by step
                 fullTheta(i)=INFER%theta(i)%init(1)
             else
                 fullTheta(i)=theta(INFER%L(t,i))
-            endif            
+            endif
         enddo
         dummyX(1,:)=X(t,:)
         call ApplyModel(model=model,X=dummyX,theta=fullTheta,&
@@ -3472,6 +3499,16 @@ if(err>0) then
 endif
 
 end subroutine Gcop_getV
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine writeMonitor(unt,i,n)
+! Write monitoring file
+use utilities_dmsl_kit, only:number_string
+integer(mik),intent(in)::unt,i,n
+rewind(unt)
+write (unt,'(A)') trim(number_string(i))//'/'//trim(number_string(n))
+end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

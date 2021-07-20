@@ -1,4 +1,4 @@
-'BaM_BaRatin\Limni.txt'    !!! Files containing spaghettis for each input variable (size nX)
+'BaM_BaRatin/Limni.txt'    !!! Files containing spaghettis for each input variable (size nX)
 250                               !!! Nobs, number of observations per spaghetti (common to all files!)
 1                                 !!! Nspag, number of spaghettis for each input variable (size nX)
 .false.                           !!! Propagate parametric uncertainty?

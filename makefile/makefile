@@ -60,8 +60,8 @@ Models = \
 	$(Models_DIR)AlgaeBiomass_model.f90                \
 	$(Models_DIR)DynamicVegetation_model.f90           \
 	$(Models_DIR)TidalODE_model.f90                    \
-	$(Models_DIR)TidalRemenieras_model.f90
-		
+	$(Models_DIR)TidalRemenieras_model.f90             \
+	$(Models_DIR)SFDTidal_Sw_correction_model.f90	
 # Define BaM files
 BaM = \
 	$(BaM_DIR)ModelLibrary_tools.f90       \
@@ -71,7 +71,7 @@ BaM = \
 all:build_exe
 
 build_exe: compile_bam
-	$(FC)  $(FLAGS) $(DMSL) $(BMSL) $(Models) $(BaM) -o BaM_exe
+	$(FC)  $(FLAGS) $(DMSL) $(BMSL) $(Models) $(BaM) -o BaM
 
 compile_bam: compile_models
 	$(FC) $(FLAGS) -c $(BaM)

@@ -1,7 +1,7 @@
-"BaM_thetacr_D\"                                      	       ! workspace
+"BaM_BaRatin/"                                                 ! workspace
 "Config_RunOptions.txt"                                        ! Config file: run options
 "Config_Model.txt"                                             ! Config file: model
-"MyModel.txt"                                                  ! Config file: xtra model information
+"Config_ControlMatrix.txt"                                     ! Config file: xtra model information
 "Config_Data.txt"                                              ! Config file: Data
 "Config_RemnantSigma.txt"                                      ! Config file: Remnant sigma (as many files as there are output variables separated by commas)
 "Config_MCMC.txt"                                              ! Config file: MCMC

@@ -1,4 +1,4 @@
-'BaM_BaRatin\SauzeGaugings_RandomOnly.txt' 		!!! Absolute path to data file
+'BaM_BaRatin/SauzeGaugings_RandomOnly.txt' 		!!! Absolute path to data file
 1           			!!! number of header lines
 38         				!!! Nobs, number of rows in data file (excluding header lines)
 8       				!!! number of columns in the data file

@@ -19,7 +19,6 @@ DMSL = \
 	$(DMSL_DIR)types_dmsl_kit.f90              \
 	$(DMSL_DIR)utilities_dmsl_kit.f90          \
 	$(DMSL_DIR)uniran1_dmsl_mod.f90            \
-	$(DMSL_DIR)uniran1_parallel_dmsl_mod.f90   \
 	$(DMSL_DIR)linalg_dmsl_kit.f90             \
 	$(DMSL_DIR)numerix_dmsl_kit.f90            \
 	$(DMSL_DIR)dynamicModelLibrary.f90
@@ -33,7 +32,7 @@ BMSL = \
 	$(BMSL_DIR)DataRW_tools.f90                  \
 	$(BMSL_DIR)Distribution_tools.f90            \
 	$(BMSL_DIR)MCMC_tools.f90                    \
-	$(BMSL_DIR)MCMCStrategy_tools_NoRFortran.f90 \
+	$(BMSL_DIR)MCMCStrategy_tools.f90            \
 	$(BMSL_DIR)BayesianEstimation_tools.f90 
 
 # Define Models files

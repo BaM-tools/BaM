@@ -67,7 +67,7 @@
 		<Unit filename="../../../BMSL/src/EmpiricalStats_tools.f90">
 			<Option weight="22" />
 		</Unit>
-		<Unit filename="../../../BMSL/src/MCMCStrategy_tools_NoRFortran.f90">
+		<Unit filename="../../../BMSL/src/MCMCStrategy_tools.f90">
 			<Option weight="27" />
 		</Unit>
 		<Unit filename="../../../BMSL/src/MCMC_tools.f90">
@@ -93,9 +93,6 @@
 		</Unit>
 		<Unit filename="../../../miniDMSL/src/uniran1_dmsl_mod.f90">
 			<Option weight="3" />
-		</Unit>
-		<Unit filename="../../../miniDMSL/src/uniran1_parallel_dmsl_mod.f90">
-			<Option weight="4" />
 		</Unit>
 		<Unit filename="../../../miniDMSL/src/utilities_dmsl_kit.f90">
 			<Option weight="2" />
@@ -139,10 +136,6 @@
 		<Unit filename="../../src/Models/TidalRemenieras_model.f90" />
 		<Unit filename="../../src/Models/Tidal_model.f90" />
 		<Unit filename="../../src/Models/Vegetation_model.f90" />
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

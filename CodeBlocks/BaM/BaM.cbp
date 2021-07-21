@@ -48,6 +48,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-I ../../../miniDMSL/src/" />
 		</Compiler>
 		<Unit filename="../../../BMSL/src/Aggregation_tools.f90">
 			<Option weight="21" />

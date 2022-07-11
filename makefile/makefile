@@ -18,7 +18,8 @@ DMSL = \
 	$(DMSL_DIR)kinds_dmsl_kit.f90              \
 	$(DMSL_DIR)types_dmsl_kit.f90              \
 	$(DMSL_DIR)utilities_dmsl_kit.f90          \
-	$(DMSL_DIR)uniran1_dmsl_mod.f90            \
+	$(DMSL_DIR)mt19937-64.f95                  \
+	$(DMSL_DIR)uniran1_minidmsl_mod.f90        \
 	$(DMSL_DIR)linalg_dmsl_kit.f90             \
 	$(DMSL_DIR)numerix_dmsl_kit.f90            \
 	$(DMSL_DIR)dynamicModelLibrary.f90

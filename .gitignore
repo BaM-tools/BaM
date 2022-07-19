@@ -34,3 +34,6 @@
 # Code::Blocks files
 *.layout
 *.depend
+
+# Others
+misc

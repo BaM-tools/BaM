@@ -10,13 +10,13 @@ module Mixture_model
 !~* Comments: Mixture model computing Yhat as a sum of contributions,
 !~*           Yhat=sum(theta_i*X_i). Each theta_i is between 0 and 1,
 !~*           and theta_last=1-sum[i=1,last-1](theta_i).
-!~*           Typical usage: downstream concentration is equal to the 
+!~*           Typical usage: downstream concentration is equal to the
 !~*           weighted sum of upstream concentrations (sum(weights)=1).
 !~* ADDED 05/04/2018: multi-event and missing contribution
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
 !~*    1. Mixture_GetParNumber, number of parameters
@@ -155,11 +155,11 @@ subroutine Mixture_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use types_dmsl_kit, only:data_ricz_type
 use utilities_dmsl_kit,only:getSpareUnit

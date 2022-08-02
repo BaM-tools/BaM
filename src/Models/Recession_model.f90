@@ -14,9 +14,9 @@ module Recession_model_h
 !~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1.
-!~*		2.
-!~*		3.
+!~*     1.
+!~*     2.
+!~*     3.
 !~**********************************************************************
 
 
@@ -53,9 +53,9 @@ pure subroutine Recession_h_GetParNumber(npar,err,mess)
 !^**********************************************************************
 !^* IN
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 integer(mik), intent(out)::npar,err
 character(*),intent(out)::mess
@@ -92,15 +92,15 @@ subroutine Recession_h_Apply(time,theta,h,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. h, input vector (h1,h2)
-!^*		2. theta, parameter vector
-!^*		3. [NewtonOption], options for Newton numerical resolution
+!^*     1. h, input vector (h1,h2)
+!^*     2. theta, parameter vector
+!^*     3. [NewtonOption], options for Newton numerical resolution
 !^* OUT
-!^*		1. Q, discharge
-!^*		2. kappa, transition stage
-!^*		3. feas, feasible?
-!^*		4. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		5. mess, error message
+!^*     1. Q, discharge
+!^*     2. kappa, transition stage
+!^*     3. feas, feasible?
+!^*     4. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     5. mess, error message
 !^**********************************************************************
 use types_dmsl_kit,only:data_ricz_type
 use utilities_dmsl_kit, only:cleanPointers

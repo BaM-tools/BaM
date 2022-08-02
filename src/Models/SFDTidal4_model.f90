@@ -20,8 +20,8 @@ module SFDTidal4_model
 !~*           correction of slope for highly transient cases (Seine)
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. SFDTidal4_GetParNumber, number of parameters of the RC
-!~*		2. SFDTidal4_Apply, compute Q=f(h1t(t),h2t(t)|theta)
+!~*     1. SFDTidal4_GetParNumber, number of parameters of the RC
+!~*     2. SFDTidal4_Apply, compute Q=f(h1t(t),h2t(t)|theta)
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -49,9 +49,9 @@ pure subroutine SFDTidal4_GetParNumber(npar,err,mess)
 !^**********************************************************************
 !^* IN
 !^* OUT
-!^*		1. npar, par. number
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. npar, par. number
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 
 integer(mik), intent(out)::npar,err
@@ -78,13 +78,13 @@ subroutine SFDTidal4_Apply(IN,theta,OUT,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. IN, input matrix (h1,h2)
-!^*		2. theta, parameter vector
+!^*     1. IN, input matrix (h1,h2)
+!^*     2. theta, parameter vector
 !^* OUT
-!^*		1. OUT, discharge
-!^*		2. feas, feasible?
-!^*		3. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4. mess, error message
+!^*     1. OUT, discharge
+!^*     2. feas, feasible?
+!^*     3. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4. mess, error message
 !^*     5. Sf(t-delta_t), water slope
 !^**********************************************************************
 real(mrk), intent(in)::IN(:,:),theta(:)

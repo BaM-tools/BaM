@@ -4,7 +4,7 @@ module Segmentation2_model
 !~**********************************************************************
 !^* Programmer: Ben Renard & Matteo Darienzo, Irstea Lyon
 !^**********************************************************************
-!^* Last modified: 23/10/2019 - allow using inter-shift durations 
+!^* Last modified: 23/10/2019 - allow using inter-shift durations
 !^*                rather than shift times + both tmin and nmin constraints
 !~**********************************************************************
 
@@ -109,7 +109,7 @@ end if
 if(nS==1) then;Y=theta(1);return;endif
 
 ! From now on, multi-segment case
-! Get means 
+! Get means
 mu =theta(1:nS)
 ! Get inter-shift durations and shift times
 select case (option)
@@ -168,11 +168,11 @@ subroutine Segmentation2_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use types_dmsl_kit, only:data_ricz_type
 use utilities_dmsl_kit,only:getSpareUnit
@@ -215,10 +215,10 @@ function GettRange(t,tau)
 !#* 2Do List:
 !#**********************************************************************
 !#* IN
-!#*		1. t
-!#*		2. k
+!#*     1. t
+!#*     2. k
 !#* OUT
-!#*		1.General_GetRange
+!#*     1.General_GetRange
 !#**********************************************************************
 real(mrk), intent(in)::t,tau(:)
 integer(mik)::GettRange

@@ -23,8 +23,8 @@ module SFDTidal_Sw_correction_model
 !~*           extension to variable time steps with Dt real
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. SFDTidal_Sw_correction_GetParNumber, number of parameters of the RC
-!~*		2. SFDTidal_Sw_correction_Apply, compute Q=f(h1t(t),h2t(t)|theta) with the correction
+!~*     1. SFDTidal_Sw_correction_GetParNumber, number of parameters of the RC
+!~*     2. SFDTidal_Sw_correction_Apply, compute Q=f(h1t(t),h2t(t)|theta) with the correction
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -53,9 +53,9 @@ pure subroutine SFDTidal_Sw_correction_GetParNumber(npar,err,mess)
 !^**********************************************************************
 !^* IN
 !^* OUT
-!^*		1. npar, par. number
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. npar, par. number
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 
 integer(mik), intent(out)::npar,err
@@ -82,14 +82,14 @@ subroutine SFDTidal_Sw_correction_Apply(IN,theta,Q,interp,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. IN, input matrix (h1,h2)
-!^*		2. theta, parameter vector
+!^*     1. IN, input matrix (h1,h2)
+!^*     2. theta, parameter vector
 !^* OUT
-!^*		1. Q, discharge
+!^*     1. Q, discharge
 !^*     2. interp, variable indicating where the discharge linear interp is made
-!^*		2. feas, feasible?
-!^*		3. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4. mess, error message
+!^*     2. feas, feasible?
+!^*     3. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4. mess, error message
 !^**********************************************************************
 real(mrk), intent(in)::IN(:,:),theta(:)
 real(mrk), intent(out)::Q(:),interp(:)

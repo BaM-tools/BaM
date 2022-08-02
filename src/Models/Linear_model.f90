@@ -11,11 +11,11 @@ module Linear_model
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. LM_GetParNumber, number of parameters (nX*nY)
-!~*		2. LM_Apply, compute Y_hat=X*theta (theta packaged as a nX*nY matrix)
+!~*     1. LM_GetParNumber, number of parameters (nX*nY)
+!~*     2. LM_Apply, compute Y_hat=X*theta (theta packaged as a nX*nY matrix)
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -42,12 +42,12 @@ pure subroutine LM_GetParNumber(nX,nY,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. nX, number of input variables
-!^*		1. nY, number of output variables
+!^*     1. nX, number of input variables
+!^*     1. nY, number of output variables
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 integer(mik), intent(in)::nX,nY
@@ -75,12 +75,12 @@ subroutine LM_Apply(X,theta,Y,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. input vector
-!^*		2. theta, parameters
+!^*     1. input vector
+!^*     2. theta, parameters
 !^* OUT
-!^*		1. Y, output vector
-!^*		3.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4.mess, error message
+!^*     1. Y, output vector
+!^*     3.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4.mess, error message
 !^**********************************************************************
 
 real(mrk), intent(in)::X(:,:), theta(:)

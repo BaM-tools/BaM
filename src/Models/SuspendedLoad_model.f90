@@ -11,11 +11,11 @@ module SuspendedLoad_model
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. SuspendedLoad_GetParNumber, number of parameters (5 + optional ones)
-!~*		2. SuspendedLoad_Apply, compute suspended load capacity = f(stage, parameters)
+!~*     1. SuspendedLoad_GetParNumber, number of parameters (5 + optional ones)
+!~*     2. SuspendedLoad_Apply, compute suspended load capacity = f(stage, parameters)
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -43,9 +43,9 @@ pure subroutine SuspendedLoad_GetParNumber(npar,err,mess)
 !^**********************************************************************
 !^* IN
 !^* OUT
-!^*		1. npar, par. number
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. npar, par. number
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 
 integer(mik), intent(out)::npar,err
@@ -72,13 +72,13 @@ subroutine SuspendedLoad_Apply(h,theta,Qs,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. h, stage
-!^*		2. theta, parameters
+!^*     1. h, stage
+!^*     2. theta, parameters
 !^* OUT
-!^*		1. Qs, suspended load capacity 
-!^*		2. feas, feasible? 
-!^*		3. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4. mess, error message
+!^*     1. Qs, suspended load capacity
+!^*     2. feas, feasible?
+!^*     3. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4. mess, error message
 !^**********************************************************************
 
 real(mrk), intent(in)::h(:),theta(:)
@@ -102,14 +102,14 @@ endif
 
 ! Compute
 do i=1,n
-    if(h(i)<theta(2) .or. h(i)<theta(4)) then 
+    if(h(i)<theta(2) .or. h(i)<theta(4)) then
         feas(i)=.false.
         !Qs(i)=0._mrk
     else
         num=(h(i)-theta(2))**theta(3)
         den=(h(i)-theta(4))**theta(5)
         Qs(i)=theta(1) * (num/den)
-    endif 
+    endif
 enddo
 
 end subroutine SuspendedLoad_Apply

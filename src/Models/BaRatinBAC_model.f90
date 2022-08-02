@@ -1,7 +1,7 @@
 module BaRatinBAC_model
 
 !~**********************************************************************
-!~* Purpose: BaRatin rating curve parameterized in terms of b-a-c 
+!~* Purpose: BaRatin rating curve parameterized in terms of b-a-c
 !~*          parameters (in lieu of k-a-c in original BaRatin)
 !~**********************************************************************
 !~* Programmer: Ben Renard, Irstea Lyon
@@ -12,19 +12,19 @@ module BaRatinBAC_model
 !~**********************************************************************
 !~* Comments:
 !~**********************************************************************
-!~* References: Mansanarez, V. (2016), Non-unique stage-discharge 
-!~*             relations: Bayesian analysis of complex rating curves 
+!~* References: Mansanarez, V. (2016), Non-unique stage-discharge
+!~*             relations: Bayesian analysis of complex rating curves
 !~*             and their uncertainties, PhD thesis
-!~*             Mansanarez et al. (2019) Shift happens! Adjusting 
-!~*             stage-discharge rating curves to riverbed morphological 
+!~*             Mansanarez et al. (2019) Shift happens! Adjusting
+!~*             stage-discharge rating curves to riverbed morphological
 !~*             changes at known times. Water Resources Research.
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. BaRatinBAC_GetParNumber, number of parameters of the RC
-!~*		2. BaRatinBAC_Apply, compute Q=f(H|theta)
-!~*		3. BaRatinBAC_XtraRead, read Bonnifait matrix
+!~*     1. BaRatinBAC_GetParNumber, number of parameters of the RC
+!~*     2. BaRatinBAC_Apply, compute Q=f(H|theta)
+!~*     3. BaRatinBAC_XtraRead, read Bonnifait matrix
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -51,11 +51,11 @@ pure subroutine BaRatinBAC_GetParNumber(ControlMatrix,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ControlMatrix, control Matrix
+!^*     1. ControlMatrix, control Matrix
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 use BaRatin_model, only:BaRatin_GetParNumber
 integer(mik), intent(in)::ControlMatrix(:,:)
@@ -79,32 +79,32 @@ subroutine BaRatinBAC_Apply(H,theta,ControlMatrix,hmax,Q,k,ktype,feas,err,mess)
 !^* Comments: ktype is the type of solution of the continuity equation
 !^*           * 0: control addition => simple solution k=b
 !^*           * 1 and above: control substitution => need to solve the
-!^*             continuity equation numerically; the number gives the 
-!^*             type of numerical solution, as described in the 
-!^*             analytical analysis of the continuity equation described 
+!^*             continuity equation numerically; the number gives the
+!^*             type of numerical solution, as described in the
+!^*             analytical analysis of the continuity equation described
 !^*             in the WRR paper below
 !^**********************************************************************
-!^* References: Mansanarez, V. (2016), Non-unique stage-discharge 
-!^*             relations: Bayesian analysis of complex rating curves 
+!^* References: Mansanarez, V. (2016), Non-unique stage-discharge
+!^*             relations: Bayesian analysis of complex rating curves
 !^*             and their uncertainties, PhD thesis
-!^*             Mansanarez et al. (2019) Shift happens! Adjusting 
-!^*             stage-discharge rating curves to riverbed morphological 
+!^*             Mansanarez et al. (2019) Shift happens! Adjusting
+!^*             stage-discharge rating curves to riverbed morphological
 !^*             changes at known times. Water Resources Research.
 !^**********************************************************************
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. H, water stage
-!^*		2. theta, parameters (b-a-c parameterization)
-!^*		3. ControlMatrix, control Matrix in Laurent's framework
-!^*		4. hmax, higher bound of feasability range for the rating curve
+!^*     1. H, water stage
+!^*     2. theta, parameters (b-a-c parameterization)
+!^*     3. ControlMatrix, control Matrix in Laurent's framework
+!^*     4. hmax, higher bound of feasability range for the rating curve
 !^* OUT
-!^*		1. Q, RC-computed runoff
-!^*		2. k, transition stages deduced by continuity
-!^*		3. ktype, type of solution of the continuity equation (see comment above)
-!^*		4. feas, feasible?
-!^*		5. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		6. mess, error message
+!^*     1. Q, RC-computed runoff
+!^*     2. k, transition stages deduced by continuity
+!^*     3. ktype, type of solution of the continuity equation (see comment above)
+!^*     4. feas, feasible?
+!^*     5. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     6. mess, error message
 !^**********************************************************************
 use BaRatin_model, only:BaRatin_computeQ
 real(mrk), intent(in)::H(:),theta(:),hmax
@@ -161,22 +161,22 @@ subroutine BaRatinBAC_XtraRead(file,xtra,err,mess)
 !^**********************************************************************
 !^* Comments: Additional restriction compared with original BaRatin:
 !^*           a new control cannot take over A SUM of controls.
-!^*           Reason: analytical analysis of the continuity equation has 
+!^*           Reason: analytical analysis of the continuity equation has
 !^*           not been thoroughly performed yet, and the continuity
-!^*           function may well have more than 2 roots max. 
+!^*           function may well have more than 2 roots max.
 !^**********************************************************************
-!^* References: Mansanarez et al. (2019) Shift happens! Adjusting 
-!^*             stage-discharge rating curves to riverbed morphological 
+!^* References: Mansanarez et al. (2019) Shift happens! Adjusting
+!^*             stage-discharge rating curves to riverbed morphological
 !^*             changes at known times. Water Resources Research.
 !^**********************************************************************
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use BaRatin_model,only:CheckControlMatrix
 use utilities_dmsl_kit,only:getSpareUnit,getNumItemsInFile
@@ -250,29 +250,29 @@ subroutine ApplyContinuity(b,a,c,ControlMatrix,hmax,k,ktype,feas,err,mess)
 !^* Comments: ktype is the type of solution of the continuity equation
 !^*           * 0: control addition => simple solution k=b
 !^*           * 1 and above: control substitution => need to solve the
-!^*             continuity equation numerically; the number gives the 
-!^*             type of numerical solution, as described in the 
-!^*             analytical analysis of the continuity equation described 
+!^*             continuity equation numerically; the number gives the
+!^*             type of numerical solution, as described in the
+!^*             analytical analysis of the continuity equation described
 !^*             in the WRR paper below
 !^**********************************************************************
-!^* References: Mansanarez et al. (2019) Shift happens! Adjusting 
-!^*             stage-discharge rating curves to riverbed morphological 
+!^* References: Mansanarez et al. (2019) Shift happens! Adjusting
+!^*             stage-discharge rating curves to riverbed morphological
 !^*             changes at known times. Water Resources Research.
 !^**********************************************************************
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1.b, offsets
-!^*		2.a, coefficients
-!^*		3.c, exponents
-!^*		4.ControlMatrix
-!^*		5.hmax, higher bound of feasability range for the rating curve
+!^*     1.b, offsets
+!^*     2.a, coefficients
+!^*     3.c, exponents
+!^*     4.ControlMatrix
+!^*     5.hmax, higher bound of feasability range for the rating curve
 !^* OUT
-!^*		1.k, activation stages deduced by continuity
-!^*		2.ktype, type of solution of the continuity equation (see comment above)
-!^*		3.feas, feasability
-!^*		4.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		5.mess, error message
+!^*     1.k, activation stages deduced by continuity
+!^*     2.ktype, type of solution of the continuity equation (see comment above)
+!^*     3.feas, feasability
+!^*     4.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     5.mess, error message
 !^**********************************************************************
 
 real(mrk), intent(in)::b(:),a(:),c(:),hmax
@@ -288,7 +288,7 @@ real(mrk)::lbound,hbound,root
 err=0;mess='';feas=.true.;k=undefRN;ktype=undefIN
 ncontrol=size(a)
 ! check feasability
-if(any(a<=0._mrk) .or. any(c==0._mrk)) then 
+if(any(a<=0._mrk) .or. any(c==0._mrk)) then
     feas=.false.;return
 endif
 ! first control
@@ -299,7 +299,7 @@ do j=ncontrol,2,-1 ! the loop starts with the higher control
     ! determine lower/higher bounds for the current activation stage
     lbound=max(b(j),b(j-1))
     if(j==ncontrol) then;hbound=hmax;else;hbound=k(j+1);endif
-    ! compute current activation stage depending on the case: replacement or addition 
+    ! compute current activation stage depending on the case: replacement or addition
     if( sum(ControlMatrix(j,:)) > 1 ) then ! control is added to previous one(s)
         k(j)=b(j);ktype(j)=0
     else
@@ -337,20 +337,20 @@ subroutine SolveContinuity(a1,b1,c1,a2,b2,c2,lbound,hbound,root,nroot,troot)
 !^**********************************************************************
 !^* Comments:
 !^**********************************************************************
-!^* References: Mansanarez et al. (2019) Shift happens! Adjusting 
-!^*             stage-discharge rating curves to riverbed morphological 
+!^* References: Mansanarez et al. (2019) Shift happens! Adjusting
+!^*             stage-discharge rating curves to riverbed morphological
 !^*             changes at known times. Water Resources Research.
 !^**********************************************************************
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. a1,b1,c1: coefficients of the first control
-!^*		2. a2,b2,c2: coefficients of the second control
-!^*		3. lbound,hbound: lower/higher bounds between which the solution is sought
+!^*     1. a1,b1,c1: coefficients of the first control
+!^*     2. a2,b2,c2: coefficients of the second control
+!^*     3. lbound,hbound: lower/higher bounds between which the solution is sought
 !^* OUT
-!^*		1.root, solution
-!^*		2.nroot, number of solutions
-!^*		3.troot, type of solution (see comments in the code and WRR paper)
+!^*     1.root, solution
+!^*     2.nroot, number of solutions
+!^*     3.troot, type of solution (see comments in the code and WRR paper)
 !^**********************************************************************
 real(mrk), intent(in)::a1,b1,c1,a2,b2,c2,lbound,hbound
 real(mrk), intent(out)::root
@@ -365,9 +365,9 @@ root=undefRN;nroot=0;troot=undefIN
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! CASE I
-! c1=c2, easy: either a unique explicit root, or no root at all 
-if(abs(c1-c2)<=eps) then 
-    if(abs(a1-a2)<=eps) then 
+! c1=c2, easy: either a unique explicit root, or no root at all
+if(abs(c1-c2)<=eps) then
+    if(abs(a1-a2)<=eps) then
         ! no solution when a1=a2 AND c1=c2 (unless b1=b2 too, but then
         ! it's twice the same control which is not acceptable either).
         return
@@ -379,13 +379,13 @@ if(abs(c1-c2)<=eps) then
             nroot=1;troot=1
         endif
         return
-    endif    
+    endif
 endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! CASE II
 ! b1=b2, easy as well: explicit root
-if(abs(b1-b2)<=eps) then 
+if(abs(b1-b2)<=eps) then
     root=b1+(a1/a2)**(1/(c2-c1))
     if(root>lbound .and. root<hbound) then ! root in bounds, all good!
         nroot=1;troot=2
@@ -424,14 +424,14 @@ if(x0>lbound) then
     ! evaluate f(x0)
     fx0=fContinuity(x0,a1,b1,c1,a2,b2,c2)
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ! CASE V 
+    ! CASE V
     ! f(x0)=0 => x0 is the unique root
     if(abs(fx0)<=eps) then
-        root=x0;nroot=1;troot=5        
+        root=x0;nroot=1;troot=5
         return
     endif
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ! CASE VI 
+    ! CASE VI
     ! cases with no roots
     if( (c2>c1 .and. fx0>0._mrk) .or. (c2<c1 .and. fx0<0._mrk) ) then
         nroot=0;troot=6
@@ -448,7 +448,7 @@ if(x0>lbound) then
         f2=fContinuity(hbound,a1,b1,c1,a2,b2,c2)
         if(f2*fx0>0._mrk) then ! function does not change sign => no solution in RC range
             return
-        else ! search for root numerically 
+        else ! search for root numerically
             call findRoot(a1,b1,c1,a2,b2,c2,x0,hbound,fx0,f2,root,exist)
             if(exist) then
                 nroot=1
@@ -472,18 +472,18 @@ pure function fContinuity(x,a1,b1,c1,a2,b2,c2)
 !^**********************************************************************
 !^* Comments:
 !^**********************************************************************
-!^* References: Mansanarez et al. (2019) Shift happens! Adjusting 
-!^*             stage-discharge rating curves to riverbed morphological 
+!^* References: Mansanarez et al. (2019) Shift happens! Adjusting
+!^*             stage-discharge rating curves to riverbed morphological
 !^*             changes at known times. Water Resources Research.
 !^**********************************************************************
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. x: activation stage to be found
-!^*		2. a1,b1,c1: coefficients of the first control
-!^*		3. a2,b2,c2: coefficients of the second control
+!^*     1. x: activation stage to be found
+!^*     2. a1,b1,c1: coefficients of the first control
+!^*     3. a2,b2,c2: coefficients of the second control
 !^* OUT
-!^*		1.fContinuity:: value of the continuity function
+!^*     1.fContinuity:: value of the continuity function
 !^**********************************************************************
 real(mrk), intent(in)::x,a1,b1,c1,a2,b2,c2
 real(mrk)::fContinuity
@@ -505,18 +505,18 @@ pure function dfContinuity(x,a1,b1,c1,a2,b2,c2)
 !^**********************************************************************
 !^* Comments:
 !^**********************************************************************
-!^* References: Mansanarez et al. (2019) Shift happens! Adjusting 
-!^*             stage-discharge rating curves to riverbed morphological 
+!^* References: Mansanarez et al. (2019) Shift happens! Adjusting
+!^*             stage-discharge rating curves to riverbed morphological
 !^*             changes at known times. Water Resources Research.
 !^**********************************************************************
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. x: activation stage to be found
-!^*		2. a1,b1,c1: coefficients of the first control
-!^*		3. a2,b2,c2: coefficients of the second control
+!^*     1. x: activation stage to be found
+!^*     2. a1,b1,c1: coefficients of the first control
+!^*     3. a2,b2,c2: coefficients of the second control
 !^* OUT
-!^*		1.dfContinuity:: value of the derivative of the continuity function
+!^*     1.dfContinuity:: value of the derivative of the continuity function
 !^**********************************************************************
 real(mrk), intent(in)::x,a1,b1,c1,a2,b2,c2
 real(mrk)::dfContinuity
@@ -528,8 +528,8 @@ end function dfContinuity
 subroutine fNewton(dataIN,dataOUT,x,feas,fx,dfdxV,err,message)
 
 !^**********************************************************************
-!^* Purpose: Wrapper for continuity function and its derivative, complying 
-!^*          with the interface required by DMSL's Newton algo (znewton) 
+!^* Purpose: Wrapper for continuity function and its derivative, complying
+!^*          with the interface required by DMSL's Newton algo (znewton)
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^*             Modified from Valentin Mansanarez's code
@@ -543,15 +543,15 @@ subroutine fNewton(dataIN,dataOUT,x,feas,fx,dfdxV,err,message)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. dataIN: contains a1,b1,c1,a2,b2,c2 in dataIN%rp0(1:6)
-!^*		2. dataOUT: not used
-!^*		3. x: where functions f and df are evaluated
+!^*     1. dataIN: contains a1,b1,c1,a2,b2,c2 in dataIN%rp0(1:6)
+!^*     2. dataOUT: not used
+!^*     3. x: where functions f and df are evaluated
 !^* OUT
-!^*		1.feas: feasible?
-!^*		2.fx: f(x)
-!^*		3.dfdxV: df(x)
-!^*		4.err: err code
-!^*		5.message: message
+!^*     1.feas: feasible?
+!^*     2.fx: f(x)
+!^*     3.dfdxV: df(x)
+!^*     4.err: err code
+!^*     5.message: message
 !^**********************************************************************
 use kinds_dmsl_kit
 use types_dmsl_kit,only:data_ricz_type
@@ -563,10 +563,10 @@ logical(mlk),intent(out)::feas
 real(mrk),intent(out),optional::fx,dfdxV(:)
 integer(mik),intent(out)::err
 character(*),intent(out)::message
-    
+
 feas=.true.;err=0;message='';
 if(present(fx)) fx=undefRN
-if(present(dfdxV)) dfdxV=undefRN 
+if(present(dfdxV)) dfdxV=undefRN
 if(present(fx))then
     fx=fContinuity(x=x,a1=dataIN%rp0(1),b1=dataIN%rp0(2),&
                    c1=dataIN%rp0(3),a2=dataIN%rp0(4),&
@@ -582,7 +582,7 @@ end subroutine fNewton
 subroutine findRoot(a1,b1,c1,a2,b2,c2,x1,x2,f1,f2,root,exist)
 
 !^**********************************************************************
-!^* Purpose: Find root of the continuity function using DMSL's znewton 
+!^* Purpose: Find root of the continuity function using DMSL's znewton
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^*             Modified from Valentin Mansanarez's code
@@ -596,13 +596,13 @@ subroutine findRoot(a1,b1,c1,a2,b2,c2,x1,x2,f1,f2,root,exist)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. a1,b1,c1: coefficients of the first control
-!^*		2. a2,b2,c2: coefficients of the second control
-!^*		3. x1,x2: lower/higher bounds between which the solution is sought
-!^*		4. f1,f2: f values at x1/x2
+!^*     1. a1,b1,c1: coefficients of the first control
+!^*     2. a2,b2,c2: coefficients of the second control
+!^*     3. x1,x2: lower/higher bounds between which the solution is sought
+!^*     4. f1,f2: f values at x1/x2
 !^* OUT
-!^*		1.root, solution
-!^*		2.exist, does solution exist?
+!^*     1.root, solution
+!^*     2.exist, does solution exist?
 !^**********************************************************************
 use numerix_dmsl_kit, only:znewton
 use utilities_dmsl_kit, only:cleanPointers

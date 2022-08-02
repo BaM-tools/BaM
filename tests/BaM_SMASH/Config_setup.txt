@@ -1,0 +1,7 @@
+'~/BEN/GitHub/BaM/src/Models/SMASH/load.py'            ! Load-SMASH python script
+'~/BEN/GitHub/BaM/src/Models/SMASH/run.py'             ! Run-SMASH python script
+'~/Desktop/2022SMASH/V5004030'                         ! Project directory
+'~/Desktop/2022SMASH/SAFRAN/PRECIP/'                   ! Precipitation directory
+'~/Desktop/2022SMASH/SAFRAN/ETP/'                      ! PET directory
+'201001010000'                                         ! First date of the run, format YYYYMMDDHHmm
+'201008310000'                                         ! Last date of the run, format YYYYMMDDHHmm

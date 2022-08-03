@@ -3,5 +3,6 @@
 '~/Desktop/2022SMASH/V5004030'                         ! Project directory
 '~/Desktop/2022SMASH/SAFRAN/PRECIP/'                   ! Precipitation directory
 '~/Desktop/2022SMASH/SAFRAN/ETP/'                      ! PET directory
-'201001010000'                                         ! First date of the run, format YYYYMMDDHHmm
-'201008310000'                                         ! Last date of the run, format YYYYMMDDHHmm
+'~/Desktop/2022SMASH/V5004030/THETA/'                  ! Directory where BaM will write spatialized parameters theta
+'200901010000'                                         ! First date of the run, format YYYYMMDDHHmm
+'201212310000'                                         ! Last date of the run, format YYYYMMDDHHmm

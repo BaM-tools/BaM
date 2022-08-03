@@ -1,1 +1,5 @@
 BaM
+*.spag
+*.env
+*.monitor
+Results_*

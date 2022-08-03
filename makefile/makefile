@@ -26,6 +26,7 @@ DMSL = \
 
 # Define BMSL files
 BMSL = \
+	$(BMSL_DIR)Geodesy_tools.f90                 \
 	$(BMSL_DIR)Dates_tools.f90                   \
 	$(BMSL_DIR)Aggregation_tools.f90             \
 	$(BMSL_DIR)EmpiricalStats_tools.f90          \
@@ -62,7 +63,9 @@ Models = \
 	$(Models_DIR)DynamicVegetation_model.f90           \
 	$(Models_DIR)TidalODE_model.f90                    \
 	$(Models_DIR)TidalRemenieras_model.f90             \
-	$(Models_DIR)SFDTidal_Sw_correction_model.f90	
+	$(Models_DIR)SFDTidal_Sw_correction_model.f90	   \
+	$(Models_DIR)SMASH/SMASH_model.f90	  
+
 # Define BaM files
 BaM = \
 	$(BaM_DIR)ModelLibrary_tools.f90       \

@@ -1,0 +1,12 @@
+'BaM_SMASH/XY.BAD' 		!!! Absolute path to data file
+1           			!!! number of header lines
+1460         			!!! Nobs, number of rows in data file (excluding header lines)
+5       				!!! number of columns in the data file
+1,1           			!!! columns for X (observed inputs) in data file - comma-separated if several
+0,0     				!!! columns for Xu (random uncertainty in X, EXPRESSED AS A STANDARD DEVIATION - use 0 for a no-error assumption)
+0,0     				!!! columns for Xb (systematic uncertainty in X, EXPRESSED AS A STANDARD DEVIATION - use 0 for a no-error assumption)
+0,0     				!!! columns for Xb_indx (index of systematic errors in X - use 0 for a no-error assumption)
+4     					!!! columns for Y (observed outputs) in data file - comma-separated if several
+5					    !!! columns for Yu (uncertainty in Y, EXPRESSED AS A STANDARD DEVIATION - use 0 for a no-error assumption)
+0     					!!! columns for Yb (systematic uncertainty in Y, EXPRESSED AS A STANDARD DEVIATION - use 0 for a no-error assumption)
+0     					!!! columns for Yb_indx (index of systematic errors in Y - use 0 for a no-error assumption)

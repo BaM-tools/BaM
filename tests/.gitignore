@@ -1,2 +1,5 @@
 BaM
-BaM.exe
+*.exe
+Results_*
+*.monitor
+.Rhistory

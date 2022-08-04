@@ -1,8 +1,7 @@
-'~/BEN/GitHub/BaM/src/Models/SMASH/load.py'            ! Load-SMASH python script
-'~/BEN/GitHub/BaM/src/Models/SMASH/run.py'             ! Run-SMASH python script
-'~/Desktop/2022SMASH/V5004030'                         ! Project directory
-'~/Desktop/2022SMASH/SAFRAN/PRECIP/'                   ! Precipitation directory
-'~/Desktop/2022SMASH/SAFRAN/ETP/'                      ! PET directory
-'~/Desktop/2022SMASH/V5004030/THETA/'                  ! Directory where BaM will write spatialized parameters theta
-'200901010000'                                         ! First date of the run, format YYYYMMDDHHmm
-'201212310000'                                         ! Last date of the run, format YYYYMMDDHHmm
+'/home/brenard/BEN/GitHub/BaM/src/Models/SMASH/load.py'                      ! Load-SMASH python script
+'/home/brenard/BEN/GitHub/BaM/src/Models/SMASH/run.py'                       ! Run-SMASH python script
+'/home/brenard/Desktop/2022SMASH/V5004030/'                                  ! Project directory
+'/home/brenard/Desktop/2022SMASH/SAFRAN/PRECIP/'                             ! Precipitation directory
+'/home/brenard/Desktop/2022SMASH/SAFRAN/ETP/'                                ! PET directory
+'BaMstuff/'                                                                  ! BaM-stuff folder (SubDirectory of Project directory)
+'SIM/OUTPUT/QCAL_SIM_200901010000_201212310000.txt'                          ! File containing SMASH output(s) (in Project directory)

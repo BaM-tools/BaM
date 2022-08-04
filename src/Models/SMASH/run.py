@@ -3,7 +3,7 @@ import sys
 import smash
 import numpy
 import rasterio
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 # Interpret command-line arguments
 projectDir=sys.argv[1]
@@ -24,6 +24,6 @@ model.parameters.ml=ml.copy()
 # Run
 model2=model.direct_run()
 # Plot
-model2.plot_hydrograph()
-plt.show()
+# model2.plot_hydrograph()
+# plt.show()
 

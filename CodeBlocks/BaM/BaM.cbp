@@ -108,6 +108,7 @@
 		<Unit filename="../../../miniDMSL/src/utilities_dmsl_kit.f90">
 			<Option weight="2" />
 		</Unit>
+		<Unit filename="../../src/BaM_main.f90" />
 		<Unit filename="../../src/BaM_tools.f90">
 			<Option weight="99" />
 		</Unit>
@@ -145,9 +146,6 @@
 		<Unit filename="../../src/Models/TidalRemenieras_model.f90" />
 		<Unit filename="../../src/Models/Tidal_model.f90" />
 		<Unit filename="../../src/Models/Vegetation_model.f90" />
-		<Unit filename="../../tests/BaM_SMASH/testSMASH_main.f90">
-			<Option weight="100" />
-		</Unit>
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

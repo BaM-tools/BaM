@@ -2768,7 +2768,7 @@ pure subroutine Sigmafunk_Apply(funk,par,Y,res,err,mess)
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
-!^* Last modified: 29/04/2013
+!^* Created: 29/04/2013, last modified: 05/08/2022, added 'Power'
 !^**********************************************************************
 !^* Comments:
 !^**********************************************************************
@@ -2800,6 +2800,8 @@ case('Constant')
     res=par(1)
 case('Linear')
     res=par(1)+par(2)*abs(Y)
+case('Power')
+    res=par(1)+par(2)*(abs(Y)**par(3))
 case('Exponential')
     res=par(1)+( par(3)-par(1) )*( 1._mrk - exp(- (abs(Y)/par(2))**1 ) )
 case('Gaussian')
@@ -2818,7 +2820,7 @@ pure subroutine Sigmafunk_GetParNumber(funk, npar, err, mess)
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
-!^* Last modified: 29/04/2013
+!^* Created: 29/04/2013, last modified: 05/08/2022, added 'Power'
 !^**********************************************************************
 !^* Comments:
 !^**********************************************************************
@@ -2846,7 +2848,7 @@ case('Constant')
     npar=1
 case('Linear')
     npar=2
-case('Exponential', 'Gaussian')
+case('Exponential', 'Gaussian', 'Power')
     npar=3
 case default
     err=1;mess=trim(procname)//':'//trim(BaM_message(2))

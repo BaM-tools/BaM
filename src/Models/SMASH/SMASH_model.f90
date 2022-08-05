@@ -69,7 +69,7 @@ npar=size(SMASHanchors,dim=1)+nint(maxval(SMASHanchors(:,3)),mik)
 end subroutine SMASH_GetParNumber
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine SMASH_Run(runScript,projectDir,thetaDir,QSIMfile,theta,Y,feas,err,mess)
+subroutine SMASH_Run(projectDir,communicationDir,QSIMfile,theta,Y,feas,err,mess)
 !^**********************************************************************
 !^* Purpose: Run SMASH
 !^**********************************************************************
@@ -93,7 +93,7 @@ subroutine SMASH_Run(runScript,projectDir,thetaDir,QSIMfile,theta,Y,feas,err,mes
 !^*     5.mess, error message
 !^**********************************************************************
 use utilities_dmsl_kit,only:getSpareUnit
-character(*), intent(in)::runScript,projectDir,thetaDir,QSIMfile
+character(*), intent(in)::projectDir,communicationDir,QSIMfile
 real(mrk), intent(in)::theta(:)
 real(mrk), intent(out)::Y(:,:)
 logical, intent(out)::feas
@@ -101,14 +101,15 @@ integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='SMASH_Run'
-character(len_uLongStr)::cmdString,QSIMfullPath
-integer(mik)::k,npar,i,nmask,runStatus,unt
+character(len_uLongStr)::commFullPath,QSIMfullPath
+integer(mik)::k,npar,i,nmask,unt
 real(mrk)::smooth,foo
-logical::mask(size(SMASHanchors,dim=1))
+logical::mask(size(SMASHanchors,dim=1)),runDone
 real(mrk),allocatable::anc(:,:), M(:,:)
 
 ! Init
 err=0;mess='';feas=.true.;Y=undefRN
+commFullPath=trim(projectDir)//trim(communicationDir)
 
 k=1
 ! Make sense of parameter vector and write spatialized parameters
@@ -125,17 +126,30 @@ do i=1,npar
     k=k+nMask+1
     call interpolateOnGrid(pts=anc,grid=SMASHgrid,method='IDW',par=(/smooth/),M=M,err=err,mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
-    ! Write spatialized parameter to file in thetaDir
-    call WriteRasterASC(grid=SMASHgrid,M=M,file=trim(projectDir)//trim(thetaDir)//trim(SMASHparNames(i))//'.asc',err=err,mess=mess)
-    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+    ! Write spatialized parameter to file in communicationDir
+    call WriteRasterASC(grid=SMASHgrid,M=M,&
+                        file=trim(commFullPath)//trim(SMASHparNames(i))//'.asc',&
+                        err=err,mess=mess)
+    if(err/=0) then
+        mess=trim(procname)//':'//trim(mess);return
+    endif
 enddo
 
-! Run SMASH through Python script
-cmdString='python3'//' '//trim(runScript)//' '//trim(projectDir)//' '//trim(projectDir)//trim(thetaDir)
-call execute_command_line (trim(cmdString),exitStat=runStatus,cmdMsg=mess)
-if(runStatus/=0) then;feas=.false.;return;endif
+! Tell python script to run SMASH by creating file 'run.bam'
+call getSpareUnit(unt,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+open(unit=unt,file=trim(commFullPath)//'run.bam',status='replace',iostat=err)
+if(err/=0) then;mess=trim(procname)//':problem creating file run.bam';return;endif
+close(unt)
 
-! Read simulated streamflow
+! Wait until python script signals completion
+runDone=.false.
+do while (.not. runDone)! wait for signal from smash
+    INQUIRE(FILE=trim(commFullPath)//'runDone.smash',EXIST=runDone)
+enddo
+
+! Cleanup and read simulated streamflow
+call unlink(trim(commFullPath)//'runDone.smash')
 QSIMfullPath=trim(projectDir)//trim(QSIMfile)
 call getSpareUnit(unt,err,mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
@@ -150,10 +164,12 @@ do i=1,size(Y,dim=1)
     read(unt,*,iostat=err) foo, Y(i,:)
     if(err>0) then;mess=trim(procname)//':problem reading QSIM file: '//trim(QSIMfullPath);return;endif
 enddo
+close(unt)
+
 end subroutine SMASH_Run
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine SMASH_Load(loadScript,projectDir,precipDir,petDir,err,mess)
+subroutine SMASH_Load(loadScript,projectDir,precipDir,petDir,communicationDir,err,mess)
 !^**********************************************************************
 !^* Purpose: Load SMASH
 !^**********************************************************************
@@ -176,20 +192,30 @@ subroutine SMASH_Load(loadScript,projectDir,precipDir,petDir,err,mess)
 !^*     4.err, error code; <0:Warning, ==0:OK, >0: Error
 !^*     5.mess, error message
 !^**********************************************************************
-character(*), intent(in)::loadScript,projectDir,precipDir,petDir
+character(*), intent(in)::loadScript,projectDir,precipDir,petDir,communicationDir
 integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='SMASH_Load'
 character(len_uLongStr)::cmdString
+logical::loadingDone
 
 ! Init
 err=0;mess=''
 
-! Run Python script that loads SMASH and saves the related model object in projectDir
-cmdString='python3'//' '//trim(loadScript)//' '//trim(projectDir)//' '//trim(precipDir)//' '//trim(petDir)
-call execute_command_line (trim(cmdString),exitStat=err,cmdMsg=mess)
+! Run Python script that loads SMASH and waits for signal rom BaM to run SMASH
+cmdString='python3'//' '//trim(loadScript)//' '//trim(projectDir)//' '//trim(precipDir)&
+          //' '//trim(petDir)//' '//trim(communicationDir)
+call execute_command_line (trim(cmdString),wait=.false.,exitStat=err,cmdMsg=mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+
+! Wait until python script signals completion
+loadingDone=.false.
+do while (.not. loadingDone)! wait for signal from smash
+    INQUIRE(FILE=trim(projectDir)//trim(communicationDir)//'loadingDone.smash',EXIST=loadingDone)
+enddo
+! Cleanup
+call unlink(trim(projectDir)//trim(communicationDir)//'loadingDone.smash')
 
 end subroutine SMASH_Load
 
@@ -230,32 +256,29 @@ real(mrk),pointer::foo(:,:)
 err=0;mess=''
 
 ! String information: python scripts and directories
-if(associated(xtra%cp1)) nullify(xtra%cp1); allocate(xtra%cp1(7))
+if(associated(xtra%cp1)) nullify(xtra%cp1); allocate(xtra%cp1(6))
 call getSpareUnit(unt,err,mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 open(unit=unt,file=trim(file), status='old', iostat=err)
 if(err>0) then;mess=trim(procname)//':problem opening file '//trim(file);return;endif
 k=0
 k=k+1
-read(unt,*,iostat=err) xtra%cp1(k) ! loadScript
+read(unt,*,iostat=err) xtra%cp1(k) ! 1. loadScript
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 k=k+1
-read(unt,*,iostat=err) xtra%cp1(k) ! runScript
+read(unt,*,iostat=err) xtra%cp1(k) ! 2. projectDir
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 k=k+1
-read(unt,*,iostat=err) xtra%cp1(k) ! projectDir
+read(unt,*,iostat=err) xtra%cp1(k) ! 3. precipDir
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 k=k+1
-read(unt,*,iostat=err) xtra%cp1(k) ! precipDir
+read(unt,*,iostat=err) xtra%cp1(k) ! 4. petDir
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 k=k+1
-read(unt,*,iostat=err) xtra%cp1(k) ! petDir
+read(unt,*,iostat=err) xtra%cp1(k) ! 5. BaMstuffDir
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 k=k+1
-read(unt,*,iostat=err) xtra%cp1(k) ! BaMstuffDir
-if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
-k=k+1
-read(unt,*,iostat=err) xtra%cp1(k) ! QSIM file
+read(unt,*,iostat=err) xtra%cp1(k) ! 6. QSIM file
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 close(unt)
 ! SMASH parameter names (hard-coded for the moment)
@@ -263,11 +286,11 @@ if(allocated(SMASHparNames)) deallocate(SMASHparNames); allocate(SMASHparNames(4
 SMASHparNames=(/'cp ','ctr','cr ','ml '/)
 
 ! Read grid in BaMstuff directory
-call ReadRasterASC(file=trim(xtra%cp1(3))//trim(xtra%cp1(6))//'grid.asc',gridOnly=.true.,grid=SMASHgrid,err=err,mess=mess)
+call ReadRasterASC(file=trim(xtra%cp1(2))//trim(xtra%cp1(5))//'grid.asc',gridOnly=.true.,grid=SMASHgrid,err=err,mess=mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 
 ! Read anchors in BaMstuff directory
-call DatRead(file=trim(xtra%cp1(3))//trim(xtra%cp1(6))//'anchors.txt',ncol=3,y=foo,headers=head,err=err,mess=mess)
+call DatRead(file=trim(xtra%cp1(2))//trim(xtra%cp1(5))//'anchors.txt',ncol=3,y=foo,headers=head,err=err,mess=mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 if(allocated(SMASHanchors)) deallocate(SMASHanchors);allocate(SMASHanchors(size(foo,dim=1),size(foo,dim=2)))
 SMASHanchors=foo

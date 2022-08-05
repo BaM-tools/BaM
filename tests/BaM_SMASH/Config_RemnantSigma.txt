@@ -1,10 +1,14 @@
-'Linear'             ! Function f used in sdev=f(Qrc) 
-2                    ! Number of parameters gamma for f
+'Power'              ! Function f used in sdev=f(Qrc) 
+3                    ! Number of parameters gamma for f
 "intercept"          ! Parameter Name
-1.                   ! Initial Guess
+0.01                 ! Initial Guess
 'Uniform'            ! Prior distribution
 0,100000             ! Prior parameters
 "slope"              ! Parameter Name
-0.35                 ! Initial Guess
+0.60                 ! Initial Guess
 'Uniform'            ! Prior distribution
 0,100000             ! Prior parameters
+"exponent"           ! Parameter Name
+1.0                  ! Initial Guess
+'Uniform'            ! Prior distribution
+0,10                 ! Prior parameters

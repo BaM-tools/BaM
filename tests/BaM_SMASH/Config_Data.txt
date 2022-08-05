@@ -1,4 +1,4 @@
-'BaM_SMASH/XY.BAD' 		!!! Absolute path to data file
+'/home/brenard/BEN/GitHub/BaM/tests/BaM_SMASH/XY.BAD' 		!!! Absolute path to data file
 1           			!!! number of header lines
 1460         			!!! Nobs, number of rows in data file (excluding header lines)
 5       				!!! number of columns in the data file

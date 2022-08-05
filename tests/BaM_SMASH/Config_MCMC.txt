@@ -1,6 +1,6 @@
 "Results_MCMC.txt" ! File name
-10 ! NAdapt
-10 ! Ncycles
+100 ! NAdapt
+100 ! Ncycles
 0.1 ! MinMoveRate
 0.5 ! MaxMoveRate
 0.9 ! DownMult

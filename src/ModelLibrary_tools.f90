@@ -343,9 +343,8 @@ case(MDL_TidalRemenieras)
     call TidalRemenieras_Apply(IN=X,theta=theta,OUT=Y(:,1),&
                         ComputationOption=model%xtra%cs1,feas=vfeas,err=err,mess=mess)!
 case(MDL_SMASH)
-    call SMASH_Run(runScript=model%xtra%cp1(2), projectDir=model%xtra%cp1(3),&
-                   thetaDir=model%xtra%cp1(6),QSIMfile=model%xtra%cp1(7),&
-                   theta=theta,Y=Y,feas=feas,err=err,mess=mess)
+    call SMASH_Run(projectDir=model%xtra%cp1(2),communicationDir=model%xtra%cp1(5),&
+                   QSIMfile=model%xtra%cp1(6),theta=theta,Y=Y,feas=feas,err=err,mess=mess)
 case default
     err=1;mess=trim(procname)//': Fatal: Unavailable [model%ID]'
 end select
@@ -610,8 +609,9 @@ case(MDL_SMASH)
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
     ! Load SMASH
-    call SMASH_Load(loadScript=model%xtra%cp1(1),projectDir=model%xtra%cp1(3),&
-                    precipDir=model%xtra%cp1(4),petDir=model%xtra%cp1(5),err=err,mess=mess)
+    call SMASH_Load(loadScript=model%xtra%cp1(1),projectDir=model%xtra%cp1(2),&
+                    precipDir=model%xtra%cp1(3),petDir=model%xtra%cp1(4),&
+                    communicationDir=model%xtra%cp1(5),err=err,mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 case default
     err=1;mess=trim(procname)//': Fatal: Unavailable [model%ID]'

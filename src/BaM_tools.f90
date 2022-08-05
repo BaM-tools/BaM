@@ -1566,7 +1566,7 @@ integer(mik), intent(out)::err
 character(*),intent(out)::mess,workspace,Config_RunOptions,Config_Model,Config_Xtra,&
           Config_Data,Config_MCMC,Config_Cooking,Config_summary,&
           Config_Residual,Config_Pred
-character(250),pointer::Config_RemnantSigma(:)
+character(*),pointer::Config_RemnantSigma(:)
 ! locals
 character(250),parameter::procname='Config_Read',sep=","
 character(250)::foo
@@ -3078,7 +3078,7 @@ subroutine Config_Read_Par_STD(unt,parname,theta0,prior,err,mess)
 !^**********************************************************************
 use Distribution_tools, only:GetParNumber
 integer(mik),intent(in)::unt
-character(250), intent(out)::parname
+character(*), intent(out)::parname
 real(mrk),intent(out)::theta0
 type(PriorListType),intent(out)::prior
 integer(mik), intent(out)::err
@@ -3140,7 +3140,7 @@ use utilities_dmsl_kit,only:getSpareUnit
 use Distribution_tools, only:GetParNumber
 character(*), intent(in)::file
 Type(PriorListType), pointer:: Prior_RemnantSigma(:)
-character(250),pointer:: parname(:)
+character(*),pointer:: parname(:)
 real(mrk),pointer:: RemnantSigma0(:)
 integer(mik), intent(out)::err
 character(*),intent(out)::mess,RemnantSigma_funk

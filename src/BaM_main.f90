@@ -16,18 +16,18 @@ implicit none
 
 !-----------------------
 ! Constants
-character(250),parameter::Config_file="Config_BaM.txt"
-character(250),parameter::priorCorrFile="PriorCorrelation.txt"
-character(250),parameter::MonitorExt=".monitor"
+character(len_stdStrD),parameter::Config_file="Config_BaM.txt"
+character(len_stdStrD),parameter::priorCorrFile="PriorCorrelation.txt"
+character(len_stdStrD),parameter::MonitorExt=".monitor"
 real(mrk),parameter::defaultstd=0.1_mrk
 !-----------------------
 ! Config files
-character(250)::workspace
-character(250)::Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
+character(len_vLongStr)::workspace
+character(len_longStr)::Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
                 Config_MCMC,Config_Cooking,Config_summary,&
                 Config_Residual,Config_Pred_Master
-character(250),pointer::Config_RemnantSigma(:),Config_Pred(:)
-character(250),allocatable::Config_RemnantList(:)
+character(len_longStr),pointer::Config_RemnantSigma(:),Config_Pred(:)
+character(len_longStr),allocatable::Config_RemnantList(:)
 !-----------------------
 ! run options
 logical::DoMCMC,DoSummary,DoResidual,DoPred
@@ -35,7 +35,7 @@ logical::DoMCMC,DoSummary,DoResidual,DoPred
 ! MCMC properties
 integer(mik)::nAdapt,nCycles,nSlim,InitStdMode
 real(mrk):: BurnFactor,MinMoveRate,MaxMoveRate,DownMult,UpMult
-character(250)::MCMCFile
+character(len_longStr)::MCMCFile
 real(mrk), allocatable::theta_std0(:)
 type(parlist),allocatable::RemnantSigma_std0(:)
 !-----------------------
@@ -51,19 +51,19 @@ real(mrk), pointer::theta0(:)
 type(parlist),allocatable::RemnantSigma0(:)
 type(plist),allocatable::Prior_RemnantSigma(:)
 type(slist),allocatable::ParName_RemnantSigma(:)
-character(250),allocatable::RemnantSigma_funk(:)
+character(len_longStr),allocatable::RemnantSigma_funk(:)
 type(ModelType)::model
 !-----------------------
 ! Post-processing
 real(mrk), pointer::maxpost(:),mcmc(:,:),logpost(:)
-character(250)::Residual_File,Cooking_File,Summary_File
+character(len_longStr)::Residual_File,Cooking_File,Summary_File
 !-----------------------
 ! Prediction
 integer(mik)::npred
 logical::DoParametric
 logical,allocatable::DoRemnant(:),DoTranspose(:),DoEnvelop(:),DoState(:),&
                      DoTranspose_S(:),DoEnvelop_S(:)
-character(250),allocatable::XSpag_Files(:),YSpag_Files(:),Envelop_Files(:),&
+character(len_longStr),allocatable::XSpag_Files(:),YSpag_Files(:),Envelop_Files(:),&
                             SpagFiles_S(:),EnvelopFiles_S(:)
 logical::PrintCounter
 type(XspagType)::Xspag
@@ -71,7 +71,7 @@ type(XspagType)::Xspag
 ! Misc.
 integer(mik)::i,err,nobs,nc,nhead,nsim
 logical::IsMCMCLoaded
-character(250)::mess,datafile
+character(len_vLongStr)::mess,datafile
 !-----------------------
 
 !---------------------------------------------------------------------

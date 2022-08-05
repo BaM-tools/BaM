@@ -61,7 +61,7 @@ use SMASH_model
 
 implicit none
 Private
-public :: GetModelParNumber,ApplyModel,XtraRead,XtraSetup
+public :: GetModelParNumber,ApplyModel,XtraRead,XtraSetup,XtraCleanup
 
 ! Catalogue of available models
 Character(100), parameter, PUBLIC:: &
@@ -618,6 +618,44 @@ case default
 end select
 
 end subroutine XtraSetup
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+subroutine XtraCleanup(model,err,mess)
+!^**********************************************************************
+!^* Purpose: Xtra model cleanup. Subroutine used for any cleanup action
+!^*          that may be necessary after model use.
+!^*          For many models this sub does nothing.
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE Aix
+!^**********************************************************************
+!^* Last modified: 05/08/2022
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* INOUT
+!^*    1. model, model object
+!^* OUT
+!^*    1.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    2.mess, error message
+!^**********************************************************************
+use utilities_dmsl_kit,only:number_string
+type(ModelType), intent(inout)::model
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+! locals
+character(250),parameter::procname='XtraCleanup'
+
+err=0;mess=''
+
+if(trim(model%ID)==MDL_SMASH) then ! Stops Python infinite loop
+    call SMASH_Cleanup(projectDir=model%xtra%cp1(2),communicationDir=model%xtra%cp1(5),err=err,mess=mess)
+    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+endif
+
+end subroutine XtraCleanup
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !==============!
 ! Private subs !

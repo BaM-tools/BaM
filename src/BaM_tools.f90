@@ -38,7 +38,7 @@ public :: &! main subroutines to handle the probabilistic model behind BaM
           Config_Finalize,&
           BaM_ConsoleMessage,&
           ! Post-processing tools
-          BaM_LoadMCMC,BaM_Residual,BaM_Prediction,BaM_ReadSpag
+          BaM_LoadMCMC,BaM_Residual,BaM_Prediction,BaM_ReadSpag,BaM_Cleanup
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! variables globally available to this module
@@ -1324,6 +1324,37 @@ end subroutine BaM_SummarizeMCMC
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+subroutine BaM_Cleanup(err,mess)
+!^**********************************************************************
+!^* Purpose: performs final cleanup
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE Aix
+!^**********************************************************************
+!^* Last modified: 05/08/2022
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^* OUT
+!^*    1.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    2.mess, error message
+!^**********************************************************************
+use ModelLibrary_tools, only:XtraCleanup
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+!locals
+character(250),parameter::procname='BaM_Cleanup'
+
+err=0;mess=''
+call XtraCleanup(MODEL,err,mess)
+end subroutine BaM_Cleanup
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 subroutine BaM_ConsoleMessage(id,mess)
 !^**********************************************************************
 !^* Purpose: console messages printed during BaM execution
@@ -1425,6 +1456,9 @@ case(16)
     write(*,*) 'Computation is skipped'
 case(17)
     write(*,*) 'WARNING: Prediction experiment has failed'
+    write(*,*) 'Error message: '//trim(mess)
+case(18)
+    write(*,*) 'WARNING: Final cleanup has failed'
     write(*,*) 'Error message: '//trim(mess)
 case(100)
     write(*,*) ''

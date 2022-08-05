@@ -11,7 +11,7 @@ use BaM_tools, only:plist,parlist,slist,parType,&
                     Config_Read_Residual,Config_Read_Cook,Config_Read_Summary,&
                     Config_Read_Pred_Master,Config_Read_Pred,Config_Finalize,&
                     BaM_ConsoleMessage,BaM_LoadMCMC,BaM_Residual,&
-                    BaM_Prediction,XspagType,BaM_ReadSpag
+                    BaM_Prediction,XspagType,BaM_ReadSpag,BaM_Cleanup
 implicit none
 
 !-----------------------
@@ -347,6 +347,8 @@ endif
 ! ALL DONE !!!
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
+call BaM_Cleanup(err=err,mess=mess)
+if(err>0) then; call BaM_ConsoleMessage(18,trim(mess));endif
 
 call BaM_ConsoleMessage(999, '')
 read(*,*)

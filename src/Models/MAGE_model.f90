@@ -114,7 +114,7 @@ real(mrk), pointer::foo(:,:)
 ! Init
 err=0;mess='';feas=.true.;Y=undefRN
 n=size(RUGb)
-forma='(A1,I3,6x,4F10.0)'
+forma='(A1,I3,6x,2F10.0,2F10.2)'
 
 ! Write Theta as a .RUG file
 call getSpareUnit(unt,err,mess)
@@ -138,7 +138,7 @@ if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 do i=1,size(outFiles)
     call DatRead(file=outFiles(i),ncol=outFileNCOL,y=foo,headers=head,err=err,mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
-    if(size(foo,dim=1)<=1) then ! MAGE didn't run properly
+    if( size(foo,dim=1) /= size(Y,dim=1) ) then ! MAGE didn't run properly
         feas=.false.;return
     endif
     Y(:,i)=foo(:,outFileNCOL)
@@ -252,11 +252,11 @@ do i=1,n
     if(line(1:3)=='CSV') then
         read(line,*,iostat=err) foo,prefix,var,ib,pk,mode,dt0
         if(err>0) then;mess=trim(procname)//':problem reading file '//trim(REPfile);return;endif
-        if(var=='q') then
+        !if(var=='q') then
             k=k+1
             fname=trim(projectDir)//trim(prefix)//'_'//trim(var)//'_'//trim(ib)//'_'//trim(pk)//'.csv'
             fnames(k)=fname
-        endif
+        !endif
     endif
 enddo
 if(k==0) then;err=1;mess=trim(procname)//'FATAL: no CSV file with var=q found.';return;endif

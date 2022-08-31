@@ -1,4 +1,4 @@
-"BaM_SMASH/"                                                   ! workspace
+"BaM_MAGE/"                                                    ! workspace
 "Config_RunOptions.txt"                                        ! Config file: run options
 "Config_Model.txt"                                             ! Config file: model
 "Config_setup.txt"                                             ! Config file: xtra model information

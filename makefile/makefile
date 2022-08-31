@@ -64,8 +64,9 @@ Models = \
 	$(Models_DIR)TidalODE_model.f90                    \
 	$(Models_DIR)TidalRemenieras_model.f90             \
 	$(Models_DIR)SFDTidal_Sw_correction_model.f90	   \
-	$(Models_DIR)SMASH/SMASH_model.f90	  
-
+	$(Models_DIR)SMASH/SMASH_model.f90                 \
+	$(Models_DIR)MAGE_model.f90	  
+	
 # Define BaM files
 BaM = \
 	$(BaM_DIR)ModelLibrary_tools.f90       \

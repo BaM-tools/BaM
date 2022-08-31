@@ -58,6 +58,7 @@ use DynamicVegetation_model
 use TidalODE_model
 use TidalRemenieras_model
 use SMASH_model
+use MAGE_model
 
 implicit none
 Private
@@ -89,7 +90,8 @@ Character(100), parameter, PUBLIC:: &
                     MDL_DynamicVegetation="MDL_DynamicVegetation",& ! Vegetation rating curve model, using Algae Biomass submodel
                     MDL_TidalODE="MDL_TidalODE",& ! Discharge for tidal rivers
                     MDL_TidalRemenieras="MDL_TidalRemenieras",& ! Discharge for tidal rivers
-                    MDL_SMASH="MDL_SMASH" ! Interface to SMASH distributed hydrological model
+                    MDL_SMASH="MDL_SMASH",& ! Interface to SMASH distributed hydrological model
+                    MDL_MAGE="MDL_MAGE" ! Interface to SMASH distributed hydrological model
 
 ! Model object
 type, public:: ModelType ! the "model" object
@@ -195,6 +197,8 @@ case(MDL_TidalRemenieras)
     call TidalRemenieras_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_SMASH)
     call SMASH_GetParNumber(npar=npar,err=err,mess=mess)
+case(MDL_MAGE)
+    call MAGE_GetParNumber(npar=npar,err=err,mess=mess)
 end select
 if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
 end subroutine GetmodelParNumber
@@ -345,6 +349,9 @@ case(MDL_TidalRemenieras)
 case(MDL_SMASH)
     call SMASH_Run(projectDir=model%xtra%cp1(2),communicationDir=model%xtra%cp1(5),&
                    QSIMfile=model%xtra%cp1(6),theta=theta,Y=Y,feas=feas,err=err,mess=mess)
+case(MDL_MAGE)
+    call MAGE_Run(exeFile=model%xtra%cs1,projectDir=model%xtra%cs2,REPfile=model%xtra%cs3,&
+                  theta=theta,Y=Y,feas=feas,err=err,mess=mess)
 case default
     err=1;mess=trim(procname)//': Fatal: Unavailable [model%ID]'
 end select
@@ -448,6 +455,8 @@ case(MDL_TidalRemenieras)
     !call TidalRemenieras_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
 case(MDL_SMASH)
     call SMASH_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
+case(MDL_MAGE)
+    call MAGE_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
 case default
     err=1;mess=trim(procname)//': Fatal: Unavailable [model%ID]'
 end select
@@ -612,6 +621,13 @@ case(MDL_SMASH)
     call SMASH_Load(loadScript=model%xtra%cp1(1),projectDir=model%xtra%cp1(2),&
                     precipDir=model%xtra%cp1(3),petDir=model%xtra%cp1(4),&
                     communicationDir=model%xtra%cp1(5),err=err,mess=mess)
+    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+case(MDL_MAGE)
+    model%nDpar=0
+    model%nState=0
+    allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
+    ! Load SMASH
+    call MAGE_setUp(projectDir=trim(model%xtra%cs2),REPfile=trim(model%xtra%cs3),err=err,mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 case default
     err=1;mess=trim(procname)//': Fatal: Unavailable [model%ID]'

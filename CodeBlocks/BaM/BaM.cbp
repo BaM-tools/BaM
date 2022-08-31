@@ -127,6 +127,7 @@
 		</Unit>
 		<Unit filename="../../src/Models/GR4J_model.f90" />
 		<Unit filename="../../src/Models/Linear_model.f90" />
+		<Unit filename="../../src/Models/MAGE_model.f90" />
 		<Unit filename="../../src/Models/Mixture_model.f90" />
 		<Unit filename="../../src/Models/Orthorectification_model.f90" />
 		<Unit filename="../../src/Models/Recession_model.f90" />

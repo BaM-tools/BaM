@@ -1,4 +1,4 @@
-"BaM_MAGE/"                                                    ! workspace
+"BaM_SMASH/"                                                   ! workspace
 "Config_RunOptions.txt"                                        ! Config file: run options
 "Config_Model.txt"                                             ! Config file: model
 "Config_setup.txt"                                             ! Config file: xtra model information
@@ -8,4 +8,4 @@
 "Config_Cooking.txt"                                           ! Config file: cooking of MCMC samples
 "Config_Summary.txt"                                           ! Config file: summary of MCMC samples
 "Config_Residuals.txt"                                         ! Config file: residual diagnostics
-""                                                             ! Config file: prediction experiments
+"Config_Pred_Master.txt"                                       ! Config file: prediction experiments

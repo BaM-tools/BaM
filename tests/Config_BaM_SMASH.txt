@@ -8,4 +8,4 @@
 "Config_Cooking.txt"                                           ! Config file: cooking of MCMC samples
 "Config_Summary.txt"                                           ! Config file: summary of MCMC samples
 "Config_Residuals.txt"                                         ! Config file: residual diagnostics
-""                                                             ! Config file: prediction experiments
+"Config_Pred_Master.txt"                                       ! Config file: prediction experiments

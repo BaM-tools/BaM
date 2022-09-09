@@ -3,3 +3,5 @@ BaM
 Results_*
 *.monitor
 .Rhistory
+*.env
+*.spag

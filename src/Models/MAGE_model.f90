@@ -130,7 +130,7 @@ enddo
 close(unt)
 
 ! Call mage
-cmdString='cd '//trim(projectDir)//';'//trim(exeFile)//' '//trim(REPfile)
+cmdString='cd '//trim(projectDir)//'&&'//trim(exeFile)//' '//trim(REPfile)
 call execute_command_line (trim(cmdString),wait=.true.,exitStat=err,cmdMsg=mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 

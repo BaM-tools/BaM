@@ -20,8 +20,8 @@ module SMASH_model
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
-use Geodesy_tools,only:rasterGridType,interpolateOnGrid
-use DataRW_tools,only:WriteRasterASC,ReadRasterASC,DatRead
+use Geodesy_tools,only:rasterGridType,interpolateOnGrid,WriteRasterASC,ReadRasterASC
+use DataRW_tools,only:DatRead
 
 implicit none
 Private

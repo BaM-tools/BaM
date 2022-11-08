@@ -15,7 +15,7 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add option="-Wl,-z,stack-size=999999999" />
+					<Add option="-Wall" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -29,7 +29,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-Wl,-z,stack-size=999999999,-rpath,&apos;$ORIGIN/lib_so&apos;" />
+					<Add option="-Wall" />
 				</Linker>
 			</Target>
 			<Target title="Standalone">

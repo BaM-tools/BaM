@@ -1,4 +1,4 @@
-"TEST_BaRatin/"                                               ! workspace
+"TEST_BaRatin/"                                                ! workspace
 "Config_RunOptions.txt"                                        ! Config file: run options
 "Config_Model.txt"                                             ! Config file: model
 "Config_ControlMatrix.txt"                                     ! Config file: xtra model information

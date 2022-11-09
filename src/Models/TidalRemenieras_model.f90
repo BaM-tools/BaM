@@ -19,8 +19,8 @@ module TidalRemenieras_model
 !~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. Tidal2_GetParNumber, number of parameters of the RC
-!~*		2. Tidal2_Apply, compute Q=f(h1t(t),h2t(t)|theta)
+!~*     1. Tidal2_GetParNumber, number of parameters of the RC
+!~*     2. Tidal2_Apply, compute Q=f(h1t(t),h2t(t)|theta)
 !~*     3. Tidal2_XtraRead, read optional information - 2 options :
 !^*          - (i) keep the water depth and the wetted section at the main station for the calculation
 !^*          - (ii) keep the average water depth and wetted section for the calculation (more common)
@@ -51,9 +51,9 @@ subroutine TidalRemenieras_GetParNumber(npar,err,mess)
 !^**********************************************************************
 !^* IN
 !^* OUT
-!^*		1. npar, par. number
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. npar, par. number
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 
 integer(mik), intent(out)::npar,err
@@ -80,14 +80,14 @@ subroutine TidalRemenieras_Apply(IN,theta,OUT,ComputationOption,feas,err,mess)!
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. IN, input matrix (h1,h2)
-!^*		2. theta, parameter vector
-!^*		3. ComputationOption
+!^*     1. IN, input matrix (h1,h2)
+!^*     2. theta, parameter vector
+!^*     3. ComputationOption
 !^* OUT
-!^*		1. OUT, discharge
-!^*		2. feas, feasible?
-!^*		3. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4. mess, error message
+!^*     1. OUT, discharge
+!^*     2. feas, feasible?
+!^*     3. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4. mess, error message
 !^**********************************************************************
 real(mrk), intent(in)::IN(:,:),theta(:)
 real(mrk), intent(out)::OUT(:)

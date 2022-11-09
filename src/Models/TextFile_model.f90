@@ -7,22 +7,22 @@
 !~**********************************************************************
 !~* Comments: Built on the fortran expression parser by Roland Schmehl.
 !~*           See module fparser below for copyright and license info.
-!~*            
-!~*           This f90 files starts with Roland Schmehl's modules 
+!~*
+!~*           This f90 files starts with Roland Schmehl's modules
 !~*           parameters and fparser. I just made a few modifications
 !~*           (ctrl+F BEN RENARD to see them)
-!~*           
+!~*
 !~*           The module TextFile_model itself is at the end of this
 !~*           file (ctrl+F module TextFile_model).
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. XXX
-!~*		2. XXX
-!~*		3. XXX
+!~*     1. XXX
+!~*     2. XXX
+!~*     3. XXX
 !~**********************************************************************
 
 !oooooooooooooooooooooooooooooooooooooooooooooo
@@ -48,14 +48,14 @@
 !* Redistribution and use in source and binary forms, with or without
 !modification, are permitted provided that the following conditions are
 !met:
-!        
+!
 !* Redistributions of source code must retain the above copyright notice,
 !this list of conditions and the following disclaimer.
-!        
+!
 !* Redistributions in binary form must reproduce the above copyright
 !notice, this list of conditions and the following disclaimer in the
 !documentation and/or other materials provided with the distribution.
-!        
+!
 !* Neither the name of the copyright holder nor the names of its
 !contributors may be used to endorse or promote products derived from
 !this software without specific prior written permission.
@@ -96,9 +96,9 @@ MODULE fparser
   !------- -------- --------- --------- --------- --------- --------- --------- -------
   !
   ! This function parser module is intended for applications where a set of mathematical
-  ! fortran-style expressions is specified at runtime and is then evaluated for a large 
-  ! number of variable values. This is done by compiling the set of function strings 
-  ! into byte code, which is interpreted efficiently for the various variable values. 
+  ! fortran-style expressions is specified at runtime and is then evaluated for a large
+  ! number of variable values. This is done by compiling the set of function strings
+  ! into byte code, which is interpreted efficiently for the various variable values.
   !
   ! The source code is available from http://fparser.sourceforge.net
   !
@@ -106,7 +106,7 @@ MODULE fparser
   ! Roland Schmehl <roland.schmehl@alumni.uni-karlsruhe.de>
   !
   !------- -------- --------- --------- --------- --------- --------- --------- -------
-  ! The function parser concept is based on a C++ class library written by  Juha 
+  ! The function parser concept is based on a C++ class library written by  Juha
   ! Nieminen <warp@iki.fi> available from http://warp.povusers.org/FunctionParser/
   !------- -------- --------- --------- --------- --------- --------- --------- -------
   USE parameters, ONLY: rn,is               ! Import KIND parameters
@@ -123,11 +123,11 @@ MODULE fparser
   ! MODIFIED BY BEN RENARD: Added mathematical functions (from is0 onwards)
   INTEGER(is),                              PARAMETER :: cImmed   = 1,          &
                                                          cNeg     = 2,          &
-                                                         cAdd     = 3,          & 
-                                                         cSub     = 4,          & 
-                                                         cMul     = 5,          & 
-                                                         cDiv     = 6,          & 
-                                                         cPow     = 7,          & 
+                                                         cAdd     = 3,          &
+                                                         cSub     = 4,          &
+                                                         cMul     = 5,          &
+                                                         cDiv     = 6,          &
+                                                         cPow     = 7,          &
                                                          cAbs     = 8,          &
                                                          cExp     = 9,          &
                                                          cLog10   = 10,         &
@@ -153,7 +153,7 @@ MODULE fparser
                                                                        '*',     &
                                                                        '/',     &
                                                                        '^' /)
-  
+
   ! MODIFIED BY BEN RENARD: defined begin/end of math functions
   integer(is),parameter::mathFirst=cAbs,mathLast=cIsSNeg
   CHARACTER (LEN=6), DIMENSION(mathFirst:mathLast), PARAMETER :: Funcs   = (/&
@@ -382,7 +382,7 @@ CONTAINS
           CALL ParseErrMsg (j, FuncStr, 'Missing operator')
        END IF
        !-- -------- --------- --------- --------- --------- --------- --------- -------
-       ! Now, we have an operand and an operator: the next loop will check for another 
+       ! Now, we have an operand and an operator: the next loop will check for another
        ! operand (must appear)
        !-- -------- --------- --------- --------- --------- --------- --------- -------
        j = j+1
@@ -470,7 +470,7 @@ CONTAINS
     n = 0
     ! MODIFIED BY BEN RENARD: replaced cAbs/cAtan by mathFirst/mathLast to make includion of new functions easier
     DO j=mathFirst,mathLast                                  ! Check all math functions
-       k = MIN(LEN_TRIM(Funcs(j)), LEN(str))   
+       k = MIN(LEN_TRIM(Funcs(j)), LEN(str))
        CALL LowCase (str(1:k), fun)
        IF (fun == Funcs(j)) THEN                             ! Compare lower case letters
           n = j                                              ! Found a matching function
@@ -496,12 +496,12 @@ CONTAINS
     IF (lstr > 0) THEN
        DO ib=1,lstr                                          ! Search for first character in str
           IF (str(ib:ib) /= ' ') EXIT                        ! When lstr>0 at least 1 char in str
-       END DO                        
+       END DO
        DO in=ib,lstr                                         ! Search for name terminators
           IF (SCAN(str(in:in),'+-*/^) ') > 0) EXIT
        END DO
        DO j=1,SIZE(Var)
-          IF (str(ib:in-1) == Var(j)) THEN                     
+          IF (str(ib:in-1) == Var(j)) THEN
              n = j                                           ! Variable name found
              EXIT
           END IF
@@ -522,7 +522,7 @@ CONTAINS
     lstr = LEN_TRIM(str)
     ipos = (/ (k,k=1,lstr) /)
     k = 1
-    DO WHILE (str(k:lstr) /= ' ')                             
+    DO WHILE (str(k:lstr) /= ' ')
        IF (str(k:k) == ' ') THEN
           str(k:lstr)  = str(k+1:lstr)//' '                  ! Move 1 character to left
           ipos(k:lstr) = (/ ipos(k+1:lstr), 0 /)             ! Move 1 element to left
@@ -566,7 +566,7 @@ CONTAINS
     Comp(i)%StackSize    = 0
     Comp(i)%StackPtr     = 0
     CALL CompileSubstr (i,F,1,LEN_TRIM(F),Var)               ! Compile string to determine size
-    ALLOCATE ( Comp(i)%ByteCode(Comp(i)%ByteCodeSize), & 
+    ALLOCATE ( Comp(i)%ByteCode(Comp(i)%ByteCodeSize), &
                Comp(i)%Immed(Comp(i)%ImmedSize),       &
                Comp(i)%Stack(Comp(i)%StackSize),       &
                STAT = istat                            )
@@ -588,7 +588,7 @@ CONTAINS
     ! Add compiled byte to bytecode
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     IMPLICIT NONE
-    INTEGER,     INTENT(in) :: i                             ! Function identifier  
+    INTEGER,     INTENT(in) :: i                             ! Function identifier
     INTEGER(is), INTENT(in) :: b                             ! Value of byte to be added
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     Comp(i)%ByteCodeSize = Comp(i)%ByteCodeSize + 1
@@ -600,7 +600,7 @@ CONTAINS
     ! Return math item index, if item is real number, enter it into Comp-structure
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     IMPLICIT NONE
-    INTEGER,                         INTENT(in) :: i         ! Function identifier  
+    INTEGER,                         INTENT(in) :: i         ! Function identifier
     CHARACTER (LEN=*),               INTENT(in) :: F         ! Function substring
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in) :: Var       ! Array with variable names
     INTEGER(is)                                 :: n         ! Byte value of math item
@@ -646,7 +646,7 @@ CONTAINS
     ! Compile i-th function string F into bytecode
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     IMPLICIT NONE
-    INTEGER,                         INTENT(in) :: i         ! Function identifier  
+    INTEGER,                         INTENT(in) :: i         ! Function identifier
     CHARACTER (LEN=*),               INTENT(in) :: F         ! Function substring
     INTEGER,                         INTENT(in) :: b,e       ! Begin and end position substring
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in) :: Var       ! Array with variable names
@@ -665,7 +665,7 @@ CONTAINS
 !      WRITE(*,*)'2. F(b:e) = "(...)"'
        CALL CompileSubstr (i, F, b+1, e-1, Var)
        RETURN
-    ELSEIF (SCAN(F(b:b),calpha) > 0) THEN        
+    ELSEIF (SCAN(F(b:b),calpha) > 0) THEN
        n = MathFunctionIndex (F(b:e))
        IF (n > 0) THEN
           b2 = b+INDEX(F(b:e),'(')-1
@@ -698,7 +698,7 @@ CONTAINS
     END IF
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Check for operator in substring: check only base level (k=0), exclude expr. in ()
-    !----- -------- --------- --------- --------- --------- --------- --------- -------    
+    !----- -------- --------- --------- --------- --------- --------- --------- -------
     DO io=cAdd,cPow                                          ! Increasing priority +-*/^
        k = 0
        DO j=e,b,-1
@@ -712,7 +712,7 @@ CONTAINS
 !               WRITE(*,*)'6. F(b:e) = "-...Op..." with Op > -'
                 CALL CompileSubstr (i, F, b+1, e, Var)
                 CALL AddCompiledByte (i, cNeg)
-                RETURN                 
+                RETURN
              ELSE                                                        ! Case 7: F(b:e) = '...BinOp...'
 !               WRITE(*,*)'7. Binary operator',F(j:j)
                 CALL CompileSubstr (i, F, b, j-1, Var)
@@ -760,7 +760,7 @@ CONTAINS
                SCAN(F(j-1:j-1),'eEdD')       > 0) THEN
           Dflag=.false.; Pflag=.false.
           k = j-1
-          DO WHILE (k > 1)                                   !   step to the left in mantissa 
+          DO WHILE (k > 1)                                   !   step to the left in mantissa
              k = k-1
              IF     (SCAN(F(k:k),'0123456789') > 0) THEN
                 Dflag=.true.
@@ -809,17 +809,17 @@ CONTAINS
           ib = ib+1
           IF (InMan .OR. Eflag .OR. InExp) EXIT
        CASE ('+','-')                                        ! Permitted only
-          IF     (Bflag) THEN           
+          IF     (Bflag) THEN
              InMan=.true.; Bflag=.false.                     ! - at beginning of mantissa
-          ELSEIF (Eflag) THEN               
+          ELSEIF (Eflag) THEN
              InExp=.true.; Eflag=.false.                     ! - at beginning of exponent
           ELSE
              EXIT                                            ! - otherwise STOP
           ENDIF
        CASE ('0':'9')                                        ! Mark
-          IF     (Bflag) THEN           
+          IF     (Bflag) THEN
              InMan=.true.; Bflag=.false.                     ! - beginning of mantissa
-          ELSEIF (Eflag) THEN               
+          ELSEIF (Eflag) THEN
              InExp=.true.; Eflag=.false.                     ! - beginning of exponent
           ENDIF
           IF (InMan) DInMan=.true.                           ! Mantissa contains digit
@@ -855,7 +855,7 @@ CONTAINS
     IF (PRESENT(inext))  inext  = in
     IF (PRESENT(error))  error  = err
   END FUNCTION RealNum
-  !  
+  !
   SUBROUTINE LowCase (str1, str2)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Transform upper case letters in str1 into lower case letters, result is str2
@@ -896,7 +896,7 @@ Contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine TxtMdl_load(file,err,mess)
 !^**********************************************************************
-!^* Purpose: Read and load model from a text file 
+!^* Purpose: Read and load model from a text file
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
@@ -917,10 +917,10 @@ subroutine TxtMdl_load(file,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, text file
+!^*     1. file, text file
 !^* OUT
-!^*		1. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		2. mess, error message
+!^*     1. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     2. mess, error message
 !^**********************************************************************
 use utilities_dmsl_kit,only:getSpareUnit,countSubstringInString
 
@@ -947,7 +947,7 @@ read(unt,*,iostat=err) nIN ! number of input variables
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 if(nIN<0) then;err=1;mess=trim(procname)//':negative nIN not allowed';return;endif
 if(allocated(nameIN)) deallocate(nameIN); allocate(nameIN(nIN))
-if(nIN>0) then 
+if(nIN>0) then
     read(unt,*,iostat=err) nameIN ! names of input variables
     if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 else
@@ -958,7 +958,7 @@ read(unt,*,iostat=err) nPAR ! number of parameters
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 if(nPAR<0) then;err=1;mess=trim(procname)//':negative nPAR not allowed';return;endif
 if(allocated(namePAR)) deallocate(namePAR); allocate(namePAR(nPAR))
-if(nPAR>0) then 
+if(nPAR>0) then
     read(unt,*,iostat=err) namePAR ! names of input variables
     if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 else
@@ -973,7 +973,7 @@ do i=1,nOUT
     read(unt,'(A)',iostat=err) foo ! formula for ith output, comment included
     n=len_trim(foo)
     do j=1,n
-        if(foo(j:j)=='!') exit            
+        if(foo(j:j)=='!') exit
     enddo
     formula(i)=foo(1:(j-1)) ! formula for ith output with comments removed
     if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
@@ -994,19 +994,19 @@ subroutine TxtMdl_define(nameIN,namePAR,formulas,err,mess)
 !^**********************************************************************
 !^* Last modified: 04/07/2019
 !^**********************************************************************
-!^* Comments: 
+!^* Comments:
 !^**********************************************************************
 !^* References:
 !^**********************************************************************
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. nameIN, character vector, name of input variables
-!^*		2. namePAR, character vector, name of parameters
-!^*		3. formulas, character vector, text formulas
+!^*     1. nameIN, character vector, name of input variables
+!^*     2. namePAR, character vector, name of parameters
+!^*     3. formulas, character vector, text formulas
 !^* OUT
-!^*		1. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		2. mess, error message
+!^*     1. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     2. mess, error message
 !^**********************************************************************
 character(*), intent(in)::nameIN(:),namePAR(:),formulas(:)
 integer(mik), intent(out)::err
@@ -1047,14 +1047,14 @@ subroutine TxtMdl_Apply(IN,theta,whichOUT,OUT,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. IN, input vector
-!^*		2. theta, parameter vector
-!^*		3. [whichOUT], integer, optional, which output should be computed? If absent, all outputs are computed.
+!^*     1. IN, input vector
+!^*     2. theta, parameter vector
+!^*     3. [whichOUT], integer, optional, which output should be computed? If absent, all outputs are computed.
 !^* OUT
-!^*		1. OUT, output vector
-!^*		2. feas, feasible?
-!^*		3. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4. mess, error message
+!^*     1. OUT, output vector
+!^*     2. feas, feasible?
+!^*     3. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4. mess, error message
 !^**********************************************************************
 real(mrk), intent(in)::IN(:,:),theta(:)
 integer(mik),intent(in),optional::whichOUT

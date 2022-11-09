@@ -34,8 +34,9 @@
 		<File RelativePath="..\..\..\BMSL\src\Dates_tools.f90"/>
 		<File RelativePath="..\..\..\BMSL\src\Distribution_tools.f90"/>
 		<File RelativePath="..\..\..\BMSL\src\EmpiricalStats_tools.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\Geodesy_tools.f90"/>
 		<File RelativePath="..\..\..\BMSL\src\MCMC_tools.f90"/>
-		<File RelativePath="..\..\..\BMSL\src\MCMCStrategy_tools_NoRFortran.f90"/>
+		<File RelativePath="..\..\..\BMSL\src\MCMCStrategy_tools.f90"/>
 		<File RelativePath="..\..\..\BMSL\src\TimeSeries_tools.f90"/></Filter>
 		<Filter Name="Models">
 		<File RelativePath="..\..\src\Models\AlgaeBiomass_model.f90"/>
@@ -54,6 +55,7 @@
 		<File RelativePath="..\..\src\Models\SFDTidal4_model.f90"/>
 		<File RelativePath="..\..\src\Models\SFDTidal_model.f90"/>
 		<File RelativePath="..\..\src\Models\SFDTidalJones_model.f90"/>
+		<File RelativePath="..\..\src\Models\SMASH\SMASH_model.f90"/>
 		<File RelativePath="..\..\src\Models\StageFallDischarge_model.f90"/>
 		<File RelativePath="..\..\src\Models\StageGradientDischarge_model.f90"/>
 		<File RelativePath="..\..\src\Models\SuspendedLoad_model.f90"/>

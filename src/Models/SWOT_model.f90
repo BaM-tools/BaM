@@ -11,12 +11,12 @@ module SWOT_model
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. SWOT_GetParNumber, number of parameters of the RC
-!~*		2. SWOT_Apply, compute Q=f(h,S,B?|theta)
-!~*		3. SWOT_XtraRead, read Xtra information
+!~*     1. SWOT_GetParNumber, number of parameters of the RC
+!~*     2. SWOT_Apply, compute Q=f(h,S,B?|theta)
+!~*     3. SWOT_XtraRead, read Xtra information
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -47,11 +47,11 @@ pure subroutine SWOT_GetParNumber(ID,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of the SWOT function
+!^*     1. ID, ID of the SWOT function
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::ID
@@ -86,14 +86,14 @@ subroutine SWOT_Apply(ID,IN,theta,OUT,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of SWOT formula
-!^*		2. IN, input vector (depends on ID)
-!^*		3. theta, parameter vector
+!^*     1. ID, ID of SWOT formula
+!^*     2. IN, input vector (depends on ID)
+!^*     3. theta, parameter vector
 !^* OUT
-!^*		1. OUT, discharge
-!^*		2. feas, feasible?
-!^*		3. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4. mess, error message
+!^*     1. OUT, discharge
+!^*     2. feas, feasible?
+!^*     3. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4. mess, error message
 !^**********************************************************************
 character(*), intent(in)::ID
 real(mrk), intent(in)::IN(:,:),theta(:)
@@ -142,7 +142,7 @@ end subroutine SWOT_Apply
 subroutine SWOT_XtraRead(file,xtra,err,mess)
 
 !^**********************************************************************
-!^* Purpose: Read Xtra information for SWOT model: model ID 
+!^* Purpose: Read Xtra information for SWOT model: model ID
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
@@ -155,11 +155,11 @@ subroutine SWOT_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use types_dmsl_kit, only:data_ricz_type
 use utilities_dmsl_kit,only:getSpareUnit

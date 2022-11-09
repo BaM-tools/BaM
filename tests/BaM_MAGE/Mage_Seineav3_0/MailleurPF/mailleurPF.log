@@ -1,0 +1,263 @@
+
+  Lancement de la version automatique de SECMA
+  --------------------------------------------
+
+  Paramètres définis par défaut :
+  1/ prise en compte de toutes les lignes directrices
+  2/ 12 mailles par zone (entre 2 lignes directrices)
+  3/ pas d'optimisation
+  4/ interpolation linéaire des altitudes
+  5/ mesure des pk le long de la ligne directrice centrale ou suivante
+
+  NB : pour réduire le pas d'espace transversal,il faut ajouter des lignes directrices
+
+
+
+  But:  CREER UN MAILLAGE DE LA RIVIERE BASEE 
+        SUR  DES SECTIONS EN TRAVERS
+       -NUMERISATION DES SECTIONS: ABCISSE CURVILIGNE
+       -INTERPOL ENTRE CN : SPLINE T C B 
+       -PRISE EN COMPTE DE ZONES
+       -OPTIMISATION DES MAILLES 
+  
+   VERSION: 6.1
+  
+
+
+ NOM DU FICHIER DE SECTIONS .ST: 
+
+ NOM DU FICHIER DE MAILLES EN SORTIE :  si le fichier a des sections ayant
+ toutes le meme nombre de points
+ (fichier de sections de maillage *.m)
+ tous les points pourront etre
+ consideres comme directrices
+ si vous entrez 1
+ ces directrices seront nommees
+ A00 A01 etc
+ si vous entrez 2
+
+ sinon entrez 0
+  
+  HISTORIQUE DU FICHIER :
+  
+ NOMBRE DE SECTIONS:           34
+ NOMBRE DE LIGNES  :            2 (+2 BORDURES)
+ XMIN , XMAX :   0.0000000000000000        5064.0000000000000     
+ YMIN , YMAX :   0.0000000000000000        2713.4200000000001     
+  
+  CODE DES LIGNES
+  
+ si vous voulez un maillage 
+ calculees sur des distances horizontales
+ entrez 2(-2 pour interpolation longitudinale spline)
+ sinon les distances seront en 3D
+ entrez 3(-3 pour interpolation longitudinale lineaire)
+ NBLGNO           4
+ PRISE EN COMPTE DE LA LIGNE           1  (0/1)
+ repondez 2 pour prise en compte de toutes les lignes
+ repondez 3 pour prise en compte de toutes les lignes
+ et un seul pas espace transversal
+ PRISE EN COMPTE DE            2  LIGNES
+  SOIT            3  ZONES
+ PAS TRANSVERSAL :
+ OPTIMISATION SIGNIFIE CONSERVER PAS TRANSVERSAL
+ NE PAS OPTIMISER = CONSERVER NOMBRE DE POINTS
+ TOUTES ZONES A OPTIMISER (0,1):
+ donnez le nombre de mailles zone            1
+ NOMBRE DE Mailles  POUR la ZONE           1 :           12
+ donnez le nombre de mailles zone            2
+ NOMBRE DE Mailles  POUR la ZONE           2 :           12
+ donnez le nombre de mailles zone            3
+ NOMBRE DE Mailles  POUR la ZONE           3 :           12
+ nldaxe =            3
+ CALCULS DES LONGUEURS
+ LONGUEURS: 
+ BORD DE MAILLAGE 1:   7560.8162012438743     
+ BORD DE MAILLAGE 2:   8166.4199646177858     
+ MOYENNE:   7863.6180829308305     
+ PROFIL EN LONG SUR LIGNE DIRECTRICE:   8166.4199646177858     
+ TAILLE DE LA MAILLE MOYENNE:   2000.0000000000000     
+ le nombre de points sera calcule a partir des longueurs
+ des segments entre sections sur 2 DES LIGNES SUIVANTES:
+ DIRECTRICE choisie precedemmment(0), BORD 1(1), BORD 2(2)
+  
+ pour choisir une ligne seulement
+ vous pouvez entrer deux fois le meme chiffre 
+  
+ entrez vos deux chiffres successivement 
+ pour plus de sections  entrez 1
+ le calcul se fera sur la ligne de longueur maximale
+ pour moins de sections  entrez 2
+ le calcul se fera sur la ligne de longueur minimale
+ SECTIONS            1 -           2          24
+ NB SECTIONS:           0  D   169.76060379251723       T MOY   169.76060379251723     
+ D1    169.91564142244235       D2   169.76060379251723       D MOY    169.76060379251723        169.76060379251723        169.91564142244235        169.76060379251723     
+ SECTIONS            2 -           3          24
+ NB SECTIONS:           0  D   101.08927539556309       T MOY   101.08927539556309     
+ D1    101.08927539556309       D2   106.10263191834605       D MOY    101.08927539556309        106.10263191834605        101.08927539556309        106.10263191834605     
+ SECTIONS            3 -           4          24
+ NB SECTIONS:           0  D   160.69251133764763       T MOY   160.69251133764763     
+ D1    241.24739687714774       D2   160.69251133764763       D MOY    160.69251133764763        160.69251133764763        241.24739687714774        160.69251133764763     
+ SECTIONS            4 -           5          24
+ NB SECTIONS:           0  D   133.20466545883446       T MOY   133.20466545883446     
+ D1    133.20466545883446       D2   517.89734475086868       D MOY    133.20466545883446        517.89734475086868        133.20466545883446        517.89734475086868     
+ SECTIONS            5 -           6          24
+ NB SECTIONS:           0  D   133.22535044052239       T MOY   133.22535044052239     
+ D1    133.22535044052239       D2   148.86165120674980       D MOY    133.22535044052239        148.86165120674980        133.22535044052239        148.86165120674980     
+ SECTIONS            6 -           7          24
+ NB SECTIONS:           0  D   270.66023424212142       T MOY   270.66023424212142     
+ D1    270.66023424212142       D2   446.93418184336684       D MOY    270.66023424212142        446.93418184336684        270.66023424212142        446.93418184336684     
+ SECTIONS            7 -           8          24
+ NB SECTIONS:           0  D   228.55700820583041       T MOY   228.55700820583041     
+ D1    228.55700820583041       D2   283.41811392358125       D MOY    228.55700820583041        283.41811392358125        228.55700820583041        283.41811392358125     
+ SECTIONS            8 -           9          24
+ NB SECTIONS:           0  D   112.84000177242119       T MOY   112.84000177242119     
+ D1    113.84630780135124       D2   112.84000177242119       D MOY    112.84000177242119        112.84000177242119        113.84630780135124        112.84000177242119     
+ SECTIONS            9 -          10          24
+ NB SECTIONS:           0  D   301.42877433980988       T MOY   301.42877433980988     
+ D1    301.42877433980988       D2   333.91457245828605       D MOY    301.42877433980988        333.91457245828605        301.42877433980988        333.91457245828605     
+ SECTIONS           10 -          11          24
+ NB SECTIONS:           0  D   525.40724823702237       T MOY   525.40724823702237     
+ D1    531.56891293603690       D2   525.40724823702237       D MOY    525.40724823702237        525.40724823702237        531.56891293603690        525.40724823702237     
+ SECTIONS           11 -          12          24
+ NB SECTIONS:           0  D   483.89416074178865       T MOY   483.89416074178865     
+ D1    483.89416074178865       D2   486.50572298792139       D MOY    483.89416074178865        486.50572298792139        483.89416074178865        486.50572298792139     
+ SECTIONS           12 -          13          24
+ NB SECTIONS:           0  D   564.59286082981953       T MOY   564.59286082981953     
+ D1    572.78493913509976       D2   564.59286082981953       D MOY    564.59286082981953        564.59286082981953        572.78493913509976        564.59286082981953     
+ SECTIONS           13 -          14          24
+ NB SECTIONS:           0  D   378.39193027864638       T MOY   378.39193027864638     
+ D1    378.39193027864638       D2   390.04355205540833       D MOY    378.39193027864638        390.04355205540833        378.39193027864638        390.04355205540833     
+ SECTIONS           14 -          15          24
+ NB SECTIONS:           0  D   147.80640040268892       T MOY   147.80640040268892     
+ D1    174.78447299459984       D2   147.80640040268892       D MOY    147.80640040268892        147.80640040268892        174.78447299459984        147.80640040268892     
+ SECTIONS           15 -          16          24
+ NB SECTIONS:           0  D   820.91416000700099       T MOY   820.91416000700099     
+ D1    820.91416000700099       D2   830.15073631238795       D MOY    820.91416000700099        830.15073631238795        820.91416000700099        830.15073631238795     
+ SECTIONS           16 -          17          24
+ NB SECTIONS:           0  D   30.632051841167939       T MOY   30.632051841167939     
+ D1    30.632051841167939       D2   35.050925808029568       D MOY    30.632051841167939        35.050925808029568        30.632051841167939        35.050925808029568     
+ SECTIONS           17 -          18          24
+ NB SECTIONS:           0  D   175.82069275258806       T MOY   175.82069275258806     
+ D1    235.66913353258627       D2   175.82069275258806       D MOY    175.82069275258806        175.82069275258806        235.66913353258627        175.82069275258806     
+ SECTIONS           18 -          19          24
+ NB SECTIONS:           0  D   46.216266616852550       T MOY   46.216266616852550     
+ D1    46.534714998590047       D2   46.216266616852550       D MOY    46.216266616852550        46.216266616852550        46.534714998590047        46.216266616852550     
+ SECTIONS           19 -          20          24
+ NB SECTIONS:           0  D   60.196366169395922       T MOY   60.196366169395922     
+ D1    65.930345062042576       D2   60.196366169395922       D MOY    60.196366169395922        60.196366169395922        65.930345062042576        60.196366169395922     
+ SECTIONS           20 -          21          24
+ NB SECTIONS:           0  D   276.14103244537927       T MOY   276.14103244537927     
+ D1    301.47613139351512       D2   276.14103244537927       D MOY    276.14103244537927        276.14103244537927        301.47613139351512        276.14103244537927     
+ SECTIONS           21 -          22          24
+ NB SECTIONS:           0  D   22.163090939668120       T MOY   22.163090939668120     
+ D1    25.600039062470209       D2   22.163090939668120       D MOY    22.163090939668120        22.163090939668120        25.600039062470209        22.163090939668120     
+ SECTIONS           22 -          23          24
+ NB SECTIONS:           0  D   29.487017482275164       T MOY   29.487017482275164     
+ D1    29.487017482275164       D2   142.30838520621333       D MOY    29.487017482275164        142.30838520621333        29.487017482275164        142.30838520621333     
+ SECTIONS           23 -          24          24
+ NB SECTIONS:           0  D   78.844101871985373       T MOY   78.844101871985373     
+ D1    78.844101871985373       D2   79.913816702745521       D MOY    78.844101871985373        79.913816702745521        78.844101871985373        79.913816702745521     
+ SECTIONS           24 -          25          24
+ NB SECTIONS:           0  D   32.662934650762772       T MOY   32.662934650762772     
+ D1    32.662934650762772       D2   120.73312884208705       D MOY    32.662934650762772        120.73312884208705        32.662934650762772        120.73312884208705     
+ SECTIONS           25 -          26          24
+ NB SECTIONS:           0  D   98.552166896522351       T MOY   98.552166896522351     
+ D1    99.740793058808194       D2   98.552166896522351       D MOY    98.552166896522351        98.552166896522351        99.740793058808194        98.552166896522351     
+ SECTIONS           26 -          27          24
+ NB SECTIONS:           0  D   399.19407435481804       T MOY   399.19407435481804     
+ D1    403.98615830248440       D2   399.19407435481804       D MOY    399.19407435481804        399.19407435481804        403.98615830248440        399.19407435481804     
+ SECTIONS           27 -          28          24
+ NB SECTIONS:           0  D   298.55277272200971       T MOY   298.55277272200971     
+ D1    298.55277272200971       D2   302.23555333547375       D MOY    298.55277272200971        302.23555333547375        298.55277272200971        302.23555333547375     
+ SECTIONS           28 -          29          24
+ NB SECTIONS:           0  D   304.22703364428349       T MOY   304.22703364428349     
+ D1    308.53675194375143       D2   304.22703364428349       D MOY    304.22703364428349        304.22703364428349        308.53675194375143        304.22703364428349     
+ SECTIONS           29 -          30          24
+ NB SECTIONS:           0  D   258.06614849685343       T MOY   258.06614849685343     
+ D1    258.06614849685343       D2   261.76873858427024       D MOY    258.06614849685343        261.76873858427024        258.06614849685343        261.76873858427024     
+ SECTIONS           30 -          31          24
+ NB SECTIONS:           0  D   48.917552064673067       T MOY   48.917552064673067     
+ D1    50.273877908910130       D2   48.917552064673067       D MOY    48.917552064673067        48.917552064673067        50.273877908910130        48.917552064673067     
+ SECTIONS           31 -          32          24
+ NB SECTIONS:           0  D   210.38247503059753       T MOY   210.38247503059753     
+ D1    213.28858502038969       D2   210.38247503059753       D MOY    210.38247503059753        210.38247503059753        213.28858502038969        210.38247503059753     
+ SECTIONS           32 -          33          24
+ NB SECTIONS:           0  D   32.017940283534791       T MOY   32.017940283534791     
+ D1    32.017940283534791       D2   40.674439147946451       D MOY    32.017940283534791        40.674439147946451        32.017940283534791        40.674439147946451     
+ SECTIONS           33 -          34          24
+ NB SECTIONS:           0  D   316.99609224720740       T MOY   316.99609224720740     
+ D1    394.00347333494409       D2   316.99609224720740       D MOY    316.99609224720740        316.99609224720740        394.00347333494409        316.99609224720740     
+ TRAITEMENT SECTION            1  ->           1
+ TRAITEMENT SECTION            2  ->           2
+ TRAITEMENT SECTION            3  ->           3
+ TRAITEMENT SECTION            4  ->           4
+ TRAITEMENT SECTION            5  ->           5
+ TRAITEMENT SECTION            6  ->           6
+ TRAITEMENT SECTION            7  ->           7
+ TRAITEMENT SECTION            8  ->           8
+ TRAITEMENT SECTION            9  ->           9
+ TRAITEMENT SECTION           10  ->          10
+ TRAITEMENT SECTION           11  ->          11
+ TRAITEMENT SECTION           12  ->          12
+ TRAITEMENT SECTION           13  ->          13
+ TRAITEMENT SECTION           14  ->          14
+ TRAITEMENT SECTION           15  ->          15
+ TRAITEMENT SECTION           16  ->          16
+ TRAITEMENT SECTION           17  ->          17
+ TRAITEMENT SECTION           18  ->          18
+ TRAITEMENT SECTION           19  ->          19
+ TRAITEMENT SECTION           20  ->          20
+ TRAITEMENT SECTION           21  ->          21
+ TRAITEMENT SECTION           22  ->          22
+ TRAITEMENT SECTION           23  ->          23
+ TRAITEMENT SECTION           24  ->          24
+ TRAITEMENT SECTION           25  ->          25
+ TRAITEMENT SECTION           26  ->          26
+ TRAITEMENT SECTION           27  ->          27
+ TRAITEMENT SECTION           28  ->          28
+ TRAITEMENT SECTION           29  ->          29
+ TRAITEMENT SECTION           30  ->          30
+ TRAITEMENT SECTION           31  ->          31
+ TRAITEMENT SECTION           32  ->          32
+ TRAITEMENT SECTION           33  ->          33
+ TRAITEMENT SECTION           34  ->          34
+  
+  NOMBRE DE SECTIONS FINALES:           34
+  
+ NOMBRE FINAL DE MAILLES           36
+  CALCULS DES PK DES SECTIONS
+ ST PK           1   0.0000000000000000      RATIO  0.98373863818413976                1           1           1
+ ST PK           2   167.00000000000000      RATIO  0.92365587718550890                2           2           2
+ ST PK           3   265.00000000000000      RATIO  0.97703460966990252                3           3           3
+ ST PK           4   422.00000000000000      RATIO  0.20081491092599801                4           4           4
+ ST PK           5   526.00000000000000      RATIO  0.86665942825717079                5           5           5
+ ST PK           6   655.00000000000000      RATIO  0.20808487239198517                6           6           6
+ ST PK           7   748.00000000000000      RATIO  0.25404171494791811                7           7           7
+ ST PK           8   820.00000000000000      RATIO  0.77100337201473179                8           8           8
+ ST PK           9   907.00000000000000      RATIO  0.88944956915640239                9           9           9
+ ST PK          10   1204.0000000000000      RATIO  0.47962804778467311               10          10          10
+ ST PK          11   1456.0000000000000      RATIO  0.75437182334911712               11          11          11
+ ST PK          12   1823.0000000000000      RATIO  0.71734007983500403               12          12          12
+ ST PK          13   2228.0000000000000      RATIO  0.71786855430042207               13          13          13
+ ST PK          14   2508.0000000000000      RATIO  0.98102055111408892               14          14          14
+ ST PK          15   2653.0000000000000      RATIO   2.4092584115182614E-002          15          15          15
+ ST PK          16   2673.0000000000000      RATIO  0.80096012569077601               16          16          16
+ ST PK          17   2701.0000000000000      RATIO   6.8278746431572473E-002          17          17          17
+ ST PK          18   2713.0000000000000      RATIO  0.99849092285700869               18          18          18
+ ST PK          19   2759.0000000000000      RATIO  0.73094477251283196               19          19          19
+ ST PK          20   2803.0000000000000      RATIO  0.95241363474713681               20          20          20
+ ST PK          21   3066.0000000000000      RATIO  0.90240129818822290               21          21          21
+ ST PK          22   3086.0000000000000      RATIO  0.16864784248925024               22          22          22
+ ST PK          23   3110.0000000000000      RATIO  0.73829582731617438               23          23          23
+ ST PK          24   3169.0000000000000      RATIO  0.21535157889519596               24          24          24
+ ST PK          25   3195.0000000000000      RATIO  0.92349671623730767               25          25          25
+ ST PK          26   3286.0000000000000      RATIO  0.88679602853645667               26          26          26
+ ST PK          27   3640.0000000000000      RATIO  0.94644952969659768               27          27          27
+ ST PK          28   3926.0000000000000      RATIO  0.94681281511284743               28          28          28
+ ST PK          29   4214.0000000000000      RATIO  0.97796424578107699               29          29          29
+ ST PK          30   4470.0000000000000      RATIO  0.89951963586394135               30          30          30
+ ST PK          31   4514.0000000000000      RATIO  0.98392538082486303               31          31          31
+ ST PK          32   4721.0000000000000      RATIO  0.71298270836230726               32          32          32
+ ST PK          33   4750.0000000000000      RATIO  0.99054854802485592               33          33          33
+ ST PK          34   5064.0000000000000     

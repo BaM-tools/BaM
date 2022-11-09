@@ -1,0 +1,7 @@
+BaM
+*.exe
+Results_*
+*.monitor
+.Rhistory
+*.env
+*.spag

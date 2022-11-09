@@ -1,0 +1,6 @@
+'/home/brenard/BEN/GitHub/BaM/src/Models/SMASH/pilotSMASH.py'                ! Python script running SMASH when BaM asks or it
+'/home/brenard/Desktop/2022SMASH/V5004030/'                                  ! Project directory
+'/home/brenard/Desktop/2022SMASH/SAFRAN/PRECIP/'                             ! Precipitation directory
+'/home/brenard/Desktop/2022SMASH/SAFRAN/ETP/'                                ! PET directory
+'BaMstuff/'                                                                  ! BaM-stuff folder (SubDirectory of Project directory)
+'SIM/OUTPUT/QCAL_SIM_200901010000_201212310000.txt'                          ! File containing SMASH output(s) (in Project directory)

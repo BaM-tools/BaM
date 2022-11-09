@@ -1,0 +1,369 @@
+  INRAE
+  Centre Auvergne-Rhône-Alpes Est                   5 rue de La Doua - CS 20244
+                                                    69625 Villeurbanne - FRANCE
+ 
+ 
+ 
+                    MM      MM     AA     GGGGGGGGGG EEEEEEEEEE
+                    MMM    MMM    AAAA    GGGGGGGGGG EEEEEEEEEE
+                    MMMM  MMMM   AA  AA   GG         EE
+                    MM MMMM MM  AA    AA  GG         EE
+                    MM  MM  MM AAAAAAAAAA GG  GGGGGG EEEEEE
+                    MM      MM AAAAAAAAAA GG  GGGGGG EEEEEE
+                    MM      MM AA      AA GG      GG EE
+                    MM      MM AA      AA GG      GG EE
+                    MM      MM AA      AA GGGGGGGGGG EEEEEEEEEE
+                    MM      MM AA      AA GGGGGGGGGG EEEEEEEEEE
+ 
+                            Exécution du programme MAGE
+                        Auteur : Jean-Baptiste Faure / HHLY
+ 
+                    IDDN.FR.001.180002.000.S.P.2013.000.30200
+                    Version 7.2.018 23/04/2021 pour Linux-x86_64
+                    Dernier correctif : e946cdf7 Version 7.2.018 23/04/2021
+                    Date de compilation : 2021-04-23_14-55-02
+ 
+                         Client : Benjamin Renard
+                         Votre licence expire le 31/12/2099
+ 
+ 
+                       150 Biefs
+                     15001 Sections
+                       400 Sections singulières et ouvrages élémentaires
+                  15100000 Points pour décrire toutes les C.L. aux noeuds
+                      1510 Points pour décrire tous les casiers
+                        15 Ouvrages élémentaires maximum par section singulière
+                           Calculs en Double Précision - Fichier BIN complet
+ 
+ 
+ 
+ 
+ ------------------------------------------------------------------------------
+ Copie du répertoire utilisé pour cette simulation (fichier : Seineav3.REP)
+ 
+ MIN Seineav3.MIN                   Nom du fichier de géométrie du lit MINeur
+ TIT Seineav3.TIT                   Nom du fichier TITre
+ INI Seineav3.INI                   Nom du fichier des conditions INItiales
+ HYD Seineav3.HYD                   Nom du fichier des HYDrogrammes amont
+ LIM Seineav3.LIM                   Nom du fichier des LIMnigrammes aval
+ TRA Seineav3.TRA                   Nom du fichier de sortie formaté
+ BIN Seineav3.BIN                   Nom du fichier de stockage BINaire
+ NUM Seineav3.NUM                   Nom du fichier des paramètres NUMériques
+ ERR Seineav3.ERR                   Nom du fichier des messages d'ERReur
+ DEV Seineav3.DEV                   Nom du fichier des déversements latéraux
+ RUG Seineav3.RUG                   Nom du fichier des rugosités
+ ENV Seineav3.ENV                   Nom du fichier des enveloppes
+ TAL Seineav3.TAL                   Nom du fichier de géométrie TAL (Talweg)
+ GEO Seineav3.GEO                   Nom du fichier listing de TALWEG
+ 
+ ------------------------------------------------------------------------------
+ Nombre total de biefs :   2
+ Nombre total de noeuds :   3
+ Nombre total de sections de calcul :  228
+ Nombre total de sections singulières :   0
+ Réseau ramifié
+ Longueur totale du réseau =  137983.00 m
+ 
+ Coefficient du schéma implicite : 0.700 Schéma : S B R
+ 
+ Type des itérations : -1
+ Coefficient de sous-relaxation :  0.00
+ Nombre de Courant maximum : 0.1000E+06
+ Tirant d'eau minimum : 0.1000E-01
+ Nombre maximum d'itérations sur les non-linéarites : 10
+ Facteur de réduction du pas de temps en cas de non-convergence :  2
+ Nombre maximum d'itérations sans réduction de la précision : 99
+ Facteur de réduction de la précision : 1.E01 en cote et 1.E02 en débit
+ Nombre d'itérations de Newton avant basculement en Point Fixe : 99
+ 
+ >>>> ALERTE : il manque des données dans .INI
+               ==> Tentative d'interpolation de la ligne d'eau initiale
+ ATTENTION : risque d'erreur s'il y a 2 sections à la même abscisse (ouvrages)
+ 
+ ---------------------- VOLUMES DES HYDROGRAMMES PONCTUELS ---------------------
+ Volume de l'hydrogramme injecte au noeud ml1 : 82 387 057 m3
+ Volume de l'hydrogramme injecte au noeud DPx : 3 700 716 m3
+ Volume total des apports ponctuels : 86 087 773 m3
+ 
+ Déversements latéraux :
+ Bief   1 droit   Pm      0.00 a   5064.00 hors réseau (coeff débit :  0.000)
+ Bief   1 gauche  Pm      0.00 a   5064.00 hors réseau (coeff débit :  0.000)
+ Bief   2 droit   Pm   5064.00 a 137983.00 hors réseau (coeff débit :  0.000)
+ Bief   2 gauche  Pm   5064.00 a 137983.00 hors réseau (coeff débit :  0.000)
+ 
+ ------------------------------------------------------------------------------
+ 
+                              Analyse de la géométrie
+ 
+                        Recherche des marches d'escalier aux noeuds
+ 
+ Ecart maximum des cotes de fond à la moyenne
+ Filtre : écart absolu >  0.001 m
+ 
+ 
+                     Recherche des ruptures de pente dans les biefs
+ 
+ Filtre : pente_max > 2 * pente_min et pente_Amont ou pente_Aval > 0,5%
+    Bief  Abscisse       Pente amont   Pente aval
+    001       422.00m        0.2166%      -0.5837%    ------
+    001       655.00m       -0.9744%       1.9613%    ++++++
+    001       748.00m        1.9613%      -0.5083%    ------
+    001       820.00m       -0.5083%      -0.0161%    ++++++
+    001      2653.00m        0.1876%      -1.6400%    ------
+    001      2713.00m        1.0250%      -0.3913%    ------
+    002     16130.00m       -0.0090%       3.0125%    ++++++
+    002     16162.00m        3.0125%      -1.0421%    ------
+    002     16200.00m       -1.0421%       0.0226%    ++++++
+    002     16859.00m        0.1472%      -2.6667%    ------
+    002     16893.00m        3.6545%      -0.0523%    ------
+    002     20035.00m       -0.0479%       0.8321%    ++++++
+    002     20166.00m        0.8321%      -0.0361%    ------
+    002     27920.00m       -0.2970%       1.4897%    ++++++
+    002     28071.00m        1.0617%       0.1586%    ------
+    002     30891.00m       -0.3104%       1.8579%    ++++++
+    002     30998.00m        1.8579%       0.0520%    ------
+    002     32823.00m       -0.0730%       0.5202%    ++++++
+    002     40738.00m        0.2314%       0.6036%    ++++++
+    002     40961.00m        0.6036%      -0.0556%    ------
+    002     41519.00m       -0.0556%       1.1581%    ++++++
+    002     41550.00m        1.1581%       0.5167%    ------
+    002     41568.00m        0.5167%      -0.1660%    ------
+    002     42788.00m        0.1890%      -0.9700%    ------
+    002     42839.00m       -1.0677%       0.0514%    ++++++
+    002     48708.00m        0.0106%      -0.8687%    ------
+    002     48740.00m       -0.8687%      -0.0275%    ++++++
+    002     49678.00m        0.2086%      -0.5316%    ------
+    002     49836.00m       -0.5316%       0.1022%    ++++++
+    002     51230.00m       -0.2159%       0.8038%    ++++++
+    002     51283.00m        0.8038%      -0.0543%    ------
+    002     58802.00m        0.0421%      -1.4276%    ------
+    002     58878.00m       -1.4276%       0.0857%    ++++++
+    002     74047.00m        0.0428%      -0.8000%    ------
+    002     74085.00m       -0.8000%       0.0236%    ++++++
+    002     78482.00m        0.1456%      -1.0441%    ------
+    002     78516.00m       -1.0441%       0.0153%    ++++++
+    002     78993.00m        0.0153%      -0.9878%    ------
+    002     79042.00m       -0.9878%       0.0101%    ++++++
+    002     81615.00m        0.2865%      -0.5839%    ------
+    002     81708.00m       -0.5839%      -0.0097%    ++++++
+    002     94737.00m       -0.4748%       1.0278%    ++++++
+    002     94791.00m        1.0278%       0.0443%    ------
+    002     97954.00m        0.1990%       0.5191%    ++++++
+    002     98247.00m        0.5191%      -0.1544%    ------
+    002    115539.00m       -0.0080%       1.8562%    ++++++
+    002    115603.00m        1.8562%      -0.2073%    ------
+ 
+ 
+               Recherche des variations importantes de largeur du lit mineur
+ 
+ Filtre : variation de largeur > 20%
+ Largeur moyenne à la cote de débordement mineur-moyen du bief 001 :    260.628 m
+            Abscisse   largeur   écart(%)
+                0.00    524.26    101.15
+              167.00    461.11     76.92
+              265.00    478.27     83.51
+              422.00    508.25     95.01
+              526.00    920.71    253.26
+              655.00   1006.33    286.12
+             1204.00    159.60     38.76
+             1456.00    169.08     35.13
+             1823.00    157.62     39.52
+             2228.00    176.85     32.14
+             2508.00    157.87     39.43
+             2713.00    164.03     37.06
+             2759.00    157.27     39.66
+             2803.00    169.63     34.91
+             3066.00    394.67     51.43
+             3086.00    412.41     58.24
+             3195.00    165.65     36.44
+             3286.00    173.19     33.55
+             3640.00    170.62     34.54
+             3926.00    168.44     35.37
+             4214.00    186.89     28.29
+             4470.00    160.80     38.30
+             4514.00    159.57     38.77
+             4721.00    176.41     32.31
+             5064.00    402.93     54.60
+ Largeur moyenne à la cote de débordement mineur-moyen du bief 002 :    389.223 m
+            Abscisse   largeur   écart(%)
+             7954.00    505.14     29.78
+             7983.00    494.66     27.09
+             8018.00    582.52     49.66
+             8820.00    790.97    103.22
+            10629.00    533.09     36.96
+            11054.00    483.78     24.29
+            14043.00    785.82    101.90
+            16130.00    293.72     24.54
+            16162.00    286.34     26.43
+            16200.00    269.84     30.67
+            16823.00    264.41     32.07
+            16859.00    245.40     36.95
+            16871.00    249.32     35.94
+            16893.00    192.72     50.49
+            17268.00    174.56     55.15
+            18797.00    614.12     57.78
+            19436.00    520.23     33.66
+            19517.00    501.38     28.81
+            20035.00    553.07     42.10
+            20166.00    586.63     50.72
+            21733.00    618.25     58.84
+            21855.00    567.80     45.88
+            22587.00    707.65     81.81
+            24142.00    612.76     57.43
+            24893.00    587.78     51.01
+            25087.00    561.36     44.23
+            26074.00    533.28     37.01
+            26312.00    713.99     83.44
+            26449.00    296.28     23.88
+            26998.00    545.28     40.10
+            27104.00    571.32     46.78
+            27439.00    553.58     42.23
+            27719.00    484.50     24.48
+            27920.00    554.30     42.41
+            27949.00    530.51     36.30
+            28071.00    495.04     27.19
+            29884.00    778.14     99.92
+            30006.00   1065.14    173.66
+            30613.00    606.65     55.86
+            33332.00    529.70     36.09
+            34101.00    642.04     64.95
+            36565.00    235.51     39.49
+            37232.00    243.01     37.56
+            40404.00    279.10     28.29
+            40738.00    224.39     42.35
+            40961.00    196.60     49.49
+            41519.00    157.14     59.63
+            41550.00    162.17     58.33
+            41568.00    155.25     60.11
+            42715.00    205.06     47.32
+            42788.00    203.49     47.72
+            42808.00    264.39     32.07
+            42839.00    279.57     28.17
+            43357.00    256.34     34.14
+            44038.00    180.85     53.54
+            44780.00    206.58     46.93
+            46003.00    304.06     21.88
+            48225.00    237.79     38.91
+            48708.00    235.44     39.51
+            48740.00    213.75     45.08
+            49281.00    211.21     45.73
+            49678.00    286.79     26.32
+            49836.00    274.37     29.51
+            50969.00    240.70     38.16
+            51186.00    266.18     31.61
+            51703.00    263.59     32.28
+            52060.00    279.71     28.14
+            53112.00    267.72     31.22
+            55004.00    302.13     22.38
+            56268.00    263.10     32.40
+            58802.00    282.58     27.40
+            58878.00    269.68     30.71
+            59164.00    274.02     29.60
+            59672.00    264.09     32.15
+            60682.00    287.71     26.08
+            63553.00    280.15     28.02
+            64343.00    270.11     30.60
+            65055.00    299.41     23.08
+            65529.00    273.51     29.73
+            65777.00    289.98     25.50
+            65866.00    291.83     25.02
+            67770.00    281.78     27.61
+            68117.00    292.49     24.85
+            71635.00    468.69     20.42
+            75067.00    275.86     29.12
+            76631.00    298.36     23.35
+            76718.00    242.35     37.74
+            77390.00    205.67     47.16
+            77754.00    257.56     33.83
+            78482.00    268.59     30.99
+            78516.00    264.32     32.09
+            78993.00    294.62     24.31
+            79042.00    296.37     23.86
+            80493.00    250.90     35.54
+            80513.00    251.67     35.34
+            80768.00    258.35     33.62
+            81615.00    263.18     32.38
+            81708.00    267.44     31.29
+            87822.00    263.11     32.40
+            89518.00    247.43     36.43
+            89818.00    252.69     35.08
+            89938.00    257.04     33.96
+            92713.00    277.60     28.68
+            94169.00    288.32     25.92
+            94737.00    218.13     43.96
+            94791.00    240.17     38.30
+            95349.00    258.04     33.70
+            97091.00    300.03     22.92
+           101745.00    468.54     20.38
+           102228.00    499.23     28.26
+           102532.00    479.61     23.22
+           106930.00    289.77     25.55
+           107536.00    271.14     30.34
+           107984.00    304.05     21.88
+           108026.00    310.64     20.19
+           108089.00    309.85     20.39
+           111924.00    301.48     22.54
+           115539.00    309.91     20.38
+           123826.00    616.19     58.31
+           124427.00    717.84     84.43
+           126571.00    568.23     45.99
+           128066.00    544.65     39.93
+           130821.00    492.04     26.42
+           134590.00    581.90     49.50
+           135007.00    627.50     61.22
+           136449.00    749.00     92.43
+           137313.00    676.58     73.83
+           137626.00    744.58     91.30
+           137748.00    642.20     64.99
+           137983.00    624.22     60.38
+ 
+ 
+                ligne d'eau initiale a  00:00:00:00
+ 
+ 
+ 
+ ##########  DATE :  00:00:00:00    ( jj:hh:mn:ss) (00 itérations)  ##########
+ ===============================================================================
+ BIEF   1 : 3 300 448 m3
+    Noeud : ml1 Cote :    7.870                                Débit :     0.000
+    Noeud : DPx Cote :    7.580                                Débit :     0.000
+ BIEF   2 : 387 10**6 m3
+    Noeud : DPx Cote :    7.580                                Débit :     0.000
+    Noeud : Lyr Cote :    8.000                                Débit :     0.000
+ ===============================================================================
+ Volume total du réseau : 390 10**6 m3
+ ===============================================================================
+ 
+ 
+ 
+ ##########  DATE :  01:00:00:00    ( jj:hh:mn:ss) (04 itérations)  ##########
+ ===============================================================================
+ BIEF   1 : 4 729 253 m3
+    Noeud : ml1 Cote :    9.665                                Débit :   592.259
+    Noeud : DPx Cote :    9.510                                Débit :   607.250
+ BIEF   2 : 382 10**6 m3
+    Noeud : DPx Cote :    9.510                                Débit :   632.410
+    Noeud : Lyr Cote :    8.235                                Débit : -4908.004
+ ===============================================================================
+ Volume total du réseau : 387 10**6 m3
+ ===============================================================================
+ 
+ 
+ 
+ ##########  DATE :  01:17:25:00    ( jj:hh:mn:ss) (03 itérations)  ##########
+ ===============================================================================
+ BIEF   1 : 4 723 086 m3
+    Noeud : ml1 Cote :    9.627                                Débit :   482.840
+    Noeud : DPx Cote :    9.528                                Débit :   452.297
+ BIEF   2 : 342 10**6 m3
+    Noeud : DPx Cote :    9.528                                Débit :   476.017
+    Noeud : Lyr Cote :    2.800                                Débit :  6111.924
+ ===============================================================================
+ Volume total du réseau : 346 10**6 m3
+ ===============================================================================
+ Erreur (relative par bief) en volume à l'instant final : -0.19E-05 (Bief 001)
+ Erreur maximale sur la simulation :  0.91E-03 (Bief 001)
+ Nombre total d'itérations :     1895
+ Nombre total de pas de temps :      517
+ Date simulation : 31/08/2022 (16:14:10) Durée : 00:00:01 CPU : 00:00:00,112
+ ****************************** FIN NORMALE DE MAGE ****************************

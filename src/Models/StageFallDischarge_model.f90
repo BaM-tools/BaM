@@ -11,12 +11,12 @@ module StageFallDischarge_model
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. SFD_GetParNumber, number of parameters of the RC
-!~*		2. SFD_Apply, compute Q=f(H1,H2|theta)
-!~*		3.
+!~*     1. SFD_GetParNumber, number of parameters of the RC
+!~*     2. SFD_Apply, compute Q=f(H1,H2|theta)
+!~*     3.
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -54,11 +54,11 @@ pure subroutine SFD_GetParNumber(ID,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of the SFD function
+!^*     1. ID, ID of the SFD function
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::ID
@@ -93,16 +93,16 @@ subroutine SFD_Apply(ID,IN,theta,NewtonOption,OUT,kappa,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of SFD formula
-!^*		2. IN, input vector (h1,h2)
-!^*		3. theta, parameter vector
-!^*		4. [NewtonOption], options for Newton numerical resolution
+!^*     1. ID, ID of SFD formula
+!^*     2. IN, input vector (h1,h2)
+!^*     3. theta, parameter vector
+!^*     4. [NewtonOption], options for Newton numerical resolution
 !^* OUT
-!^*		1. OUT, discharge
-!^*		2. kappa, transition stage
-!^*		3. feas, feasible?
-!^*		4. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		5. mess, error message
+!^*     1. OUT, discharge
+!^*     2. kappa, transition stage
+!^*     3. feas, feasible?
+!^*     4. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     5. mess, error message
 !^**********************************************************************
 use types_dmsl_kit,only:data_ricz_type
 use utilities_dmsl_kit, only:cleanPointers
@@ -152,7 +152,7 @@ case(SFD_Val_General)
         ! Pack parameters and h2 into RICZ structure (for numerical resolution of transition stage k)
         if(associated(NewtonInfo%rp0)) nullify(NewtonInfo%rp0);allocate(NewtonInfo%rp0(ntheta+1))
         NewtonInfo%rp0(1:ntheta)=theta;NewtonInfo%rp0(ntheta+1)=h2
-        ! get search interval 
+        ! get search interval
         foo=maxval((/h0,h0prime,h2+delta/))
         x1=foo(1)+eps
         x2=NewtonOption%upperbound !+x1
@@ -163,7 +163,7 @@ case(SFD_Val_General)
                      xroot=kappa(t),froot=fkappa,fcalls=fcalls,err=err,message=mess)
         if(err>0) then
             feas(t)=.false.
-            call cleanPointers(NewtonInfo,what=1,err=err,message=mess)            
+            call cleanPointers(NewtonInfo,what=1,err=err,message=mess)
             cycle
         endif
         ! Does not find root, cycle
@@ -176,7 +176,7 @@ case(SFD_Val_General)
         if(h1<=kappa(t)) then ! variable-slope model
             OUT(t)=(KB*(h1-h0)**M) * sqrt((h1-h2-delta)/L)
         else !standard channel model
-            OUT(t)=KBS0*(h1-h0prime)**Mprime 
+            OUT(t)=KBS0*(h1-h0prime)**Mprime
         endif
         ! All good, but clean RICZ structure to avoid memory leak
         call cleanPointers(NewtonInfo,what=1,err=err,message=mess)
@@ -191,7 +191,7 @@ end subroutine SFD_Apply
 subroutine SFD_XtraRead(file,xtra,err,mess)
 
 !^**********************************************************************
-!^* Purpose: Read Xtra information for SFD model: model type 
+!^* Purpose: Read Xtra information for SFD model: model type
 !^*          & Newton-Raphson parameters
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
@@ -205,11 +205,11 @@ subroutine SFD_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use types_dmsl_kit, only:data_ricz_type
 use utilities_dmsl_kit,only:getSpareUnit
@@ -262,10 +262,10 @@ logical(mlk),intent(out)::feas
 real(mrk),intent(out),optional::fx,dfdxV(:)
 integer(mik),intent(out)::err
 character(*),intent(out)::message
-    
+
 feas=.true.;err=0;message='';
 if(present(fx)) fx=undefRN
-if(present(dfdxV)) dfdxV=undefRN 
+if(present(dfdxV)) dfdxV=undefRN
 if(present(fx))then
     fx=dataIN%rp0(1)*((x-dataIN%rp0(2))**dataIN%rp0(3))&
        *sqrt((x-dataIN%rp0(9)-dataIN%rp0(7))/dataIN%rp0(4))&

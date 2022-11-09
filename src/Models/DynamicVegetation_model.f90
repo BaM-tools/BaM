@@ -14,8 +14,8 @@ module DynamicVegetation_model
 !~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. DynamicVegetation_GetParNumber, number of parameters
-!~*		2. DynamicVegetation_Apply, apply model
+!~*     1. DynamicVegetation_GetParNumber, number of parameters
+!~*     2. DynamicVegetation_Apply, apply model
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -50,11 +50,11 @@ subroutine DynamicVegetation_GetParNumber(npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		Nothing
+!^*     Nothing
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 use AlgaeBiomass_model,only: AlgaeBiomass_GetParNumber
 integer(mik), intent(out)::npar,err
@@ -91,12 +91,12 @@ subroutine DynamicVegetation_Apply(temp,irradiance,stage,turbidity,removal,& ! i
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. XXX
+!^*     1. XXX
 !^* OUT
-!^*		1. XXX
-!^*		3. feas, feasible?
-!^*		4.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		5.mess, error message
+!^*     1. XXX
+!^*     3. feas, feasible?
+!^*     4.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     5.mess, error message
 !^**********************************************************************
 ! modules needed for submodels
 use AlgaeBiomass_model,only:AlgaeBiomass_Apply,AlgaeBiomass_GetParNumber
@@ -210,11 +210,11 @@ subroutine DynamicVegetation_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use types_dmsl_kit, only:data_ricz_type
 use utilities_dmsl_kit,only:getSpareUnit

@@ -15,9 +15,9 @@ module Vegetation_model
 !~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. Vegetation_GetParNumber, number of parameters
-!~*		2. Vegetation_Apply, apply formula
-!~*		3. Vegetation_XtraRead, read growth submodel
+!~*     1. Vegetation_GetParNumber, number of parameters
+!~*     2. Vegetation_Apply, apply formula
+!~*     3. Vegetation_XtraRead, read growth submodel
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -58,12 +58,12 @@ subroutine Vegetation_GetParNumber(growthFormula,nYear,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. growthFormula, ID of the growth formula submodel
-!^*		2. nYear, number of distinct years in record
+!^*     1. growthFormula, ID of the growth formula submodel
+!^*     2. nYear, number of distinct years in record
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 character(*), intent(in)::growthFormula
 integer(mik), intent(in)::nYear
@@ -257,11 +257,11 @@ subroutine Vegetation_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use types_dmsl_kit, only:data_ricz_type
 use utilities_dmsl_kit,only:getSpareUnit
@@ -317,11 +317,11 @@ subroutine GetNpar_growth(growthFormula,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. growthFormula, ID of the growth formula
+!^*     1. growthFormula, ID of the growth formula
 !^* OUT
-!^*		1. npar
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 character(*), intent(in)::growthFormula
 integer(mik), intent(out)::npar,err

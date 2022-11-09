@@ -1,0 +1,4 @@
+'/home/brenard/BEN/GitHub/MAGE/mage'                                         ! Mage executable
+'/home/brenard/BEN/GitHub/BaM/tests/BaM_MAGE/Mage_Seineav3_0/'               ! Project directory
+'Seineav3.REP'                                                               ! REP file
+

@@ -11,12 +11,12 @@ module GR4J_model
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. GR4J_GetParNumber, number of parameters (6)
-!~*		2. GR4J_Apply, run GR4J (through all time steps)
-!~*		3. GR4J_XtraLoad, load xtra information (pco file)
+!~*     1. GR4J_GetParNumber, number of parameters (6)
+!~*     2. GR4J_Apply, run GR4J (through all time steps)
+!~*     3. GR4J_XtraLoad, load xtra information (pco file)
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -44,9 +44,9 @@ pure subroutine GR4J_GetParNumber(npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 integer(mik), intent(out)::npar,err
@@ -72,15 +72,15 @@ subroutine GR4J_Apply(X,theta,pcofile,Y,state,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. matrix of inputs (precip & pet, Nt*2)
-!^*		2. theta, parameters
-!^*		3. pcofile, PCO configuration file from DMSL
+!^*     1. matrix of inputs (precip & pet, Nt*2)
+!^*     2. theta, parameters
+!^*     3. pcofile, PCO configuration file from DMSL
 !^* OUT
-!^*		1. Y, output matrix (Q, Nt*1)
-!^*		2. state, states (production & routing, Nt*2)
-!^*		3. feas, feasability flag
-!^*		4. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		5. mess, error message
+!^*     1. Y, output matrix (Q, Nt*1)
+!^*     2. state, states (production & routing, Nt*2)
+!^*     3. feas, feasability flag
+!^*     4. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     5. mess, error message
 !^**********************************************************************
 use dynamicModelLibrary,only:GR4J_DMDL,DMDL_controlModel,DMDL_runModel,&
                         DMDL_setModel,DMDL_getModelInfo
@@ -102,7 +102,7 @@ err=0;mess='';feas=.true.;Y=undefRN;state=undefRN
 Nt=size(X,dim=1)
 
 ! Set model
-call DMDL_setModel(modelID=(/GR4J_DMDL/),setupCmd="",err=err,message=mess) 
+call DMDL_setModel(modelID=(/GR4J_DMDL/),setupCmd="",err=err,message=mess)
 if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
 ! Read PCO file for general info
 call DMDL_getModelInfo(modelID=(/GR4J_DMDL/),infoCmd=trim(pcofile),modelName=foo,&
@@ -118,10 +118,10 @@ if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
 if(.not.feas) return
 ! run it for all time steps
 do t=1,Nt
-    ! Note: the "dataProps" below works for GR4J but may need to be changed for other 
+    ! Note: the "dataProps" below works for GR4J but may need to be changed for other
     !       hydro-model in DMSL. I'm not sure what these variables are doing...
     call DMDL_runModel(modelID=(/GR4J_DMDL/),&
-                       runitCmd='',iT=undefIN,dataProps=(/1._mrk/),& 
+                       runitCmd='',iT=undefIN,dataProps=(/1._mrk/),&
                        input=X(t,:),state=istate,feas=feas,err=err,message=mess)
     if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
     if(.not.feas) return
@@ -146,11 +146,11 @@ subroutine GR4J_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, PCO setup file
+!^*     1. file, PCO setup file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use types_dmsl_kit, only:data_ricz_type
 character(*), intent(in)::file

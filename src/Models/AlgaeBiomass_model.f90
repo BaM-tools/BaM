@@ -14,8 +14,8 @@ module AlgaeBiomass_model
 !~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. AlgaeBiomass_GetParNumber, number of parameters
-!~*		2. AlgaeBiomass_Apply, apply biomass model
+!~*     1. AlgaeBiomass_GetParNumber, number of parameters
+!~*     2. AlgaeBiomass_Apply, apply biomass model
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -42,9 +42,9 @@ pure subroutine AlgaeBiomass_GetParNumber(npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 integer(mik), intent(out)::npar,err
 character(*),intent(out)::mess
@@ -71,12 +71,12 @@ subroutine AlgaeBiomass_Apply(temp,irradiance,depth,turbidity,removal,& ! inputs
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. XXX
+!^*     1. XXX
 !^* OUT
-!^*		1. XXX
-!^*		3. feas, feasible?
-!^*		4.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		5.mess, error message
+!^*     1. XXX
+!^*     3. feas, feasible?
+!^*     4.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     5.mess, error message
 !^**********************************************************************
 real(mrk), intent(in)::temp(:),irradiance(:),depth(:),turbidity(:),removal(:),theta(:)
 real(mrk), intent(out)::biomass(:),biomass0(:),Fb(:),Ft(:),Fi(:),Fn(:),Rhyd(:)

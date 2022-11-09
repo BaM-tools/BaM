@@ -11,12 +11,12 @@ module Orthorectification_model
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. Ortho_GetParNumber, number of parameters 
-!~*		2. Ortho_Apply, compute (c,l)=f(x,y,z|theta)
-!~*		3. Ortho_XtraRead, read distortion function
+!~*     1. Ortho_GetParNumber, number of parameters
+!~*     2. Ortho_Apply, compute (c,l)=f(x,y,z|theta)
+!~*     3. Ortho_XtraRead, read distortion function
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -47,11 +47,11 @@ pure subroutine Ortho_GetParNumber(Disto_npar,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. Disto_npar, number of parameters the distortion function
+!^*     1. Disto_npar, number of parameters the distortion function
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 integer(mik), intent(in)::Disto_npar
@@ -79,16 +79,16 @@ subroutine Ortho_Apply(Disto_ID,Disto_npar,IN,theta,OUT,Dpar,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. Disto_ID, ID of the distortion function
-!^*		2. Disto_npar, number of parameters of the distortion function
-!^*		3. IN, real-world coordinate (x,y,z)
-!^*		4. theta, parameters
+!^*     1. Disto_ID, ID of the distortion function
+!^*     2. Disto_npar, number of parameters of the distortion function
+!^*     3. IN, real-world coordinate (x,y,z)
+!^*     4. theta, parameters
 !^* OUT
-!^*		1. OUT, image coordinate (c,l)
-!^*		2. Dpar, derived parameters (rotation matrix + ortho parameters)
-!^*		3. feas, feasible?
-!^*		4.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		5.mess, error message
+!^*     1. OUT, image coordinate (c,l)
+!^*     2. Dpar, derived parameters (rotation matrix + ortho parameters)
+!^*     3. feas, feasible?
+!^*     4.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     5.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::Disto_ID
@@ -190,11 +190,11 @@ subroutine Ortho_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************use types_dmsl_kit, only:data_ricz_type
 use utilities_dmsl_kit,only:getSpareUnit
 use types_dmsl_kit, only:data_ricz_type
@@ -240,15 +240,15 @@ subroutine Disto_Apply(Disto_ID,Disto_npar,IN,theta,OUT,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. Disto_ID, ID of the distortion function
-!^*		2. Disto_npar, number of parameters of the distortion function
-!^*		2. IN, (c',l')
-!^*		3. theta, parameters
+!^*     1. Disto_ID, ID of the distortion function
+!^*     2. Disto_npar, number of parameters of the distortion function
+!^*     2. IN, (c',l')
+!^*     3. theta, parameters
 !^* OUT
-!^*		1. OUT, image coordinate (c,l)
-!^*		2. feas, feasible?
-!^*		3.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4.mess, error message
+!^*     1. OUT, image coordinate (c,l)
+!^*     2. feas, feasible?
+!^*     3.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::Disto_ID

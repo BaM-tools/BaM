@@ -17,9 +17,9 @@ module SedimentTransport_model
 !~*           (make several sub-models?)
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. Sediment_GetParNumber, number of parameters 
-!~*		2. Sediment_Apply, apply formula
-!~*		3. Sediment_XtraRead, read model formulas & options
+!~*     1. Sediment_GetParNumber, number of parameters
+!~*     2. Sediment_Apply, apply formula
+!~*     3. Sediment_XtraRead, read model formulas & options
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -70,14 +70,14 @@ subroutine Sediment_GetParNumber(ID,CSS_ID,PPO,CO,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of base formula
-!^*		2. CSS_ID, ID of CSS formula
-!^*		3. PPO, pseudo-par options
-!^*		4. CO, coeff option
+!^*     1. ID, ID of base formula
+!^*     2. CSS_ID, ID of CSS formula
+!^*     3. PPO, pseudo-par options
+!^*     4. CO, coeff option
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 character(*), intent(in)::ID,CSS_ID,PPO(npseudopar),CO
 integer(mik), intent(out)::npar,err
@@ -113,18 +113,18 @@ subroutine Sediment_Apply(ID,CSS_ID,PPO,CO,IN,theta,pseudoval,OUT,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of base formula
-!^*		2. CSS_ID, ID of CSS formula
-!^*		3. PPO, pseudo-par options
-!^*		4. CO, coeff option
-!^*		5. IN, input vector
-!^*		6. theta, parameter vector
-!^*		7. pseudoval, values of pseudo-parameters (used only for those treated as FIX)
+!^*     1. ID, ID of base formula
+!^*     2. CSS_ID, ID of CSS formula
+!^*     3. PPO, pseudo-par options
+!^*     4. CO, coeff option
+!^*     5. IN, input vector
+!^*     6. theta, parameter vector
+!^*     7. pseudoval, values of pseudo-parameters (used only for those treated as FIX)
 !^* OUT
-!^*		1. OUT, sediment discharge (DIMENSIONAL)
-!^*		2. feas, feasible?
-!^*		3. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4. mess, error message
+!^*     1. OUT, sediment discharge (DIMENSIONAL)
+!^*     2. feas, feasible?
+!^*     3. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4. mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::ID,CSS_ID,PPO(npseudopar),CO
@@ -143,7 +143,7 @@ err=0;mess='';feas=.true.;OUT=undefRN
 
 nobs=size(IN,1)
 
-! get size of base & coeff 
+! get size of base & coeff
 call GetNpar_base(ID,nbase,err,mess)
 if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
 call GetNCoeff(CSS_ID,ncoeff,err,mess)
@@ -207,11 +207,11 @@ subroutine Sediment_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use types_dmsl_kit, only:data_ricz_type
 use utilities_dmsl_kit,only:getSpareUnit
@@ -264,15 +264,15 @@ subroutine CSS_Apply(ID,cte,pseudo,coeff,css,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of the CSS formula function
-!^*		2. cte, constante
-!^*		3. pseudo, pseudo-parameters d,s,g,v
-!^*		4. coeff, coefficients of CSS formulas
+!^*     1. ID, ID of the CSS formula function
+!^*     2. cte, constante
+!^*     3. pseudo, pseudo-parameters d,s,g,v
+!^*     4. coeff, coefficients of CSS formulas
 !^* OUT
-!^*		1. css, critical shear stress
-!^*		2. feas, feasible?
-!^*		3.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4.mess, error message
+!^*     1. css, critical shear stress
+!^*     2. feas, feasible?
+!^*     3.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::ID
@@ -325,11 +325,11 @@ subroutine CSS_GetCoeff(ID,coeff,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of the CSS formula function
+!^*     1. ID, ID of the CSS formula function
 !^* OUT
-!^*		1. coeff, coefficients of CSS formula
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. coeff, coefficients of CSS formula
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::ID
@@ -370,11 +370,11 @@ subroutine GetNpar_base(ID,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of the base formula
+!^*     1. ID, ID of the base formula
 !^* OUT
-!^*		1. npar
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::ID
@@ -416,11 +416,11 @@ subroutine GetNpar_pseudo(PPO,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. PPO, pseudo-parameters options
+!^*     1. PPO, pseudo-parameters options
 !^* OUT
-!^*		1. npar
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::PPO(npseudopar)
@@ -449,12 +449,12 @@ subroutine GetNpar_coeff(CSS_ID,CO,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. CSS_ID, ID of CSS formula
-!^*		2. CO, coefficient option
+!^*     1. CSS_ID, ID of CSS formula
+!^*     2. CO, coefficient option
 !^* OUT
-!^*		1. npar
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::CSS_ID,CO
@@ -483,7 +483,7 @@ end subroutine GetNpar_coeff
 subroutine GetNCoeff(CSS_ID,n,err,mess)
 
 !^**********************************************************************
-!^* Purpose: number of coefficients of CSS formula 
+!^* Purpose: number of coefficients of CSS formula
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
@@ -496,11 +496,11 @@ subroutine GetNCoeff(CSS_ID,n,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. CSS_ID, ID of CSS formula
+!^*     1. CSS_ID, ID of CSS formula
 !^* OUT
-!^*		1.n
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1.n
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::CSS_ID
@@ -539,22 +539,22 @@ subroutine GetAllPar(ID,CSS_ID,PPO,CO,nbase,ncoeff,theta,IN,pseudoval,&
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ID, ID of base formula
-!^*		2. CSS_ID, ID of CSS formula
-!^*		3. PPO, pseudo-par options
-!^*		4. CO, coeff option
-!^*		5. nbase, number of base parameters
-!^*		6. ncoeff, number of coefficients
-!^*		7. theta, packed parameter vector
-!^*		8. IN, input vector
-!^*		9. pseudoval, values of pseudo-parameters (used only for those treated as FIX)
+!^*     1. ID, ID of base formula
+!^*     2. CSS_ID, ID of CSS formula
+!^*     3. PPO, pseudo-par options
+!^*     4. CO, coeff option
+!^*     5. nbase, number of base parameters
+!^*     6. ncoeff, number of coefficients
+!^*     7. theta, packed parameter vector
+!^*     8. IN, input vector
+!^*     9. pseudoval, values of pseudo-parameters (used only for those treated as FIX)
 !^* OUT
-!^*		1. cte, cte used if CSS_ID="Constant"
-!^*		2. base, base parameters
-!^*		3. pseudo, pseudo-parameters
-!^*		4. coeff, CSS coefficients
-!^*		5. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		6. mess, error message
+!^*     1. cte, cte used if CSS_ID="Constant"
+!^*     2. base, base parameters
+!^*     3. pseudo, pseudo-parameters
+!^*     4. coeff, CSS coefficients
+!^*     5. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     6. mess, error message
 !^**********************************************************************
 
 character(*), intent(in)::ID,CSS_ID,PPO(npseudopar),CO

@@ -11,12 +11,12 @@ module StageGradientDischarge_model
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. SFD_GetParNumber, number of parameters of the RC
-!~*		2. SFD_Apply, compute Q=f(H1,H2|theta)
-!~*		3.
+!~*     1. SFD_GetParNumber, number of parameters of the RC
+!~*     2. SFD_Apply, compute Q=f(H1,H2|theta)
+!~*     3.
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -43,9 +43,9 @@ pure subroutine SGD_GetParNumber(npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 integer(mik), intent(out)::npar,err
@@ -73,13 +73,13 @@ subroutine SGD_Apply(IN,theta,OUT,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. IN, input matrix (h,dhdt)
-!^*		2. theta, parameter vector
+!^*     1. IN, input matrix (h,dhdt)
+!^*     2. theta, parameter vector
 !^* OUT
-!^*		1. OUT, discharge
-!^*		2. feas, feasible?
-!^*		3. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		4. mess, error message
+!^*     1. OUT, discharge
+!^*     2. feas, feasible?
+!^*     3. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     4. mess, error message
 !^**********************************************************************
 
 real(mrk), intent(in)::IN(:,:),theta(:)

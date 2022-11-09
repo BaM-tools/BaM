@@ -1,0 +1,19 @@
+ Parametre d'implicitation.......[0.7].: 0.70 S B R  
+ Instant initial en JJJ:HH:MIN:SS......: 0:00:00:00
+ Instant final en JJJ:HH:MIN:SS........: 1:17:25:00
+ Pas de temps en SECONDES.......[300.].:      300.0     1.000
+ Pas de temps d'ecriture sur .TRA......:    86400.0
+ Pas de temps d'ecriture sur .BIN......:    10800.0       0.0   10000.0
+ type des iterations..............[00].: -1
+ Coefficient de lissage...........[0.].:    0.00000
+ Nombre de courant maximum admis.[-1.].:   100000.0
+ Tirant d'eau minimum...........[0.01].:      0.010
+ Nombre maximum d'iterations...........: 10
+ Facteur de reduction du pas de temps..:  2
+ Iterations a precision maxi...........: 99
+ Facteur de reduction de precision Z Q.: 1+1 1+2
+ Iterations avant basculement..........: 99
+ Borne d'erreur en cote pour la maille.:   -1.00000
+ Valeur maximum du nombre de Froude....:      2.000
+ Bilan en volume par bief........(O/N).: O    0.00100   10000.0
+ Sections temoins (bie/sec)............: 

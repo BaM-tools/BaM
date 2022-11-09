@@ -11,12 +11,12 @@ module BaRatin_model
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
-!~* 2Do List: 
+!~* 2Do List:
 !~**********************************************************************
 !~* Quick description of public procedures:
-!~*		1. BaRatin_GetParNumber, number of parameters of the RC
-!~*		2. BaRatin_Apply, compute Q=f(H|theta)
-!~*		3. BaRatin_XtraRead, read Bonnifait matrix
+!~*     1. BaRatin_GetParNumber, number of parameters of the RC
+!~*     2. BaRatin_Apply, compute Q=f(H|theta)
+!~*     3. BaRatin_XtraRead, read Bonnifait matrix
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
@@ -44,11 +44,11 @@ pure subroutine BaRatin_GetParNumber(ControlMatrix,npar,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ControlMatrix, control Matrix
+!^*     1. ControlMatrix, control Matrix
 !^* OUT
-!^*		1. npar, par. number
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1. npar, par. number
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 integer(mik), intent(in)::ControlMatrix(:,:)
@@ -67,7 +67,7 @@ end subroutine BaRatin_GetParNumber
 subroutine BaRatin_Apply(H,theta,ControlMatrix,Q,b,feas,err,mess)
 
 !^**********************************************************************
-!^* Purpose: 
+!^* Purpose:
 !^**********************************************************************
 !^* Programmer: Ben Renard, Cemagref Lyon
 !^**********************************************************************
@@ -80,15 +80,15 @@ subroutine BaRatin_Apply(H,theta,ControlMatrix,Q,b,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. H, water stage
-!^*		2. theta, parameters
-!^*		3. ControlMatrix, control Matrix in Laurent's framework
+!^*     1. H, water stage
+!^*     2. theta, parameters
+!^*     3. ControlMatrix, control Matrix in Laurent's framework
 !^* OUT
-!^*		1. Q, RC-computed runoff
-!^*		2. b, offsets
-!^*		3. feas, feasible?
-!^*		4.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		5.mess, error message
+!^*     1. Q, RC-computed runoff
+!^*     2. b, offsets
+!^*     3. feas, feasible?
+!^*     4.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     5.mess, error message
 !^**********************************************************************
 
 real(mrk), intent(in)::H(:), theta(:)
@@ -152,11 +152,11 @@ subroutine BaRatin_XtraRead(file,xtra,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. file, Xtra file
+!^*     1. file, Xtra file
 !^* OUT
-!^*		1. xtra, xtra information
-!^*		2. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3. mess, error message
+!^*     1. xtra, xtra information
+!^*     2. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3. mess, error message
 !^**********************************************************************
 use utilities_dmsl_kit,only:getSpareUnit,getNumItemsInFile
 use types_dmsl_kit, only:data_ricz_type
@@ -194,8 +194,8 @@ end subroutine BaRatin_XtraRead
 subroutine BaRatin_computeQ(H,b,a,c,k,ControlMatrix,Q,feas)
 
 !^**********************************************************************
-!^* Purpose: Apply RC equation. All checks on parameters are assumed 
-!^*          already done, and continuity equation has already been applied 
+!^* Purpose: Apply RC equation. All checks on parameters are assumed
+!^*          already done, and continuity equation has already been applied
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
@@ -208,15 +208,15 @@ subroutine BaRatin_computeQ(H,b,a,c,k,ControlMatrix,Q,feas)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. H, water stages
-!^*		2. b, offset parameters
-!^*		3. a, coefficient parameters
-!^*		4. c, exponent parameters
-!^*		5. k, activation stages
-!^*		6. ControlMatrix, control Matrix in Laurent's framework
+!^*     1. H, water stages
+!^*     2. b, offset parameters
+!^*     3. a, coefficient parameters
+!^*     4. c, exponent parameters
+!^*     5. k, activation stages
+!^*     6. ControlMatrix, control Matrix in Laurent's framework
 !^* OUT
-!^*		1. Q, RC-computed runoff
-!^*		2. feas, feasible?
+!^*     1. Q, RC-computed runoff
+!^*     2. feas, feasible?
 !^**********************************************************************
 
 real(mrk), intent(in)::H(:),b(:),a(:),c(:),k(:)
@@ -267,11 +267,11 @@ pure subroutine CheckControlMatrix(ControlMatrix,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1. ControlMatrix
+!^*     1. ControlMatrix
 !^* OUT
-!^*		1.feas
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1.feas
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^**********************************************************************
 
 integer(mik), intent(in)::ControlMatrix(:,:)
@@ -343,16 +343,16 @@ pure subroutine ApplyContinuity(a,c,k,ControlMatrix,b,feas,err,mess)
 !^* 2Do List:
 !^**********************************************************************
 !^* IN
-!^*		1.a
-!^*		2.c
-!^*		3.k
-!^*		4.ControlMatrix
+!^*     1.a
+!^*     2.c
+!^*     3.k
+!^*     4.ControlMatrix
 !^* OUT
-!^*		1.feas, feasability
-!^*		2.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*		3.mess, error message
+!^*     1.feas, feasability
+!^*     2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     3.mess, error message
 !^* INOUT
-!^*		1.b
+!^*     1.b
 !^**********************************************************************
 
 real(mrk), intent(in)::a(:),c(:),k(:)
@@ -369,7 +369,7 @@ err=0;mess='';feas=.true.
 
 ncontrol=size(a)
 
-if(a(1)<=0._mrk .or. c(1)==0._mrk) then 
+if(a(1)<=0._mrk .or. c(1)==0._mrk) then
     feas=.false.;return
 endif
 b(1)=k(1)
@@ -411,10 +411,10 @@ function GetHRange(H,k)
 !#* 2Do List:
 !#**********************************************************************
 !#* IN
-!#*		1. H
-!#*		2. k
+!#*     1. H
+!#*     2. k
 !#* OUT
-!#*		1.RC_General_GetRange
+!#*     1.RC_General_GetRange
 !#**********************************************************************
 
 real(mrk), intent(in)::H,k(:)
@@ -428,7 +428,7 @@ do i=1,nk
         GetHRange=i-1;return
     else
         cycle
-    endif      
+    endif
 enddo
 
 GetHRange=nk

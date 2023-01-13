@@ -1141,13 +1141,13 @@ character(*),intent(out)::mess
 ! locals
 character(250),parameter::procname='BaM_ProcessSpag'
 integer(mik),parameter::nEnv=7
-character(250), dimension(nEnv),parameter::head_envelop=(/"Q_Median       ",&
-                                                       "Q_q2.5         ",&
-                                                       "Q_q97.5        ",&
-                                                       "Q_q16          ",&
-                                                       "Q_q84          ",&
-                                                       "Q_Mean         ",&
-                                                       "Q_Stdev        "/)
+character(250), dimension(nEnv),parameter::head_envelop=(/"Median       ",&
+                                                       "q2.5         ",&
+                                                       "q97.5        ",&
+                                                       "q16          ",&
+                                                       "q84          ",&
+                                                       "Mean         ",&
+                                                       "Stdev        "/)
 integer(mik)::i,j,unt
 real(mrk)::arr(nrep),Env(nEnv)
 character(250)::fmt,fmt2,fmt3

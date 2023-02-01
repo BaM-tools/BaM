@@ -139,7 +139,6 @@
 		<Unit filename="../../src/Models/SMASH/SMASH_model.f90" />
 		<Unit filename="../../src/Models/SWOT_model.f90" />
 		<Unit filename="../../src/Models/SedimentTransport_model.f90" />
-		<Unit filename="../../src/Models/Segmentation2_model.f90" />
 		<Unit filename="../../src/Models/Segmentation_model.f90" />
 		<Unit filename="../../src/Models/StageFallDischarge_model.f90" />
 		<Unit filename="../../src/Models/StageGradientDischarge_model.f90" />

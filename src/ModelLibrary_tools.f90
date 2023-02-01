@@ -315,7 +315,9 @@ case(MDL_Recession_h)
     call Recession_h_Apply(time=X(:,1), theta=theta, h=Y(:,1),feas=feas,err=err,mess=mess)
 
 case(MDL_Segmentation)
-    call Segmentation_Apply(time=X(:,1),nS=model%xtra%is1, tmin=model%xtra%rs1, theta=theta, y= Y(:,1),feas=feas,err=err,mess=mess)
+    call Segmentation_Apply(time=X(:,1),nS=model%xtra%is1,tmin=model%xtra%rs1,nmin=model%xtra%is2,option=model%xtra%is3,&
+    theta=theta, y = Y(:,1),feas=feas,err=err,mess=mess)
+
 case(MDL_TextFile)
     call TxtMdl_Apply(IN=X,theta=theta,OUT=Y,feas=vfeas,err=err,mess=mess)
 case(MDL_Algae)
@@ -588,6 +590,10 @@ case(MDL_SFDTidal4)
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
 case(MDL_Recession_h)
+    model%nDpar=0
+    model%nState=0
+    allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
+case(MDL_Segmentation)
     model%nDpar=0
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))

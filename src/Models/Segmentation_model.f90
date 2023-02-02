@@ -1,16 +1,19 @@
 module Segmentation_model
 !~**********************************************************************
-!~* Purpose: Segmentation of a time series (known the number of segments)
+!~* Purpose: Segmentation of a time series (the number of segments being known)
 !~**********************************************************************
-!^* Programmer: Ben Renard & Matteo Darienzo, Irstea Lyon
+!^* Programmer: Matteo Darienzo & Ben Renard, Irstea Lyon
 !^**********************************************************************
 !^* Last modified: 23/10/2019 - allow using inter-shift durations
 !^*                rather than shift times + both tmin and nmin constraints
+!^*                01/02/2023 - Clean-up by Felipe Mendez: This is now the
+!^*                unique version of the Segmentation model
 !~**********************************************************************
-
-
-!~**********************************************************************
-!~* References:
+!~* References:  Darienzo, M., Renard, B., Le Coz, J., & Lang, M. (2021).
+!^*              Detection of stage-discharge rating shifts using gaugings:
+!^*              A recursive segmentation procedure accounting for
+!^*              observational and model uncertainties.
+!^*              Water Resources Research, https://doi.org/10.1029/2020WR028607
 !~**********************************************************************
 !~* 2Do List:
 !~**********************************************************************
@@ -39,7 +42,6 @@ pure subroutine Segmentation_GetParNumber(nS,npar,err,mess)
 !^**********************************************************************
 !^* IN
 !^*    1. nS, number of segments
-!^*    2. tmin, tmin between segments
 !^* OUT
 !^*    1. npar, par. number
 !^*    2.err, error code; <0:Warning, ==0:OK, >0: Error
@@ -77,7 +79,7 @@ subroutine Segmentation_Apply(time,nS,tmin,nmin,theta,option,Y,feas,err,mess)
 !^*    6. option. 1: shift times, 2: inter-shift durations
 !^* OUT
 !^*    1. Y, output vector
-!^*    2.feas, feasibility (all theta between 0 and 1)
+!^*    2.feas, feasibility
 !^*    3.err, error code; <0:Warning, ==0:OK, >0: Error
 !^*    4.mess, error message
 !^**********************************************************************
@@ -101,7 +103,7 @@ nt=size(time)
 
 !size check
 if (size(theta) /= (2*nS -1)) then
-    feas =.FALSE.
+    err=1;mess=trim(procname)//': Fatal: incorrect size [theta]';return
     return
 end if
 
@@ -155,7 +157,7 @@ end subroutine Segmentation_Apply
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine Segmentation_XtraRead(file,xtra,err,mess)
 !^**********************************************************************
-!^* Purpose: Read Xtra information (nS,tmin)
+!^* Purpose: Read Xtra information (nS, tmin, nmin, option)
 !^**********************************************************************
 !^* Programmer: Ben Renard & Matteo Darienzo, Irstea Lyon
 !^**********************************************************************
@@ -202,7 +204,7 @@ end subroutine Segmentation_XtraRead
 
 function GettRange(t,tau)
 !#**********************************************************************
-!#* Purpose: find the range where H belongs
+!#* Purpose: find the index of the first tau higher than t
 !#**********************************************************************
 !^* Programmer: Ben Renard & Matteo Darienzo, Irstea Lyon
 !^**********************************************************************

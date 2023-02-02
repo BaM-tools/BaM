@@ -13,10 +13,13 @@ module ModelLibrary_tools
 !~*           (e.g. the MODEL object)
 !~*
 !~*           However, it is expected that any model to be used within
-!~*           BAM provides the following three procedures:
+!~*           BAM provides the following two procedures:
 !~*           1. XXX_GetParNumber: compute number of parameters of the model
 !~*           2. XXX_Apply: apply (run) the model
+!~*           And optionnaly the following three procedures:
 !~*           3. XXX_XtraRead: load any information needed to run the model
+!~*           4. XXX_XtraSetup: actions needed before running the model
+!~*           5. XXX_XtraCleanup: actions needed after running the model
 !~**********************************************************************
 !~* References:
 !~**********************************************************************
@@ -27,6 +30,7 @@ module ModelLibrary_tools
 !~*    2. ApplyModel, apply the model
 !~*    3. XtraRead, read xtra information
 !~*    4. XtraSetup, xtra setup (derived par and states in particular)
+!~*    5. XtraCleanup, any action (typically cleaning up created files) required after model is used
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL

@@ -57,7 +57,6 @@ Models = \
 	$(Models_DIR)GR4J_model.f90                        \
 	$(Models_DIR)Recession_model.f90                   \
 	$(Models_DIR)Segmentation_model.f90                \
-	$(Models_DIR)Segmentation2_model.f90               \
 	$(Models_DIR)TextFile_model.f90                    \
 	$(Models_DIR)AlgaeBiomass_model.f90                \
 	$(Models_DIR)DynamicVegetation_model.f90           \

@@ -36,7 +36,7 @@ public :: &! main subroutines to handle the probabilistic model behind BaM
           Config_Read_Residual,Config_Read_Cook,Config_Read_Summary,&
           Config_Read_Pred_Master,Config_Read_Pred,&
           Config_Finalize,&
-          BaM_ConsoleMessage,&
+          BaM_ConsoleMessage,BaM_PrintHelp,&
           ! Post-processing tools
           BaM_LoadMCMC,BaM_Residual,BaM_Prediction,BaM_ReadSpag,BaM_Cleanup
 
@@ -1560,6 +1560,32 @@ case default
 end select
 
 end subroutine BaM_ConsoleMessage
+
+
+subroutine BaM_PrintHelp()
+!^**********************************************************************
+!^* Purpose: print help on command line arguments in console
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE Aix
+!^**********************************************************************
+!^* Last modified:21/02/2023
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+
+    write(*,'(a)') 'usage: BaM [OPTIONS]'
+    write(*,'(a)') 'available options:'
+    write(*,'(a)') '  -cf path, --config path: set path to main config file'
+    write(*,'(a)') '  -sd k, --seed k:            set seed to k (k should be an integer)'
+    write(*,'(a)') '  -rd, --random:              randomize seed (=> non-reproducible MCMC runs)'
+    write(*,'(a)') '  -v, --version:              print version information and exit'
+    write(*,'(a)') '  -h, --help:                 print help and exit'
+end subroutine BaM_PrintHelp
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !==============!

@@ -2,6 +2,7 @@ program BaM_main
 
 use kinds_dmsl_kit
 use utilities_dmsl_kit,only:number_string
+use uniran1_dmsl_mod,only: seed_uniran
 use ModelLibrary_tools,only:modelType
 use BayesianEstimation_tools, only:priorListType
 use BaM_tools, only:plist,parlist,slist,parType,&
@@ -10,19 +11,20 @@ use BaM_tools, only:plist,parlist,slist,parType,&
                     Config_Read_RemnantSigma,Config_Read_MCMC,Config_Read_RunOptions,&
                     Config_Read_Residual,Config_Read_Cook,Config_Read_Summary,&
                     Config_Read_Pred_Master,Config_Read_Pred,Config_Finalize,&
-                    BaM_ConsoleMessage,BaM_LoadMCMC,BaM_Residual,&
+                    BaM_ConsoleMessage,BaM_PrintHelp,BaM_LoadMCMC,BaM_Residual,&
                     BaM_Prediction,XspagType,BaM_ReadSpag,BaM_Cleanup
 implicit none
 
 !-----------------------
 ! Constants
-character(len_stdStrD),parameter::Config_file="Config_BaM.txt"
+character(len_stdStrD),parameter::Config_file_def="Config_BaM.txt"
 character(len_stdStrD),parameter::priorCorrFile="PriorCorrelation.txt"
 character(len_stdStrD),parameter::MonitorExt=".monitor"
+character(len_stdStrD),parameter::version="0.3.1 February 2023"
 real(mrk),parameter::defaultstd=0.1_mrk
 !-----------------------
 ! Config files
-character(len_vLongStr)::workspace
+character(len_vLongStr)::workspace,Config_file
 character(len_longStr)::Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
                 Config_MCMC,Config_Cooking,Config_summary,&
                 Config_Residual,Config_Pred_Master
@@ -69,9 +71,9 @@ logical::PrintCounter
 type(XspagType)::Xspag
 !-----------------------
 ! Misc.
-integer(mik)::i,err,nobs,nc,nhead,nsim
+integer(mik)::i,err,nobs,nc,nhead,nsim,narg,seed
 logical::IsMCMCLoaded
-character(len_vLongStr)::mess,datafile
+character(len_vLongStr)::mess,datafile,arg
 !-----------------------
 
 !---------------------------------------------------------------------
@@ -81,6 +83,60 @@ character(len_vLongStr)::mess,datafile
 !---------------------------------------------------------------------
 call BaM_ConsoleMessage(1,'')
 IsMCMCLoaded=.false.
+
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! INTERPRET COMMAND LINE ARGUMENTS
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+i=1;Config_file=''
+narg=command_argument_count()
+do while (i<=narg)
+     call get_command_argument(i,arg)
+     select case (arg)
+     case ('-cf', '--config')
+        i=i+1
+        if(i<=narg) then
+            call get_command_argument(i,arg)
+            Config_file=trim(arg);i=i+1
+        else
+            call BaM_ConsoleMessage(-1,'-wk requires a path to a directory')
+        endif
+     case ('-sd', '--seed')
+        i=i+1
+        if(i<=narg) then
+            call get_command_argument(i,arg)
+            read(arg,*,iostat=err) seed
+            if(err==0) then
+                call seed_uniran(put=seed)
+                i=i+1
+            else
+                call BaM_ConsoleMessage(-1,'-sd requires the seed as an integer number')
+            endif
+        else
+            call BaM_ConsoleMessage(-1,'-sd requires the seed as an integer number')
+        endif
+     case ('-rd', '--random')
+        call seed_uniran(CPUtime=.true.)
+        i=i+1
+    case ('-v', '--version')
+        write(*,*) 'version: ', trim(version)
+        STOP
+     case ('-h', '--help')
+        call BaM_PrintHelp()
+        STOP
+     case default
+        write(*,*) 'Unrecognized command-line option: ', trim(arg)
+        call BaM_PrintHelp()
+        call BaM_ConsoleMessage(-1,'')
+     end select
+  end do
+
+! Use default config file if not provided
+if (Config_file=='') then ! workspace not passed through command line, try reading it from wkFile
+    Config_file=trim(Config_file_def)
+endif
+
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 ! READ CONFIG FILES

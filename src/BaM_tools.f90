@@ -2525,15 +2525,15 @@ end subroutine Config_Read_PriorCorr
 !==============!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine GetLogPost(theta,gamma,Xtrue,Xbias,Ybias,& ! inferred quantities
-                      model,infer,& ! model and inference objects
-                      lp,Dpar,feas, isnull,err,mess) ! outputs
+subroutine GetPriorLogPdf(theta,gamma,Xtrue,Xbias,Ybias,& ! inferred quantities
+                          model,infer,& ! model and inference objects
+                          prior,feas, isnull,err,mess) ! outputs
 !^**********************************************************************
-!^* Purpose: compute post(teta,RemnantSigma,Htrue)
+!^* Purpose: compute log(prior(theta,gamma,Xtrue,biases))
 !^**********************************************************************
-!^* Programmer: Ben Renard, Irstea Lyon
+!^* Programmer: Ben Renard, INRAE Aix
 !^**********************************************************************
-!^* Last modified: 10/07/2015
+!^* Last modified: 23/02/2023
 !^**********************************************************************
 !^* Comments:
 !^**********************************************************************
@@ -2550,12 +2550,11 @@ subroutine GetLogPost(theta,gamma,Xtrue,Xbias,Ybias,& ! inferred quantities
 !^*    6. model, model object
 !^*    7. infer, infer object
 !^* OUT
-!^*    1.lp, log-posterior
-!^*    2.Dpar, derived parameters
-!^*    3.feas, feasible?
-!^*    4.is null, is (natural) posterior = zero?
-!^*    5.err, error code; <0:Warning, ==0:OK, >0: Error
-!^*    6.mess, error message
+!^*    1.prior, prior log-pdf
+!^*    2.feas, feasible?
+!^*    3.is null, is (natural) posterior = zero?
+!^*    4.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    5.mess, error message
 !^**********************************************************************
 use BayesianEstimation_tools, only:GetLogPrior, PriorListType
 use Distribution_tools, only: GetPdf, GAUSS
@@ -2564,22 +2563,18 @@ real(mrk), intent(in)::theta(:),Xtrue(:,:)
 type(parlist)::gamma(:),Xbias(:),Ybias(:)
 type(ModelType),intent(in):: model
 type(InferenceType),intent(in):: infer
-real(mrk), intent(out)::lp
-real(mrk), intent(out)::Dpar(:)
+real(mrk), intent(out)::prior
 logical, intent(out)::feas, isnull
 integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
-character(250),parameter::procname='GetLogPost'
-real(mrk)::prior,lik, Hlik, logp,sig,mu
-real(mrk)::yhat(model%nY),bigY(infer%nObs,model%nY),&
-           state(infer%nObs,model%nstate)
+character(250),parameter::procname='GetPriorLogPdf'
+real(mrk)::logp
 real(mrk),allocatable::v(:)
-integer(mik)::n,i,j,k
+integer(mik)::i,j,k
 
 !Init
-err=0;mess='';feas=.true.;isnull=.false.;lp=undefRN
-n=infer%nObs
+err=0;mess='';feas=.true.;isnull=.false.;prior=undefRN
 
 !----------------------------------------------------------------
 ! Get Prior
@@ -2662,9 +2657,66 @@ do j=1,model%nY
 enddo
 !----------------------------------------------------------------
 
+end subroutine GetPriorLogPdf
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine GetLogLikelihood(theta,gamma,Xtrue,Xbias,Ybias,& ! inferred quantities
+                            model,infer,& ! model and inference objects
+                            lkh,Dpar,feas, isnull,err,mess) ! outputs
+!^**********************************************************************
+!^* Purpose: compute log(p(data|theta,gamma,Xtrue,biases))
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE Aix
+!^**********************************************************************
+!^* Last modified: 23/02/2023
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^*    1. theta, model parameters
+!^*    2. gamma, remnant errors parameters
+!^*    3. Xtrue, estimated "true" inputs
+!^*    4. Xbias, input biases
+!^*    5. Ybias, output biases
+!^*    6. model, model object
+!^*    7. infer, infer object
+!^* OUT
+!^*    1.lkh, log-likelihood
+!^*    2.Dpar, derived parameters
+!^*    3.feas, feasible?
+!^*    4.is null, is (natural) posterior = zero?
+!^*    5.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    6.mess, error message
+!^**********************************************************************
+use Distribution_tools, only: GetPdf, GAUSS
+
+real(mrk), intent(in)::theta(:),Xtrue(:,:)
+type(parlist)::gamma(:),Xbias(:),Ybias(:)
+type(ModelType),intent(in):: model
+type(InferenceType),intent(in):: infer
+real(mrk), intent(out)::lkh
+real(mrk), intent(out)::Dpar(:)
+logical, intent(out)::feas, isnull
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+!locals
+character(250),parameter::procname='GetLogLikelihood'
+real(mrk)::logp,mu,sig
+real(mrk)::yhat(model%nY),bigY(infer%nObs,model%nY),&
+           state(infer%nObs,model%nstate)
+integer(mik)::n,i,j
+
+!Init
+err=0;mess='';feas=.true.;isnull=.false.;lkh=undefRN
+n=infer%nObs
+
 !----------------------------------------------------------------
-! Get likelihood
-lik=0._mrk
+lkh=0._mrk
 ! Run model for all data
 call ApplyModel_BaM(model=model,X=Xtrue,theta=theta,Y=bigY,&
                 Dpar=Dpar,state=state,feas=feas,err=err,mess=mess)
@@ -2692,14 +2744,66 @@ do i=1,n
                 feas=feas,isnull=isnull,err=err,mess=mess)
         if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
         if( (.not. feas) .or. isnull) return
-        lik=lik+logp
+        lkh=lkh+logp
     enddo
 enddo
-!----------------------------------------------------------------
+
+end subroutine GetLogLikelihood
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine GetHyperLogPdf(theta,gamma,Xtrue,Xbias,Ybias,& ! inferred quantities
+                         model,infer,& ! model and inference objects
+                         hyper,feas,isnull,err,mess) ! outputs
+!^**********************************************************************
+!^* Purpose: compute log(p(Xobs|Xtrue,Xbias))
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE Aix
+!^**********************************************************************
+!^* Last modified: 23/02/2023
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^*    1. theta, model parameters
+!^*    2. gamma, remnant errors parameters
+!^*    3. Xtrue, estimated "true" inputs
+!^*    4. Xbias, input biases
+!^*    5. Ybias, output biases
+!^*    6. model, model object
+!^*    7. infer, infer object
+!^* OUT
+!^*    1.hyper, hyperdistribution log-pdf
+!^*    2.feas, feasible?
+!^*    3.is null, is (natural) posterior = zero?
+!^*    4.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    5.mess, error message
+!^**********************************************************************
+use Distribution_tools, only: GetPdf, GAUSS
+
+real(mrk), intent(in)::theta(:),Xtrue(:,:)
+type(parlist)::gamma(:),Xbias(:),Ybias(:)
+type(ModelType),intent(in):: model
+type(InferenceType),intent(in):: infer
+real(mrk), intent(out)::hyper
+logical, intent(out)::feas, isnull
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+!locals
+character(250),parameter::procname='GetHyperLogPdf'
+real(mrk)::logp,mu
+integer(mik)::n,i,j
+
+!Init
+err=0;mess='';feas=.true.;isnull=.false.;hyper=undefRN
+n=infer%nObs
 
 !----------------------------------------------------------------
-! Get H-likelihood
-Hlik=0._mrk
+hyper=0._mrk
 do j=1,model%nX
     if(.not.infer%Xerror(j)) cycle
     do i=1,n
@@ -2716,21 +2820,94 @@ do j=1,model%nX
                     loga=.true.,pdf=logp,feas=feas,isnull=isnull,err=err,mess=mess)
         if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
         if( (.not. feas) .or. isnull) return
-        Hlik=Hlik+logp
+        hyper=hyper+logp
     enddo
 enddo
 !----------------------------------------------------------------
 
-! Get Posterior
-lp = prior + Hlik + lik
+end subroutine GetHyperLogPdf
 
-end subroutine GetLogPost
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine GetPostLogPdf(theta,gamma,Xtrue,Xbias,Ybias,& ! inferred quantities
+                         model,infer,& ! model and inference objects
+                         lp,Dpar,feas, isnull,err,mess) ! outputs
+!^**********************************************************************
+!^* Purpose: compute log(p(theta,gamma,Xtrue,biases|data)) [unnormalized]
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE Aix
+!^**********************************************************************
+!^* Last modified: 23/02/2023
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^*    1. theta, model parameters
+!^*    2. gamma, remnant errors parameters
+!^*    3. Xtrue, estimated "true" inputs
+!^*    4. Xbias, input biases
+!^*    5. Ybias, output biases
+!^*    6. model, model object
+!^*    7. infer, infer object
+!^* OUT
+!^*    1.lp, unnormalized posterior log-pdf
+!^*    2.Dpar, derived parameters
+!^*    3.feas, feasible?
+!^*    4.is null, is (natural) posterior = zero?
+!^*    5.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    6.mess, error message
+!^**********************************************************************
+real(mrk), intent(in)::theta(:),Xtrue(:,:)
+type(parlist)::gamma(:),Xbias(:),Ybias(:)
+type(ModelType),intent(in):: model
+type(InferenceType),intent(in):: infer
+real(mrk), intent(out)::lp
+real(mrk), intent(out)::Dpar(:)
+logical, intent(out)::feas, isnull
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+!locals
+character(250),parameter::procname='GetPostLogPdf'
+real(mrk)::prior,lkh, hyper
+
+!Init
+err=0;mess='';feas=.true.;isnull=.false.;lp=undefRN
+!----------------------------------------------------------------
+! Get Prior
+call GetPriorLogPdf(theta=theta,gamma=gamma,Xtrue=Xtrue,Xbias=Xbias,Ybias=Ybias,& ! inferred quantities
+                    model=model,infer=infer,& ! model and inference objects
+                    prior=prior,feas=feas,isnull=isnull,err=err,mess=mess) ! outputs
+if(err>0) then;mess=trim(procname)//':'//trim(mess);feas=.false.;return;endif
+if ( (.not. feas) .or. (isnull) ) return
+!----------------------------------------------------------------
+! Get Likelihood
+call GetLogLikelihood(theta=theta,gamma=gamma,Xtrue=Xtrue,Xbias=Xbias,Ybias=Ybias,& ! inferred quantities
+                      model=model,infer=infer,& ! model and inference objects
+                      lkh=lkh,Dpar=Dpar,feas=feas,isnull=isnull,err=err,mess=mess) ! outputs
+if(err>0) then;mess=trim(procname)//':'//trim(mess);feas=.false.;return;endif
+if ( (.not. feas) .or. (isnull) ) return
+!----------------------------------------------------------------
+! Get Hyper
+call GetHyperLogPdf(theta=theta,gamma=gamma,Xtrue=Xtrue,Xbias=Xbias,Ybias=Ybias,& ! inferred quantities
+                    model=model,infer=infer,& ! model and inference objects
+                    hyper=hyper,feas=feas,isnull=isnull,err=err,mess=mess) ! outputs
+if(err>0) then;mess=trim(procname)//':'//trim(mess);feas=.false.;return;endif
+if ( (.not. feas) .or. (isnull) ) return
+!----------------------------------------------------------------
+! Get Posterior
+lp = prior + lkh + hyper
+
+end subroutine GetPostLogPdf
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 subroutine Posterior_wrapper(x,feas,isnull,fx,fAux,err,mess)
 !^**********************************************************************
-!^* Purpose: wrapper to GetLogPost to comply with MCMC interface
+!^* Purpose: wrapper to GetPostLogPdf to comply with MCMC interface
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea
 !^**********************************************************************
@@ -2812,9 +2989,9 @@ enddo
 
 !---------------------------
 
-call GetLogPost(theta=theta,gamma=gamma,Xtrue=Xtrue,Xbias=Xbias,Ybias=Ybias,&
-                model=MODEL,infer=INFER,&
-                lp=fx,Dpar=DPar,feas=feas, isnull=isnull,err=err,mess=mess)
+call GetPostLogPdf(theta=theta,gamma=gamma,Xtrue=Xtrue,Xbias=Xbias,Ybias=Ybias,&
+                   model=MODEL,infer=INFER,&
+                   lp=fx,Dpar=DPar,feas=feas, isnull=isnull,err=err,mess=mess)
 if(err>0) then;mess=trim(procname)//':'//trim(mess);feas=.false.;return;endif
 if(present(fAux)) fAux=Dpar
 

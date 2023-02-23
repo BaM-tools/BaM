@@ -29,7 +29,7 @@ implicit none
 Private
 
 public :: &! main subroutines to handle the probabilistic model behind BaM
-          LoadBamObjects,BaM_Fit,BaM_ReadData,BaM_CookMCMC,BaM_SummarizeMCMC,&
+          LoadBamObjects,BaM_Fit,BaM_ReadData,BaM_CookMCMC,BaM_SummarizeMCMC,BaM_computeDIC,&
           ! Read config files
           Config_Read,Config_Read_Model,Config_Read_Xtra,Config_Read_Data,&
           Config_Read_RemnantSigma,Config_Read_MCMC,Config_Read_RunOptions,&
@@ -1324,6 +1324,166 @@ end subroutine BaM_SummarizeMCMC
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+subroutine BaM_computeDIC(mcmc,logpost,DICfile,MCMCfile,err,mess)
+!^**********************************************************************
+!^* Purpose: DIC computations, DIC = D(thetaHat) + 2*(effective nPar)
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE Aix
+!^**********************************************************************
+!^* Last modified:23/02/2023
+!^**********************************************************************
+!^* Comments: The maxpost is taken as thetaHat in this sub, because it
+!^*           belongs to the MCMC sample and is hence necessarily feasible.
+!^*           Note that it is more common in the statistical literature
+!^*           to use the posterior mean, but as discussed by the DIC
+!^*           creators (Spiegelhalter 2002) this is just a choice.
+!^*
+!^*       3 versions of the DIC are provided:
+!^*           1. DIC1 is the original version of Spiegelhalter (2002),
+!^*                   based on the posterior MEAN of deviance D(theta)
+!^*              DIC1 = D(thetaHat) + 2*(Dmean-D(thetaHat))
+!^*           2. DIC2 is the alternative definition mentionned in
+!^*                   Gelman (2014) and Spiegelhalter (2014),
+!^*                   based on the posterior VARIANCE of D(theta)
+!^*              DIC2 = D(thetaHat) + 2*(0.5*Dvar)
+!^*           3. DIC3 is a third option used in Pooley and Marion (2018),
+!^*                   based on both the posterior MEAN and VARIANCE of D(theta).
+!^*                   Unlike DIC1 and DIC2, it does not use the deviance
+!^*                   D(thetaHat) computed at point-estimate thetaHat,
+!^*                   and therefore avoids having to make a choice for
+!^*                   thetaHat (posterior mode, mean, median etc.)
+!^*              DIC3 = Dmean+0.5*Dvar = (DIC1+DIC2)/2
+!^**********************************************************************
+!^* References:
+!^*  * Spiegelhalter, D.J., Best, N.G., Carlin, B.P., van der Linde, A.:
+!^*    Bayesian measures of model complexity and fit (with discussion).
+!^*    J. R. Stat. Soc. B (2002)
+!^*  * Gelman, A., Hwang, J. & Vehtari, A. Understanding predictive
+!^*    information criteria for Bayesian models. Stat Comput 24,
+!^*    997–1016 (2014). https://doi.org/10.1007/s11222-013-9416-2
+!^*  * Spiegelhalter, D.J., Best, N.G., Carlin, B.P. and van der Linde, A.
+!^*    The deviance information criterion: 12 years on.
+!^*    J. R. Stat. Soc. B (2014), https://doi.org/10.1111/rssb.12062
+!^*  * Pooley, C. M., & Marion, G. Bayesian model evidence as a practical
+!^*    alternative to deviance information criterion. Royal Society Open
+!^*    Science (2018), https://doi.org/10.1098/rsos.171519
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^*    1. mcmc, MCMC samples
+!^*    2. logpost, (unnormalized) log-posterior density
+!^*    3. DICFile, File where DIC and associated statistics are written
+!^*    4. MCMCFile, File where extended MCMC is written. File not written if empty string
+!^* OUT
+!^*    1.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    2.mess, error message
+!^**********************************************************************
+use utilities_dmsl_kit,only:getSpareUnit,number_string
+use EmpiricalStats_tools,only:GetEmpiricalStats
+
+real(mrk),intent(in)::mcmc(:,:),logpost(:)
+character(*),intent(in)::DICfile, MCMCfile
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+! locals
+character(250),parameter::procname='BaM_computeDIC'
+real(mrk)::theta(INFER%nFit),Xtrue(INFER%nobs,MODEL%nX)
+type(parlist)::gamma(MODEL%nY),Xbias(MODEL%nX),Ybias(MODEL%nY)
+real(mrk)::prior,hyper,lkh,dev(size(mcmc,dim=1)),Dmean,Dmed,Dvar,Ds,Dmaxpost
+integer(mik)::i,k(1),unt0,unt1,n
+character(250)::head(INFER%nInfer+1+INFER%nDpar)
+character(250)::fmt,sfmt,h(INFER%nInfer+5)
+logical::feas,isnull,rewriteMCMC
+character(250), dimension(8),parameter::lefters=(/"DIC1           ",&
+                                                  "DIC2           ",&
+                                                  "DIC3           ",&
+                                                  "D(maxpost)     ",&
+                                                  "E[D]           ",&
+                                                  "VAR[D]         ",&
+                                                  "MEDIAN[D]      ",&
+                                                  "SDEV[D]        "/)
+
+err=0;mess=''
+n=size(mcmc,dim=1)
+!---------------
+! Extended MCMC file
+rewriteMCMC=.not.(MCMCfile=='')
+if(rewriteMCMC) then
+    call getSpareUnit(unt0,err,mess)
+    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+    open(unit=unt0,file=trim(MCMCfile),status='replace',iostat=err)
+    if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(MCMCfile));endif
+    fmt='('//trim(number_string(INFER%nInfer+5))//trim(fmt_numeric)//')'
+    sfmt='('//trim(number_string(INFER%nInfer+5))//trim(fmt_string)//')'
+    ! Write header
+    call GetHeaders(head)
+    h=(/head(1:INFER%nInfer),'LogPost','LogPrior','LogHyper','LogLkh','Deviance'/)
+    write(unt0,trim(sfmt)) h
+    if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(MCMCFile));endif
+endif
+!---------------
+! compute deviances
+do i=1,n
+    call UnfoldParVector(mcmc(i,1:INFER%nInfer),theta,gamma,Xtrue,Xbias,Ybias,err,mess)
+    if(err>0) then; mess=trim(procname)//':'//trim(mess);return;endif
+    call GetPriorLogPdf(theta,gamma,Xtrue,Xbias,Ybias,MODEL,INFER,prior,feas,isnull,err,mess)
+    if(err>0) then; mess=trim(procname)//':'//trim(mess);return;endif
+    if ( (.not. feas) .or. (isnull) ) then
+        mess=trim(procname)//':'//trim(BaM_message(16));return
+    endif
+    call GetHyperLogPdf(theta,gamma,Xtrue,Xbias,Ybias,MODEL,INFER,hyper,feas,isnull,err,mess)
+    if(err>0) then; mess=trim(procname)//':'//trim(mess);return;endif
+    if ( (.not. feas) .or. (isnull) ) then
+        mess=trim(procname)//':'//trim(BaM_message(17));return
+    endif
+    lkh=logpost(i)-prior-hyper
+    dev(i)=-2._mrk*lkh
+    if(rewriteMCMC) then
+        ! write to extended MCMC file
+        write(unt0,trim(fmt)) mcmc(i,1:INFER%nInfer),logpost(i),prior,hyper,lkh,dev(i)
+        if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(MCMCfile));endif
+    endif
+enddo
+if(rewriteMCMC) close(unt0)
+k=maxloc(logpost)
+Dmaxpost=dev(k(1))
+!---------------
+! Compute DIC
+call GetEmpiricalStats(x=dev,mean=Dmean,median=Dmed,std=Ds,var=Dvar,err=err,mess=mess)
+if(err>0) then; mess=trim(procname)//':'//trim(mess);return;endif
+!---------------
+! write to file
+fmt='('//trim(fmt_string)//','//trim(fmt_numeric)//')'
+!sfmt='('//trim(number_string(p+1))//trim(fmt_string)//')'
+call getSpareUnit(unt1,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+open(unit=unt1,file=trim(DICfile),status='replace',iostat=err)
+if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(DICfile));endif
+! 3 DIC versions
+write(unt1,trim(fmt)) lefters(1),2._mrk*Dmean-Dmaxpost
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(DICfile));endif
+write(unt1,trim(fmt)) lefters(2),Dmaxpost+Dvar
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(DICfile));endif
+write(unt1,trim(fmt)) lefters(3),Dmean+0.5_mrk*Dvar
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(DICfile));endif
+! DIC stats
+write(unt1,trim(fmt)) lefters(4),Dmaxpost
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(DICfile));endif
+write(unt1,trim(fmt)) lefters(5),Dmean
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(DICfile));endif
+write(unt1,trim(fmt)) lefters(6),Dvar
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(DICfile));endif
+write(unt1,trim(fmt)) lefters(7),Dmed
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(DICfile));endif
+write(unt1,trim(fmt)) lefters(8),Ds
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(DICfile));endif
+close(unt1)
+
+end subroutine BaM_computeDIC
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 subroutine BaM_Cleanup(err,mess)
 !^**********************************************************************
 !^* Purpose: performs final cleanup
@@ -2174,7 +2334,7 @@ end subroutine Config_Read_Cook
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine Config_Read_Summary(file,Summary_File,err,mess)
+subroutine Config_Read_Summary(file,Summary_File,DIC_file,xtendedMCMC_File,err,mess)
 !^**********************************************************************
 !^* Purpose: Read Config_Summary
 !^**********************************************************************
@@ -2198,7 +2358,7 @@ subroutine Config_Read_Summary(file,Summary_File,err,mess)
 use utilities_dmsl_kit,only:getSpareUnit
 character(*), intent(in)::file
 integer(mik), intent(out)::err
-character(*),intent(out)::Summary_File,mess
+character(*),intent(out)::Summary_File,DIC_file,xtendedMCMC_File,mess
 ! locals
 character(250),parameter::procname='Config_Read_Summary'
 integer(mik)::unt
@@ -2211,6 +2371,10 @@ open(unit=unt,file=trim(file), status='old', iostat=err)
 if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
 read(unt,*,iostat=err) Summary_File
 if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+read(unt,*,iostat=err) DIC_File
+if(err/=0) then;DIC_File='';err=0;endif ! will not do DIC computations. Ensures back-compatibility
+read(unt,*,iostat=err) xtendedMCMC_File
+if(err/=0) then;xtendedMCMC_File='';err=0;endif ! will not write extended MCMC. Ensures back-compatibility
 close(unt)
 
 end subroutine Config_Read_Summary
@@ -3244,6 +3408,10 @@ case(14)
     BaM_Message='Prior correlation matrix: all diagonal terms should be equal to 1'
 case(15)
     BaM_Message='Prior correlation matrix: not positive definite'
+case(16)
+    BaM_Message='Parameter vector leads to zero or unfeasible prior'
+case(17)
+    BaM_Message='Parameter vector leads to zero or unfeasible hyper-distribution'
 case default
     BaM_message='unknown message ID'
 end select

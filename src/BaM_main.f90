@@ -6,7 +6,7 @@ use uniran1_dmsl_mod,only: seed_uniran
 use ModelLibrary_tools,only:modelType
 use BayesianEstimation_tools, only:priorListType
 use BaM_tools, only:plist,parlist,slist,parType,&
-                    LoadBamObjects,BaM_ReadData,BaM_Fit,BaM_CookMCMC,BaM_SummarizeMCMC,&
+                    LoadBamObjects,BaM_ReadData,BaM_Fit,BaM_CookMCMC,BaM_SummarizeMCMC,BaM_computeDIC,&
                     Config_Read,Config_Read_Model,Config_Read_Xtra,Config_Read_Data,&
                     Config_Read_RemnantSigma,Config_Read_MCMC,Config_Read_RunOptions,&
                     Config_Read_Residual,Config_Read_Cook,Config_Read_Summary,&
@@ -58,7 +58,7 @@ type(ModelType)::model
 !-----------------------
 ! Post-processing
 real(mrk), pointer::maxpost(:),mcmc(:,:),logpost(:)
-character(len_longStr)::Residual_File,Cooking_File,Summary_File
+character(len_longStr)::Residual_File,Cooking_File,Summary_File,DIC_File,xtendedMCMC_File,dummy_File
 !-----------------------
 ! Prediction
 integer(mik)::npred
@@ -300,14 +300,27 @@ if(DoSummary) then
     call BaM_ConsoleMessage(8,'')
     ! config file
     call Config_Read_Summary(trim(workspace)//trim(Config_Summary),&
-                          Summary_File,err,mess)
+                          Summary_File,DIC_File,xtendedMCMC_File,err,mess)
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     ! summarize
     call BaM_SummarizeMCMC(mcmc=mcmc,logpost=logpost,&
                       OutFile=trim(workspace)//trim(Summary_File),&
                       err=err,mess=mess)
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    ! Compute DICs if requested
+    if(.not.(DIC_File=='')) then
+        if(xtendedMCMC_File=='') then
+            dummy_File='' ! Extended MCMC with prior, lkh, hyper, deviance is not written
+        else
+            dummy_File=trim(workspace)//trim(xtendedMCMC_File)
+        endif
+        call BaM_computeDIC(mcmc=mcmc,logpost=logpost,&
+                            DICfile=trim(workspace)//trim(DIC_File),&
+                            MCMCfile=dummy_File,err=err,mess=mess)
+        if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    endif
     call BaM_ConsoleMessage(9,'')
+
 endif
 
 !---------------------------------------------------------------------

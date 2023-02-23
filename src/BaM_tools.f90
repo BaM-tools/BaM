@@ -2905,6 +2905,87 @@ end subroutine GetPostLogPdf
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+subroutine UnfoldParVector(v,theta,gamma,Xtrue,Xbias,Ybias,err,mess)
+!^**********************************************************************
+!^* Purpose: Interpret a parameter vector and split it accordingly
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE
+!^**********************************************************************
+!^* Last modified:23/02/2023
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^*    1.v, parameter vector
+!^* OUT
+!^*    1.theta, model parameters
+!^*    2.gamma, remnant errors parameters
+!^*    3.Xtrue, true inputs if inferred
+!^*    4.Xbias, input biases if any
+!^*    5.Ybias, output biases if any
+!^*    6.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    7.mess, error message
+!^**********************************************************************
+real(mrk),intent(in)::v(:)
+real(mrk),intent(out)::theta(INFER%nFit),Xtrue(INFER%nobs,MODEL%nX)
+type(parlist),intent(out)::gamma(MODEL%nY),Xbias(MODEL%nX),Ybias(MODEL%nY)
+integer(mik),intent(out)::err
+character(*),intent(out)::mess
+!locals
+character(250),parameter::procname='UnfoldParVector'
+integer(mrk)::k,i,j
+
+! theta
+if(INFER%nFit>0) theta=v(1:(INFER%nFit))
+k=INFER%nFit
+! remnant parameters
+do i=1,MODEL%nY
+    if(allocated(gamma(i)%p)) deallocate(gamma(i)%p);allocate(gamma(i)%p(INFER%nremnant(i)))
+    gamma(i)%p=v( (k+1):(k+INFER%nremnant(i)) )
+    k=k+INFER%nremnant(i)
+enddo
+! inferred true inputs
+Xtrue=INFER%X
+do j=1,MODEL%nX
+    do i=1,INFER%nobs
+        if(INFER%Xu(i,j) > 0._mrk) then
+            Xtrue(i,j)=v(k+1)
+            k=k+1
+        endif
+    enddo
+enddo
+! input biases
+do j=1,MODEL%nX
+    ! allocate biases
+    if(allocated(Xbias(j)%p)) deallocate(Xbias(j)%p);allocate(Xbias(j)%p(INFER%nXb(j)))
+    if(INFER%nXb(j)==0) cycle ! no bias
+    Xbias(j)%p=v( (k+1):(k+INFER%nXb(j)) )
+    ! additional loop to determine whether Xtrue is estimated or not
+    do i=1,INFER%nobs
+        if(INFER%Xbindx(i,j)>0) then ! bias on this time step
+            if(INFER%Xu(i,j) == 0._mrk) then ! Xtrue is  NOT estimated - need to "unbias" Xobs
+                Xtrue(i,j)=INFER%X(i,j)- INFER%Xb(i,j)*Xbias(j)%p(infer%Xbindx(i,j))
+            endif
+        endif
+    enddo
+    k=k+INFER%nXb(j)
+enddo
+! output biases
+do j=1,MODEL%nY
+    if(allocated(Ybias(j)%p)) deallocate(Ybias(j)%p);allocate(Ybias(j)%p(INFER%nYb(j)))
+    if(INFER%nYb(j)==0) cycle ! no bias
+    Ybias(j)%p=v( (k+1):(k+INFER%nYb(j)) )
+    k=k+INFER%nXb(j)
+enddo
+
+end subroutine UnfoldParVector
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 subroutine Posterior_wrapper(x,feas,isnull,fx,fAux,err,mess)
 !^**********************************************************************
 !^* Purpose: wrapper to GetPostLogPdf to comply with MCMC interface
@@ -2943,52 +3024,12 @@ type(parlist)::gamma(MODEL%nY),Xbias(MODEL%nX),Ybias(MODEL%nY)
 integer(mrk)::k,i,j
 
 !---------------------------
-! unpack x
-! theta
-if(INFER%nFit>0) theta=x(1:(INFER%nFit))
-k=INFER%nFit
-! remnant parameters
-do i=1,MODEL%nY
-    if(allocated(gamma(i)%p)) deallocate(gamma(i)%p);allocate(gamma(i)%p(INFER%nremnant(i)))
-    gamma(i)%p=x( (k+1):(k+INFER%nremnant(i)) )
-    k=k+INFER%nremnant(i)
-enddo
-! inferred true inputs
-Xtrue=INFER%X
-do j=1,MODEL%nX
-    do i=1,INFER%nobs
-        if(INFER%Xu(i,j) > 0._mrk) then
-            Xtrue(i,j)=x(k+1)
-            k=k+1
-        endif
-    enddo
-enddo
-! input biases
-do j=1,MODEL%nX
-    ! allocate biases
-    if(allocated(Xbias(j)%p)) deallocate(Xbias(j)%p);allocate(Xbias(j)%p(INFER%nXb(j)))
-    if(INFER%nXb(j)==0) cycle ! no bias
-    Xbias(j)%p=x( (k+1):(k+INFER%nXb(j)) )
-    ! additional loop to determine whether Xtrue is estimated or not
-    do i=1,INFER%nobs
-        if(INFER%Xbindx(i,j)>0) then ! bias on this time step
-            if(INFER%Xu(i,j) == 0._mrk) then ! Xtrue is  NOT estimated - need to "unbias" Xobs
-                Xtrue(i,j)=INFER%X(i,j)- INFER%Xb(i,j)*Xbias(j)%p(infer%Xbindx(i,j))
-            endif
-        endif
-    enddo
-    k=k+INFER%nXb(j)
-enddo
-! output biases
-do j=1,MODEL%nY
-    if(allocated(Ybias(j)%p)) deallocate(Ybias(j)%p);allocate(Ybias(j)%p(INFER%nYb(j)))
-    if(INFER%nYb(j)==0) cycle ! no bias
-    Ybias(j)%p=x( (k+1):(k+INFER%nYb(j)) )
-    k=k+INFER%nXb(j)
-enddo
+! unfold x
+call UnfoldParVector(v=x,theta=theta,gamma=gamma,Xtrue=Xtrue,Xbias=Xbias,Ybias=Ybias,err=err,mess=mess)
+if(err>0) then;mess=trim(procname)//':'//trim(mess);feas=.false.;return;endif
 
 !---------------------------
-
+! Compute log-posterior
 call GetPostLogPdf(theta=theta,gamma=gamma,Xtrue=Xtrue,Xbias=Xbias,Ybias=Ybias,&
                    model=MODEL,infer=INFER,&
                    lp=fx,Dpar=DPar,feas=feas, isnull=isnull,err=err,mess=mess)

@@ -1,12 +1,7 @@
- Err002 à  00:00:00:00    + 300 : NON CONVERGENCE des itérations 
-  écart relatif (à Ymax et Qmax) trop grand après 10 itérations
-  Itération 09 : écart en DZ = 0.725676E-07 ; écart en DQ = 0.960513E-03
-  Itération 10 : écart en DZ = 0.172190E-07 ; écart en DQ = 0.226474E-03
-  Z : Pm    5064.00 du bief   1 ; Q : Pm    7954.00 du bief   2
- Residu : 0.248371E-02(002:  5064.00)
- Date :  00:00:00:00    > Err. Vol.: -.51E-02 (001) MAX : 0.15E-04 (002)
- Date :  00:00:00:00    > Err. Vol.: -.27E-02 (001) MAX : 0.15E-04 (002)
- Date :  00:00:00:00    > Err. Vol.: -.14E-02 (001) MAX : 0.15E-04 (002)
- Date :  00:00:10:00    > Err. Vol.: 0.37E-02 (001) MAX : 0.91E-03 (001)
- Date :  00:00:10:00    > Err. Vol.: 0.11E-02 (001) MAX : 0.91E-03 (001)
- Date :  00:00:12:24    > Err. Vol.: 0.10E-02 (001) MAX : 0.91E-03 (001)
+ Date :  00:00:00:00    > Err. Vol.: -.89E-02 (001) MAX : 0.57E-04 (002)
+ Date :  00:00:00:00    > Err. Vol.: -.51E-02 (001) MAX : 0.57E-04 (002)
+ Date :  00:00:00:00    > Err. Vol.: -.27E-02 (001) MAX : 0.57E-04 (002)
+ Date :  00:00:00:00    > Err. Vol.: -.14E-02 (001) MAX : 0.57E-04 (002)
+ Date :  00:00:10:00    > Err. Vol.: 0.38E-02 (001) MAX : 0.90E-03 (001)
+ Date :  00:00:10:00    > Err. Vol.: 0.11E-02 (001) MAX : 0.90E-03 (001)
+ Date :  00:00:12:24    > Err. Vol.: 0.10E-02 (001) MAX : 0.90E-03 (001)

@@ -1,1 +1,3 @@
-"Results_Summary.txt" ! Result file 
+"Results_Summary.txt"         ! Summary file 
+"Results_DIC.txt"             ! DIC file 
+"Results_xtendedMCMC.txt"     ! Xtended MCMC file 

@@ -1,4 +1,9 @@
-'/home/brenard/BEN/GitHub/MAGE/mage'                                         ! Mage executable
-'/home/brenard/BEN/GitHub/BaM/tests/BaM_MAGE/Mage_Seineav3_0/'               ! Project directory
-'Seineav3.REP'                                                               ! REP file
-
+'/home/brenard/BEN/GitHub/MAGE/mage'                              ! Mage executable
+'BaM_MAGE/Mage_Seineav3_0/'                                       ! Project directory
+'Seineav3.REP'                                                    ! REP file
+'BaM_MAGE/Zfile_Kmin.txt'                                         ! Z file containing covariates for the regression Kmin(x)=a1Z1(x)+...+apZp(x). Leave empty for no regression.
+3                                                                 ! number of columns p in Z file.
+.false.                                                           ! apply exponential transformation to computed Kmin's to ensure positivity?
+'BaM_MAGE/Zfile_Kmoy.txt'                                         ! Z file containing covariates for the regression Kmoy(x)=a1Z1(x)+...+apZp(x). Leave empty for no regression.
+1                                                                 ! number of columns p in Z file.
+.false.                                                           ! apply exponential transformation to computed Kmoy's to ensure positivity?

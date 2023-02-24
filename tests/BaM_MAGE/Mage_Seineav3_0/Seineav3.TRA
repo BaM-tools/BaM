@@ -338,32 +338,32 @@
  
  ##########  DATE :  01:00:00:00    ( jj:hh:mn:ss) (04 itérations)  ##########
  ===============================================================================
- BIEF   1 : 4 729 253 m3
-    Noeud : ml1 Cote :    9.665                                Débit :   592.259
-    Noeud : DPx Cote :    9.510                                Débit :   607.250
- BIEF   2 : 382 10**6 m3
-    Noeud : DPx Cote :    9.510                                Débit :   632.410
-    Noeud : Lyr Cote :    8.235                                Débit : -4908.004
+ BIEF   1 : 4 247 127 m3
+    Noeud : ml1 Cote :    9.156                                Débit :   592.259
+    Noeud : DPx Cote :    8.831                                Débit :   607.065
+ BIEF   2 : 386 10**6 m3
+    Noeud : DPx Cote :    8.831                                Débit :   632.225
+    Noeud : Lyr Cote :    8.235                                Débit : -4584.672
  ===============================================================================
- Volume total du réseau : 387 10**6 m3
+ Volume total du réseau : 390 10**6 m3
  ===============================================================================
  
  
  
  ##########  DATE :  01:17:25:00    ( jj:hh:mn:ss) (03 itérations)  ##########
  ===============================================================================
- BIEF   1 : 4 723 086 m3
-    Noeud : ml1 Cote :    9.627                                Débit :   482.840
-    Noeud : DPx Cote :    9.528                                Débit :   452.297
- BIEF   2 : 342 10**6 m3
-    Noeud : DPx Cote :    9.528                                Débit :   476.017
-    Noeud : Lyr Cote :    2.800                                Débit :  6111.924
+ BIEF   1 : 4 535 664 m3
+    Noeud : ml1 Cote :    9.437                                Débit :   482.840
+    Noeud : DPx Cote :    9.261                                Débit :   470.509
+ BIEF   2 : 336 10**6 m3
+    Noeud : DPx Cote :    9.261                                Débit :   494.229
+    Noeud : Lyr Cote :    2.800                                Débit :  6350.910
  ===============================================================================
- Volume total du réseau : 346 10**6 m3
+ Volume total du réseau : 340 10**6 m3
  ===============================================================================
- Erreur (relative par bief) en volume à l'instant final : -0.19E-05 (Bief 001)
- Erreur maximale sur la simulation :  0.91E-03 (Bief 001)
- Nombre total d'itérations :     1895
+ Erreur (relative par bief) en volume à l'instant final : -0.47E-04 (Bief 001)
+ Erreur maximale sur la simulation :  0.90E-03 (Bief 001)
+ Nombre total d'itérations :     1867
  Nombre total de pas de temps :      517
- Date simulation : 31/08/2022 (16:14:10) Durée : 00:00:01 CPU : 00:00:00,112
+ Date simulation : 24/02/2023 (14:53:03) Durée : 00:00:01 CPU : 00:00:00,095
  ****************************** FIN NORMALE DE MAGE ****************************

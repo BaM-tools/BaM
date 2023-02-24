@@ -1,60 +1,21 @@
 "MAGE"                    ! Model ID 
 1                         ! nX: number of input variables
 1                         ! nY: number of output variables
-14                        ! nPar: number of parameters theta
+4                         ! nPar: number of parameters theta
 "Kmin1"                   ! Parameter Name
-11.0                       ! Initial guess
+40.0                      ! Initial guess
 'LogNormal'               ! Prior distribution
 3.7,0.5                   ! Prior parameters
-"Kmaj1"                   ! Parameter Name
-10.                       ! Initial guess
-'FIX'                     ! Prior distribution
-                          ! Prior parameters
 "Kmin2"                   ! Parameter Name
 40.0                      ! Initial guess
 'LogNormal'               ! Prior distribution
 3.7,0.5                   ! Prior parameters
-"Kmaj2"                   ! Parameter Name
-10.                       ! Initial guess
-'FIX'                     ! Prior distribution
-                          ! Prior parameters
 "Kmin3"                   ! Parameter Name
-40.0                       ! Initial guess
+40.0                      ! Initial guess
 'LogNormal'               ! Prior distribution
 3.7,0.5                   ! Prior parameters
-"Kmaj3"                   ! Parameter Name
+"Kmaj"                    ! Parameter Name
 10.                       ! Initial guess
 'FIX'                     ! Prior distribution
                           ! Prior parameters
-"Kmin4"                   ! Parameter Name
-40.0                       ! Initial guess
-'LogNormal'               ! Prior distribution
-3.7,0.5                   ! Prior parameters
-"Kmaj4"                   ! Parameter Name
-10.                       ! Initial guess
-'FIX'                     ! Prior distribution
-                          ! Prior parameters
-"Kmin5"                   ! Parameter Name
-40.0                       ! Initial guess
-'LogNormal'               ! Prior distribution
-3.7,0.5                   ! Prior parameters
-"Kmaj5"                   ! Parameter Name
-10.                       ! Initial guess
-'FIX'                     ! Prior distribution
-                          ! Prior parameters
-"Kmin6"                   ! Parameter Name
-40.0                       ! Initial guess
-'LogNormal'               ! Prior distribution
-3.7,0.5                   ! Prior parameters
-"Kmaj6"                   ! Parameter Name
-10.                       ! Initial guess
-'FIX'                     ! Prior distribution
-                          ! Prior parameters
-"Kmin7"                   ! Parameter Name
-40.0                       ! Initial guess
-'LogNormal'               ! Prior distribution
-3.7,0.5                   ! Prior parameters
-"Kmaj7"                   ! Parameter Name
-10.                       ! Initial guess
-'FIX'                     ! Prior distribution
-                          ! Prior parameters
+

@@ -636,8 +636,10 @@ case(MDL_MAGE)
     model%nDpar=0
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
-    ! Load SMASH
-    call MAGE_setUp(projectDir=trim(model%xtra%cs2),REPfile=trim(model%xtra%cs3),err=err,mess=mess)
+    ! Load MAGE
+    call MAGE_setUp(projectDir=trim(model%xtra%cs2),REPfile=trim(model%xtra%cs3),&
+                    Zfile=model%xtra%cp1,ZnCol=(/model%xtra%is1,model%xtra%is2/),&
+                    doExp=(/model%xtra%ls1,model%xtra%ls2/),err=err,mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 case default
     err=1;mess=trim(procname)//': Fatal: Unavailable [model%ID]'

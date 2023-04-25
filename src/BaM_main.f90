@@ -420,5 +420,5 @@ call BaM_Cleanup(err=err,mess=mess)
 if(err>0) then; call BaM_ConsoleMessage(18,trim(mess));endif
 
 call BaM_ConsoleMessage(999, '')
-read(*,*)
+!read(*,*)
 end program BaM_main

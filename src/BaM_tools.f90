@@ -1640,7 +1640,7 @@ case(999) ! Ciao!
     write(*,*) '*********************************'
     write(*,*) '*********************************'
     write(*,*) ''
-    write(*,*) 'Thanx for using me...'
+    ! write(*,*) 'Thanx for using me...'
     write(*,*) 'Press [enter] and I''ll go away'
 case (-1) ! Fatal Error - general
     write(*,*) ""
@@ -3422,7 +3422,8 @@ end function BaM_message
 
 subroutine BaM_Fatal_Exit
 ! action taken on fatal error
-read(*,*);STOP
+!read(*,*)
+STOP
 end subroutine BaM_Fatal_Exit
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

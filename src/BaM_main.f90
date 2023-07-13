@@ -100,7 +100,7 @@ do while (i<=narg)
             call get_command_argument(i,arg)
             Config_file=trim(arg);i=i+1
         else
-            call BaM_ConsoleMessage(-1,'-wk requires a path to a directory')
+            call BaM_ConsoleMessage(-1,'-cf requires a path to a file')
         endif
      case ('-sd', '--seed')
         i=i+1

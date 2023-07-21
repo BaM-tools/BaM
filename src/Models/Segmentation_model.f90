@@ -120,7 +120,7 @@ case(1) ! parameters are shift times
     duration(1)=tau(1)
     if(nS>2) then
         do i=2,nS-1
-            duration(i)=tau(i)-tau(i+1)
+            duration(i)=tau(i)-tau(i-1)
         enddo
     endif
 case(2) ! parameters are inter-shift durations

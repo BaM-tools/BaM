@@ -1789,7 +1789,7 @@ character(*),intent(out)::mess,workspace,Config_RunOptions,Config_Model,Config_X
 character(*),pointer::Config_RemnantSigma(:)
 ! locals
 character(250),parameter::procname='Config_Read',sep=","
-character(250)::foo
+character(len_uLongStr)::foo
 integer(mik)::n,unt
 
 err=0;mess=''

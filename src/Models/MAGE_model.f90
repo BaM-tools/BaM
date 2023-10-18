@@ -138,7 +138,7 @@ if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 open(unit=unt,file=trim(projectDir)//trim(RUGfile),status='replace',iostat=err)
 if(err/=0) then;mess=trim(procname)//':problem creating RUG file';return;endif
 write(unt,'(A)') '**************** STRICKLERS **********************'
-write(unt,'(A)') '*Bif        x deb     x fin     K min     K moy  '
+write(unt,'(A)') '*Bief        x deb     x fin     K min     K moy  '
 write(unt,'(A)') '*---======----------==========----------=========='
 do i=1,n
     write(unt,forma) 'K',RUGb(i),RUGx(i),RUGx(i+1),Kmin(i),Kmoy(i)

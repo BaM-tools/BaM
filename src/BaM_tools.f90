@@ -1141,6 +1141,8 @@ character(*),intent(out)::mess
 ! locals
 character(250),parameter::procname='BaM_ProcessSpag'
 integer(mik),parameter::nEnv=7
+logical,parameter::removeMV=.true.
+real(mrk),parameter::maxMVrate=0.75_mrk
 character(250), dimension(nEnv),parameter::head_envelop=(/"Median       ",&
                                                        "q2.5         ",&
                                                        "q97.5        ",&
@@ -1149,9 +1151,10 @@ character(250), dimension(nEnv),parameter::head_envelop=(/"Median       ",&
                                                        "Mean         ",&
                                                        "Stdev        "/)
 integer(mik)::i,j,unt
-real(mrk)::arr(nrep),Env(nEnv)
+real(mrk)::Env(nEnv)
 character(250)::fmt,fmt2,fmt3
-real(mrk),allocatable::Spag(:,:)
+real(mrk),allocatable::Spag(:,:),arr(:)
+logical::mask(nrep)
 
 err=0;mess=''
 fmt='('//trim(number_string(nrep))//trim(fmt_numeric)//')'
@@ -1200,11 +1203,19 @@ do i=1,size(SpagFiles)
             if(err/=0) then;call BaM_ConsoleMessage(messID_Write,trim(EnvelopFiles(i)));endif
             ! Compute envelops
             do j=1,nobs
-                if(any(Spag(:,j)==model%unfeasFlag)) then ! Do nothing - user's responsability to choose what to do with unfeasible simulations!
+                mask=(Spag(:,j)==model%unfeasFlag)
+                if(removeMV .and. real(count(mask),mrk)/real(nrep,mrk) < maxMVrate) then ! remove unfeasible values
+                    if(allocated(arr)) deallocate(arr);allocate(arr(count(.not.mask)))
+                    arr=pack(Spag(:,j),.not.mask)
+                else
+                    if(allocated(arr)) deallocate(arr);allocate(arr(nrep))
+                    arr=Spag(:,j)
+                endif
+                if(any(arr==model%unfeasFlag)) then ! Do nothing
                     Env=model%unfeasFlag
                 else
                     ! Sort
-                    arr=Spag(:,j);call quicksort(arr=arr,ascnd=.true.,err=err)
+                    call quicksort(arr=arr,ascnd=.true.,err=err)
                     if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
                     ! Get quantiles
                     call GetEmpiricalQuantile(p=0.5_mrk,x=arr,IsXSorted=.true.,q=Env(1),err=err,mess=mess)

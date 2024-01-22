@@ -54,6 +54,7 @@ use SFDTidal_Sw_correction_model
 use SFDTidal2_model
 use SFDTidalJones_model
 use SFDTidal4_model
+use SFDTidal_Qmec_model
 use Recession_model_h
 use Segmentation_model
 use TextFile_model
@@ -87,6 +88,7 @@ Character(100), parameter, PUBLIC:: &
                     MDL_SFDTidal2="MDL_SFDTidal2",& ! Stage-Fall-Discharge rating curve for tidal rivers with water slope correction
                     MDL_SFDTidalJones="MDL_SFDTidalJones",& ! Stage-Fall-Discharge rating curve for tidal rivers with water slope correction
                     MDL_SFDTidal4="MDL_SFDTidal4",& ! Stage-Fall-Discharge rating curve for tidal rivers with water slope correction
+                    MDL_SFDTidal_Qmec="MDL_SFDTidal_Qmec",& ! Stage-Fall-Discharge rating curve for tidal rivers with Qmec model
                     MDL_Recession_h="MDL_Recession_h", & ! Recession 2-exponential regression for h(t)
                     MDL_Segmentation="MDL_Segmentation",& ! Segmentation of a time series
                     MDL_TextFile="MDL_TextFile",& ! model written in a text file
@@ -183,6 +185,8 @@ case(MDL_SFDTidalJones)
     call SFDTidalJones_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_SFDTidal4)
     call SFDTidal4_GetParNumber(npar=npar,err=err,mess=mess)
+case(MDL_SFDTidal_Qmec)
+    call SFDTidal_Qmec_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_Recession_h)
     call Recession_h_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_Segmentation)
@@ -315,6 +319,11 @@ case(MDL_SFDTidalJones)
 case(MDL_SFDTidal4)
     call SFDTidal4_Apply(IN=X,theta=theta,OUT=Y(:,1),&
                         feas=vfeas,err=err,mess=mess)
+
+case(MDL_SFDTidal_Qmec)
+    call SFDTidal_Qmec_Apply(h1=X(:,1),h2=X(:,2),theta=theta,Q=Y(:,1),&
+                        feas=vfeas,err=err,mess=mess)
+
 case(MDL_Recession_h)
     call Recession_h_Apply(time=X(:,1), theta=theta, h=Y(:,1),feas=feas,err=err,mess=mess)
 
@@ -442,6 +451,8 @@ case(MDL_SFDTidal2)
 case(MDL_SFDTidalJones)
     ! nothing to read
 case(MDL_SFDTidal4)
+    ! nothing to read
+case(MDL_SFDTidal_Qmec)
     ! nothing to read
 case(MDL_Recession_h)
     ! nothing to read
@@ -590,6 +601,10 @@ case(MDL_SFDTidalJones)
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
 case(MDL_SFDTidal4)
+    model%nDpar=0
+    model%nState=0
+    allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
+case(MDL_SFDTidal_Qmec)
     model%nDpar=0
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))

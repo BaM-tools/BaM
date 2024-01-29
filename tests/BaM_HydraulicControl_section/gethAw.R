@@ -1,0 +1,6 @@
+library(RBaM)
+bathy=data.frame(a=c(0,0,0,1,2,2,2.2,2.4,2.6),h=c(3,2,0,-0.5,0,1.5,2,2.4,3))
+plot(bathy,type='b')
+df=getAwPfromBathy(bathy)
+plot(df$h,df$A/df$w,type='b')
+write.table(df[,1:3],file='Config_hAw.txt',row.names = FALSE,col.names = FALSE)

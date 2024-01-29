@@ -64,6 +64,7 @@ use TidalODE_model
 use TidalRemenieras_model
 use SMASH_model
 use MAGE_model
+use HydraulicControl_section_model
 
 implicit none
 Private
@@ -97,8 +98,8 @@ Character(100), parameter, PUBLIC:: &
                     MDL_TidalODE="MDL_TidalODE",& ! Discharge for tidal rivers
                     MDL_TidalRemenieras="MDL_TidalRemenieras",& ! Discharge for tidal rivers
                     MDL_SMASH="MDL_SMASH",& ! Interface to SMASH distributed hydrological model
-                    MDL_MAGE="MDL_MAGE" ! Interface to SMASH distributed hydrological model
-
+                    MDL_MAGE="MDL_MAGE",& ! Interface to SMASH distributed hydrological model
+                    MDL_HydraulicControl_section="MDL_HydraulicControl_section" ! general section hydraulic control
 ! Model object
 type, public:: ModelType ! the "model" object
     character(100)::ID='AintGotNoName' ! ID of the model - see above for the catalogue
@@ -207,6 +208,8 @@ case(MDL_SMASH)
     call SMASH_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_MAGE)
     call MAGE_GetParNumber(npar=npar,err=err,mess=mess)
+case(MDL_HydraulicControl_section)
+    call HydraulicControl_section_GetParNumber(npar=npar,err=err,mess=mess)
 end select
 if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
 end subroutine GetmodelParNumber
@@ -367,6 +370,9 @@ case(MDL_SMASH)
 case(MDL_MAGE)
     call MAGE_Run(exeFile=model%xtra%cs1,projectDir=model%xtra%cs2,REPfile=model%xtra%cs3,&
                   theta=theta,Y=Y,feas=feas,err=err,mess=mess)
+case(MDL_HydraulicControl_section)
+    call HydraulicControl_section_Apply(H=X(:,1),theta=theta,hAwMatrix=model%xtra%rpm1,&
+                                        Q=Y(:,1),feas=vfeas,err=err,mess=mess)
 case default
     err=1;mess=trim(procname)//': Fatal: Unavailable [model%ID]'
 end select
@@ -474,6 +480,8 @@ case(MDL_SMASH)
     call SMASH_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
 case(MDL_MAGE)
     call MAGE_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
+case(MDL_HydraulicControl_section)
+    call HydraulicControl_section_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
 case default
     err=1;mess=trim(procname)//': Fatal: Unavailable [model%ID]'
 end select
@@ -656,6 +664,11 @@ case(MDL_MAGE)
                     Zfile=model%xtra%cp1,ZnCol=(/model%xtra%is1,model%xtra%is2/),&
                     doExp=(/model%xtra%ls1,model%xtra%ls2/),err=err,mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+case(MDL_HydraulicControl_section)
+    model%nDpar=0
+    model%nState=0
+    allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
+    call HydraulicControl_section_Setup(hAwMatrix=model%xtra%rpm1,err=err,mess=mess)
 case default
     err=1;mess=trim(procname)//': Fatal: Unavailable [model%ID]'
 end select

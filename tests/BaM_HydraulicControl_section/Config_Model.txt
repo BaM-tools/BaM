@@ -1,0 +1,13 @@
+"HydraulicControl_section"                 ! Model ID 
+1                         ! nX: number of input variables
+1                         ! nY: number of output variables
+2                         ! nPar: number of parameters theta
+"coeff"                   ! Parameter Name
+1                         ! Initial guess
+'LogNormal'               ! Prior distribution
+0,0.1                    ! Prior parameters
+"g"                       ! Parameter Name
+9.81                      ! Initial guess
+'FIX'                     ! Prior distribution
+                          ! Prior parameters
+

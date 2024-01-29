@@ -126,6 +126,7 @@
 			<Option weight="55" />
 		</Unit>
 		<Unit filename="../../src/Models/GR4J_model.f90" />
+		<Unit filename="../../src/Models/HydraulicControl_section_model.f90" />
 		<Unit filename="../../src/Models/Linear_model.f90" />
 		<Unit filename="../../src/Models/MAGE_model.f90" />
 		<Unit filename="../../src/Models/Mixture_model.f90" />

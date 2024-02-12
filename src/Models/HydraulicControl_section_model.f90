@@ -9,7 +9,7 @@ module HydraulicControl_section_model
 !~**********************************************************************
 !~* Comments:
 !~**********************************************************************
-!~* References:
+!~* References: Hrafnkelsson et al. 2021, https://doi.org/10.1002/env.2711
 !~**********************************************************************
 !~* 2Do List:
 !~**********************************************************************
@@ -117,22 +117,23 @@ aow(2:p)=hAwMatrix(2:p,2)/hAwMatrix(2:p,3)
 lhs=hAwMatrix(:,1) + 0.5_mrk*aow
 
 do i=1,n
-    if(H(i)<=hAwMatrix(1,1)) then
+    if(H(i)<=hAwMatrix(1,1)) then ! H below bathy lowest point, Q=0
         Q(i)=0._mrk
-    else if (H(i)>=hAwMatrix(p,1)) then
+    else if (H(i)>=hAwMatrix(p,1)) then ! H above bathy highest point, can't compute
         feas(i)=.false.
     else
         ! solve critical stage equation
-        fx=lhs-H(i)
-        k1=maxloc(fx,dim=1,mask=fx<=0._mrk)
-        k2=k1+1
-        if( k1<=0 .or. k2>p) then
+        fx=lhs-H(i) ! function to be zeroified
+        k1=maxloc(fx,dim=1,mask=fx<=0._mrk) ! last x with fx<0
+        k2=k1+1 ! first x with fx>0: fx==0 lies in between
+        if( k1<=0 .or. k2>p) then ! Shouldn't be happening...
             feas(i)=.false.
         else
+            ! find hc by interpolating between h(k1) and h(k2)
             x1=hAwMatrix(k1,1);x2=hAwMatrix(k2,1)
             y1=fx(k1);y2=fx(k2)
             hc=(x1*y2-x2*y1)/(y2-y1)
-            ! Get corresponding A(hc)
+            ! Get corresponding A(hc) by linear interpolation
             y1=hAwMatrix(k1,2);y2=hAwMatrix(k2,2)
             Ahc=(y1*(x2-hc)+y2*(hc-x1))/(x2-x1)
             ! get Q

@@ -2,7 +2,7 @@
 14					!!! Nobs, number of observations per spaghetti (common to all files!)
 1					!!! Nspag, number of spaghettis for each input variable (size nX)
 .true.					!!! Propagate parametric uncertainty?
-.false.					!!! Propagate remnant uncertainty for each output variable? (size nY)
+.true.					!!! Propagate remnant uncertainty for each output variable? (size nY)
 -1					!!! Nsim[prior]. If <=0: posterior sampling (nsim is given by mcmc sample); if >0: sample nsim replicates from prior distribution
 'Total.spag'				!!! Files containing spaghettis for each output variable (size nY)
 .true.					!!! Post-processing: transpose spag file (so that each column is a spaghetti)? (size nY)

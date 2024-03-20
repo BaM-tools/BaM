@@ -1,0 +1,3 @@
+2				!!! Number of prediction experiments
+'Config_Pred_Total.txt'		!!! Config file for experiments - an many lines as the number above
+'Config_Pred_Parametric.txt'	!!! Config file for experiments - an many lines as the number above

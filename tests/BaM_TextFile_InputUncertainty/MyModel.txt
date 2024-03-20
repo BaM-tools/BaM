@@ -1,0 +1,6 @@
+1              ! number of input variables
+T              ! list of input variables, comma-separated (T: turbidity)
+2              ! number of parameters
+a,b            ! list of parameters, comma-separated
+1              ! number of output variables
+a*T+b          ! Formula for C (concentration)

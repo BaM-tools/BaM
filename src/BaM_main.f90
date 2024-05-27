@@ -24,12 +24,12 @@ character(len_stdStrD),parameter::version="0.3.1 February 2023"
 real(mrk),parameter::defaultstd=0.1_mrk
 !-----------------------
 ! Config files
-character(len_vLongStr)::workspace,Config_file
+character(len_vLongStr)::workspace,Config_file,filePath,filePath2
 character(len_longStr)::Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
                 Config_MCMC,Config_Cooking,Config_summary,&
                 Config_Residual,Config_Pred_Master
 character(len_longStr),pointer::Config_RemnantSigma(:),Config_Pred(:)
-character(len_longStr),allocatable::Config_RemnantList(:)
+character(len_vlongStr),allocatable::Config_RemnantList(:)
 !-----------------------
 ! run options
 logical::DoMCMC,DoSummary,DoResidual,DoPred
@@ -58,15 +58,16 @@ type(ModelType)::model
 !-----------------------
 ! Post-processing
 real(mrk), pointer::maxpost(:),mcmc(:,:),logpost(:)
-character(len_longStr)::Residual_File,Cooking_File,Summary_File,DIC_File,xtendedMCMC_File,dummy_File
+character(len_longStr)::Residual_File,Cooking_File,Summary_File,DIC_File,xtendedMCMC_File
+character(len_vlongStr)::dummy_File
 !-----------------------
 ! Prediction
 integer(mik)::npred
 logical::DoParametric
 logical,allocatable::DoRemnant(:),DoTranspose(:),DoEnvelop(:),DoState(:),&
                      DoTranspose_S(:),DoEnvelop_S(:)
-character(len_longStr),allocatable::XSpag_Files(:),YSpag_Files(:),Envelop_Files(:),&
-                            SpagFiles_S(:),EnvelopFiles_S(:)
+character(len_longStr),allocatable::YSpag_Files(:),Envelop_Files(:),SpagFiles_S(:),EnvelopFiles_S(:)
+character(len_vlongStr),allocatable::XSpag_Files(:),fp1(:),fp2(:),fp3(:),fp4(:)
 logical::PrintCounter
 type(XspagType)::Xspag
 !-----------------------
@@ -155,27 +156,31 @@ call Config_Read(trim(Config_file),&
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 
 ! Read run options
-call Config_Read_RunOptions(trim(workspace)//trim(Config_RunOptions),&
+filePath=trim(workspace)//trim(Config_RunOptions)
+call Config_Read_RunOptions(filePath,&
                             DoMCMC,DoSummary,&
                             DoResidual,DoPred,&
                             err,mess)
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 
 ! model setup
-call Config_Read_Model(trim(workspace)//trim(Config_Model),&
+filePath=trim(workspace)//trim(Config_Model)
+call Config_Read_Model(filePath,&
                        model%ID,model%nX,model%nY,&
                        theta,&
                        err,mess)
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 model%ID="MDL_"//trim(model%ID)
-call Config_Read_Xtra(file=trim(workspace)//trim(Config_Xtra),&
+filePath=trim(workspace)//trim(Config_Xtra)
+call Config_Read_Xtra(file=filePath,&
                       ID=model%ID,xtra=model%xtra,err=err,mess=mess)
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 
 ! read data
 allocate(Xcol(model%nX),XuCol(model%nX),XbCol(model%nX),XbindxCol(model%nX))
 allocate(Ycol(model%nY),YuCol(model%nY),YbCol(model%nY),YbindxCol(model%nY))
-call Config_Read_Data(file=trim(workspace)//trim(Config_Data),&
+filePath=trim(workspace)//trim(Config_Data)
+call Config_Read_Data(file=filePath,&
                       DataFile=datafile,nHeader=nhead,nobs=nobs,ncol=nc,&
                       XCol=XCol,XuCol=XuCol,XbCol=XbCol,XbindxCol=XbindxCol,&
                       YCol=YCol,YuCol=YuCol,YbCol=YbCol,YbindxCol=YbindxCol,&
@@ -227,7 +232,8 @@ if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 
 ! MCMC Config file
 allocate(theta_std0(size(theta0)),RemnantSigma_std0(model%nY))
-call Config_Read_MCMC(trim(workspace)//trim(Config_MCMC),&
+filePath=trim(workspace)//trim(Config_MCMC)
+call Config_Read_MCMC(filePath,&
                   theta0,RemnantSigma0,defaultStd,&
                   nAdapt,nCycles,InitStdMode,&
                   MinMoveRate,MaxMoveRate,DownMult,UpMult,&
@@ -236,7 +242,8 @@ call Config_Read_MCMC(trim(workspace)//trim(Config_MCMC),&
                   err,mess)
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 ! Also read Cook-MCMC to get burn & nslim
-call Config_Read_Cook(trim(workspace)//trim(Config_Cooking),&
+filePath=trim(workspace)//trim(Config_Cooking)
+call Config_Read_Cook(filePath,&
                       burnFactor,nSlim,Cooking_File,err,mess)
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 
@@ -250,26 +257,30 @@ call BaM_ConsoleMessage(101,model%ID)
 if(DoMCMC) then
     call BaM_ConsoleMessage(4,'')
     ! Go!
+    filePath=trim(workspace)//trim(MCMCfile)
+    filePath2=trim(workspace)//trim(Config_MCMC)//trim(MonitorExt)
     call BaM_Fit(theta0=theta0,RemnantSigma0=RemnantSigma0, &!initial values for teta and remnant std
                  theta_std0=theta_std0,RemnantSigma_std0=RemnantSigma_std0,& ! initial values for the std of jump distribution
                  nAdapt=nAdapt,nCycles=nCycles,&
                  MinMoveRate=MinMoveRate,MaxMoveRate=MaxMoveRate,&
                  DownMult=DownMult,UpMult=UpMult,&
-                 OutFile=trim(workspace)//trim(MCMCfile), & ! Output file (for MCMC samples)
-                 MonitorFile=trim(workspace)//trim(Config_MCMC)//trim(MonitorExt), & ! monitoring file (for MCMC samples)
+                 OutFile=filePath, & ! Output file (for MCMC samples)
+                 MonitorFile=filePath2, & ! monitoring file (for MCMC samples)
                  err=err,mess=mess)
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     call BaM_ConsoleMessage(5, trim(trim(workspace)//trim(MCMCfile)))
     ! load MCMC samples and write cooked samples
     call BaM_ConsoleMessage(6,'')
-    call BaM_LoadMCMC(MCMCFile=trim(workspace)//trim(MCMCfile),&
+    filePath=trim(workspace)//trim(MCMCfile)
+    call BaM_LoadMCMC(MCMCFile=filePath,&
                   burnFactor=burnFactor,Nslim=Nslim,& ! Read properties
                   maxpost=maxpost,mcmc=mcmc,logpost=logpost,&
                   err=err,mess=mess)!out
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     IsMCMCLoaded=.true.
+    filePath=trim(workspace)//trim(Cooking_File)
     call BaM_CookMCMC(mcmc=mcmc,logpost=logpost,&
-                      OutFile=trim(workspace)//trim(Cooking_File),&
+                      OutFile=filePath,&
                       err=err,mess=mess)
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     call BaM_ConsoleMessage(7,'')
@@ -282,7 +293,8 @@ endif
 !---------------------------------------------------------------------
 if(.not.IsMCMCLoaded) then
     if(DoSummary .or. DoResidual) then
-        call BaM_LoadMCMC(MCMCFile=trim(workspace)//trim(Cooking_File),&
+        filePath=trim(workspace)//trim(Cooking_File)
+        call BaM_LoadMCMC(MCMCFile=filePath,&
                       burnFactor=0._mrk,Nslim=1,& ! Read properties
                       maxpost=maxpost,mcmc=mcmc,logpost=logpost,&
                       err=err,mess=mess)!out
@@ -299,12 +311,14 @@ endif
 if(DoSummary) then
     call BaM_ConsoleMessage(8,'')
     ! config file
-    call Config_Read_Summary(trim(workspace)//trim(Config_Summary),&
+    filePath=trim(workspace)//trim(Config_Summary)
+    call Config_Read_Summary(filePath,&
                           Summary_File,DIC_File,xtendedMCMC_File,err,mess)
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     ! summarize
+    filePath=trim(workspace)//trim(Summary_File)
     call BaM_SummarizeMCMC(mcmc=mcmc,logpost=logpost,&
-                      OutFile=trim(workspace)//trim(Summary_File),&
+                      OutFile=filePath,&
                       err=err,mess=mess)
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     ! Compute DICs if requested
@@ -314,8 +328,9 @@ if(DoSummary) then
         else
             dummy_File=trim(workspace)//trim(xtendedMCMC_File)
         endif
+        filePath=trim(workspace)//trim(DIC_File)
         call BaM_computeDIC(mcmc=mcmc,logpost=logpost,&
-                            DICfile=trim(workspace)//trim(DIC_File),&
+                            DICfile=filePath,&
                             MCMCfile=dummy_File,err=err,mess=mess)
         if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     endif
@@ -331,12 +346,13 @@ endif
 if(DoResidual) then
     call BaM_ConsoleMessage(10,'')
     ! read config file
-    call Config_Read_Residual(trim(workspace)//trim(Config_Residual),&
-                                   Residual_File,err,mess)
+    filePath=trim(workspace)//trim(Config_Residual)
+    call Config_Read_Residual(filePath,Residual_File,err,mess)
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     ! Perform runs
+    filePath=trim(workspace)//trim(Residual_File)
     call BaM_Residual(maxpost=maxpost,&
-                      OutFile=trim(workspace)//trim(Residual_File),&
+                      OutFile=filePath,&
                       err=err,mess=mess)
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     call BaM_ConsoleMessage(11,'')
@@ -350,8 +366,8 @@ endif
 if(DoPred) then
     call BaM_ConsoleMessage(12,'')
     ! read master config file
-    call Config_Read_Pred_Master(trim(workspace)//trim(Config_Pred_Master),&
-                                 npred,Config_Pred,err,mess)
+    filePath=trim(workspace)//trim(Config_Pred_Master)
+    call Config_Read_Pred_Master(filePath,npred,Config_Pred,err,mess)
     if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
     allocate(XSpag_Files(model%nX))
     allocate(DoRemnant(model%nY),YSpag_Files(model%nY),DoTranspose(model%nY),&
@@ -360,10 +376,12 @@ if(DoPred) then
     allocate(Xspag%spag(model%nX))
     allocate(DoState(model%nState),SpagFiles_S(model%nState),DoTranspose_S(model%nState),&
              DoEnvelop_S(model%nState),EnvelopFiles_S(model%nState))
+    allocate(fp1(model%nY),fp2(model%nY),fp3(model%nState),fp4(model%nState))
     do i=1,npred
         call BaM_ConsoleMessage(14,trim(number_string(i))//'/'//trim(number_string(npred)))
         ! read individual pred config files
-        call Config_Read_Pred(trim(workspace)//trim(Config_Pred(i)),&
+        filePath=trim(workspace)//trim(Config_Pred(i))
+        call Config_Read_Pred(filePath,&
                             XSpag_Files,Xspag%nobs,Xspag%nspag,&
                             DoParametric,DoRemnant,nsim,YSpag_Files,&
                             DoTranspose,DoEnvelop,Envelop_Files,PrintCounter,&
@@ -375,35 +393,46 @@ if(DoPred) then
         if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
         ! Do Prediction
         if(nsim>0) then ! prior sampling
+            fp1=trim(workspace)//YSpag_Files
+            fp2=trim(workspace)//Envelop_Files
+            fp3=trim(workspace)//SpagFiles_S
+            fp4=trim(workspace)//EnvelopFiles_S
+            filePath=trim(workspace)//trim(Config_Pred(i))//trim(MonitorExt)
             call BaM_Prediction(nsim=nsim,&
                           Xspag=Xspag,DoParametric=DoParametric,DoRemnant=DoRemnant,&
-                          SpagFiles=trim(workspace)//YSpag_Files,PrintCounter=PrintCounter,&
+                          SpagFiles=fp1,PrintCounter=PrintCounter,&
                           DoTranspose=DoTranspose,DoEnvelop=DoEnvelop,&
-                          EnvelopFiles=trim(workspace)//Envelop_Files,&
+                          EnvelopFiles=fp2,&
                           DoState=DoState,DoTranspose_S=DoTranspose_S,DoEnvelop_S=DoEnvelop_S,&
-                          SpagFiles_S=trim(workspace)//SpagFiles_S,&
-                          EnvelopFiles_S=trim(workspace)//EnvelopFiles_S,&
-                          MonitorFile=trim(workspace)//trim(Config_Pred(i))//trim(MonitorExt),& ! monitoring file
+                          SpagFiles_S=fp3,&
+                          EnvelopFiles_S=fp4,&
+                          MonitorFile=filePath,& ! monitoring file
                           err=err,mess=mess)
             if(err>0) then; call BaM_ConsoleMessage(17,trim(mess));endif
         else ! posterior sampling
             if(.not.IsMCMCLoaded) then
-                call BaM_LoadMCMC(MCMCFile=trim(workspace)//trim(Cooking_File),&
+                filePath=trim(workspace)//trim(Cooking_File)
+                call BaM_LoadMCMC(MCMCFile=filePath,&
                       burnFactor=0._mrk,Nslim=1,& ! Read properties
                       maxpost=maxpost,mcmc=mcmc,logpost=logpost,&
                       err=err,mess=mess)!out
                 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
                 IsMCMCLoaded=.true.
             endif
+            fp1=trim(workspace)//YSpag_Files
+            fp2=trim(workspace)//Envelop_Files
+            fp3=trim(workspace)//SpagFiles_S
+            fp4=trim(workspace)//EnvelopFiles_S
+            filePath=trim(workspace)//trim(Config_Pred(i))//trim(MonitorExt)
             call BaM_Prediction(mcmc=mcmc,maxpost=maxpost,&
                           Xspag=Xspag,DoParametric=DoParametric,DoRemnant=DoRemnant,&
-                          SpagFiles=trim(workspace)//YSpag_Files,PrintCounter=PrintCounter,&
+                          SpagFiles=fp1,PrintCounter=PrintCounter,&
                           DoTranspose=DoTranspose,DoEnvelop=DoEnvelop,&
-                          EnvelopFiles=trim(workspace)//Envelop_Files,&
+                          EnvelopFiles=fp2,&
                           DoState=DoState,DoTranspose_S=DoTranspose_S,DoEnvelop_S=DoEnvelop_S,&
-                          SpagFiles_S=trim(workspace)//SpagFiles_S,&
-                          EnvelopFiles_S=trim(workspace)//EnvelopFiles_S,&
-                          MonitorFile=trim(workspace)//trim(Config_Pred(i))//trim(MonitorExt),& ! monitoring file
+                          SpagFiles_S=fp3,&
+                          EnvelopFiles_S=fp4,&
+                          MonitorFile=filePath,& ! monitoring file
                           err=err,mess=mess)
             if(err>0) then; call BaM_ConsoleMessage(17,trim(mess));endif
         endif

@@ -1,0 +1,48 @@
+"SFDTidal_Qmec2"                                            ! Model ID - type getCatalogue() in RBaM to see available models
+2                                                          ! nX: number of input variables
+1                                                          ! nY: number of output variables
+11                                                         ! nPar: number of parameters theta
+"Be"                                                       ! Parameter name
+2000                                                       ! Initial guess
+"LogNormal"                                                ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+7.6,0.3                                                    ! Prior parameters
+"bevs"                                                     ! Parameter name
+-15                                                        ! Initial guess
+"Gaussian"                                                 ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+-15,5                                                      ! Prior parameters
+"delta"                                                    ! Parameter name
+0                                                          ! Initial guess
+"Gaussian"                                                 ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+0,0.3                                                      ! Prior parameters
+"ne"                                                       ! Parameter name
+0.04                                                       ! Initial guess
+"LogNormal"                                                ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+-3,0.15                                                    ! Prior parameters
+"d1"                                                       ! Parameter name
+-1.379                                                     ! Initial guess
+"FIX"                                                      ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+""                                                         ! Prior parameters
+"d2"                                                       ! Parameter name
+-1.958                                                     ! Initial guess
+"FIX"                                                      ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+""                                                         ! Prior parameters
+"c"                                                        ! Parameter name
+1.33333333333333                                           ! Initial guess
+"FIX"                                                      ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+""                                                         ! Prior parameters
+"g"                                                        ! Parameter name
+9.81                                                       ! Initial guess
+"FIX"                                                      ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+""                                                         ! Prior parameters
+"Q0"                                                       ! Parameter name
+0                                                          ! Initial guess
+"FlatPrior"                                                ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+0,NA                                                       ! Prior parameters
+"dx"                                                       ! Parameter name
+38000                                                      ! Initial guess
+"FIX"                                                      ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+""                                                         ! Prior parameters
+"dt"                                                       ! Parameter name
+60                                                         ! Initial guess
+"FIX"                                                      ! Prior distribution - type getCatalogue() in RBaM to see available distributions
+""                                                         ! Prior parameters

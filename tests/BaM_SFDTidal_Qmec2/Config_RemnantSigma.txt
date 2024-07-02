@@ -1,0 +1,6 @@
+'Constant'             ! Function f used in sdev=f(Qrc) 
+1                    ! Number of parameters gamma for f
+"gamma1"             ! Parameter Name
+1000.                   ! Initial Guess
+'Uniform'            ! Prior distribution
+0,10000               ! Prior parameters

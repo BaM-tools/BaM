@@ -35,7 +35,7 @@ pure subroutine SFDTidal_Qmec2_GetParNumber(npar,err,mess)
 !^**********************************************************************
 !^* Programmer: Felipe Mendez-Rios, Ben Renard, INRAE
 !^**********************************************************************
-!^* Last modified: 17/06/2024
+!^* Last modified: 05/07/2024
 !^**********************************************************************
 !^* Comments:
 !^**********************************************************************
@@ -54,18 +54,18 @@ integer(mik), intent(out)::npar,err
 character(*),intent(out)::mess
 ! locals
 
-err=0;mess='';npar=11 !Be, bevs, delta, ne, d1, d2, c, g, Q0, dx, dt
+err=0;mess='';npar=13 !Be, bevs, b1, b2, delta, ne, d1, d2, c, g, Q0, dx, dt
 
 end subroutine SFDTidal_Qmec2_GetParNumber
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine SFDTidal_Qmec2_Apply(h1,h2,theta,Q,pressure_gradient,bottom_friction,advection,feas,err,mess)
+subroutine SFDTidal_Qmec2_Apply(h1,h2,theta,Q,pressure_gradient,gravity_force,bottom_friction,advection,feas,err,mess)
 
 !^**********************************************************************
 !^* Purpose: apply SFDTidal Qmec2 model
 !^**********************************************************************
 !^* Programmer: Felipe Mendez-Rios, Ben Renard, INRAE
 !^**********************************************************************
-!^* Last modified: 17/06/2024
+!^* Last modified: 05/07/2024
 !^**********************************************************************
 !^* Comments:
 !^**********************************************************************
@@ -84,19 +84,19 @@ subroutine SFDTidal_Qmec2_Apply(h1,h2,theta,Q,pressure_gradient,bottom_friction,
 !^*     4. mess, error message
 !^**********************************************************************
 real(mrk), intent(in)::h1(:),h2(:),theta(:)
-real(mrk), intent(out)::Q(:),pressure_gradient(:), bottom_friction(:), advection(:)
+real(mrk), intent(out)::Q(:),pressure_gradient(:), gravity_force(:), bottom_friction(:), advection(:)
 logical, intent(out)::feas(:)
 integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='SFDTidal_Qmec2_Apply'
-real(mrk)::Be, bevs, delta, ne, d1, d2, c, g,Q0, dx, dt,pg,bf,ad
+real(mrk)::Be, bevs, b1, b2, delta, ne, d1, d2, c, g,Q0, dx, dt, pg, bf, ad, gv
 real(mrk)::dhdt1, dhdt2
 real(mrk)::y1(size(h1)),y2(size(h2)),dh(size(h1)),hm(size(h1)),Ae(size(h1)),Pe(size(h1)),Rhe(size(h1))
 integer(mik)::nm, m
 
 err=0;mess='';feas=.true.;Q=undefRN
-pressure_gradient=undefRN;bottom_friction=undefRN;advection=undefRN
+pressure_gradient=undefRN;bottom_friction=undefRN;advection=undefRN;gravity_force=undefRN
 nm=size(h1)
 
 ! Check feasability
@@ -107,15 +107,17 @@ endif
 ! Make sense of inputs and theta
 Be=theta(1)    !effective width B_e [m]
 bevs=theta(2)  !effective riverbed elevation [m] (he_qmec = -bevs)
-delta=theta(3) !error in chart datum difference [m] (dzeta_qmec = d1 - d2 + delta)
-ne=theta(4)    !effective Manning's coefficient [s m^(-1/3)]
-d1=theta(5)    !upstream chart datum [m]
-d2=theta(6)    !downstream chart datum [m]
-c=theta(7)     !exponent[]
-g=theta(8)     !gravity[m/s2]
-Q0=theta(9)    !initial discharge [m3/s]
-dx=theta(10)   !distance between stations
-dt=theta(11)   !time step
+b1=theta(3)    !riverbed in upstream gauge station] (dzeta_qmec = b1 - b2 + delta)
+b2=theta(4)    !riverbed in downstream gauge station] (dzeta_qmec = b1 - b2 + delta)
+delta=theta(5) !riverbed error leveling [m] (dzeta_qmec = b1 - b2 + delta)
+ne=theta(6)    !effective Manning's coefficient [s m^(-1/3)]
+d1=theta(7)    !upstream chart datum [m]
+d2=theta(8)    !downstream chart datum [m]
+c=theta(9)     !exponent[]
+g=theta(10)    !gravity[m/s2]
+Q0=theta(12)   !initial discharge [m3/s]
+dx=theta(12)   !distance between stations
+dt=theta(13)   !time step
 
 ! Check feasability
 if(Be<=0._mrk .or. ne<=0._mrk .or. c<=0._mrk .or. g<=0._mrk .or. dx<=0._mrk .or. dt<=0._mrk) then
@@ -145,12 +147,16 @@ Q(1)=Q0
 pressure_gradient(1)=0
 bottom_friction(1)=0
 advection(1)=0
+gravity_force(1)=0
+
 do m=2,nm
     if (m==2) then
         !First-order scheme for the first time-step with Q(1) = Q0
         dhdt1 = (hm(m) - hm(m-1))/(dt)
 
-        pg = -g*(Ae(m-1)*(dh(m-1) + d1 - d2 + delta)/dx)
+        pg = -g*(Ae(m-1)*(dh(m-1))/dx)
+
+        gv = -g*(Ae(m-1)*(b1-b2+delta)/dx)
 
         bf = -g*((ne**2)/(Rhe(m-1)**(c)))*Q(m-1)*abs(Q(m-1))/Ae(m-1)
 
@@ -165,8 +171,11 @@ do m=2,nm
         endif
         !Second-order Adams-Bashforth scheme
 
-        pg = (1.5_mrk)*(-g*Ae(m-1)*(dh(m-1) + d1 - d2 + delta)/dx) &
-                           -(0.5_mrk)*(-g*Ae(m-2)*(dh(m-2) + d1 - d2 + delta)/dx)
+        pg = (1.5_mrk)*(-g*Ae(m-1)*(dh(m-1))/dx) &
+                           -(0.5_mrk)*(-g*Ae(m-2)*(dh(m-2))/dx)
+
+        gv = (1.5_mrk)*(-g*Ae(m-1)*(b1-b2+delta)/dx) &
+                           -(0.5_mrk)*(-g*Ae(m-2)*(b1-b2+delta)/dx)
 
         bf = (1.5_mrk)*(-g*((ne**2)/(Rhe(m-1)**(c)))*Q(m-1)*abs(Q(m-1))/Ae(m-1))&
                            -(0.5_mrk)*(-g*((ne**2)/(Rhe(m-2)**(c)))*Q(m-2)*abs(Q(m-2))/Ae(m-2))
@@ -175,10 +184,11 @@ do m=2,nm
                            -(0.5_mrk)*(2._mrk*(Q(m-2)/Ae(m-2))*Be*dhdt2)
     endif
 
-    Q(m) = Q(m-1) + dt*(pg+bf+ad)
+    Q(m) = Q(m-1) + dt*(pg+gv+bf+ad)
     pressure_gradient(m) = dt*pg
     bottom_friction(m) = dt*bf
     advection(m) = dt*ad
+    gravity_force(m) = dt*gv
 
 enddo
 

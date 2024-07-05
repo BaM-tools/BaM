@@ -332,7 +332,7 @@ case(MDL_SFDTidal_Qmec)
                         feas=vfeas,err=err,mess=mess)
 case(MDL_SFDTidal_Qmec2)
     call SFDTidal_Qmec2_Apply(h1=X(:,1),h2=X(:,2),theta=theta,Q=Y(:,1),&
-                        pressure_gradient=state(:,1),bottom_friction=state(:,2),advection=state(:,3),&
+                        pressure_gradient=state(:,1),gravity_force=state(:,2),bottom_friction=state(:,3),advection=state(:,4),&
                         feas=vfeas,err=err,mess=mess)
 case(MDL_Recession_h)
     call Recession_h_Apply(time=X(:,1), theta=theta, h=Y(:,1),feas=feas,err=err,mess=mess)
@@ -627,9 +627,9 @@ case(MDL_SFDTidal_Qmec)
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
 case(MDL_SFDTidal_Qmec2)
     model%nDpar=0
-    model%nState=3
+    model%nState=4
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
-    model%StateName=(/'pressure_gradient','bottom_friction  ','advection        '/)
+    model%StateName=(/'pressure_gradient','gravity_force    ','bottom_friction  ','advection        '/)
 case(MDL_Recession_h)
     model%nDpar=0
     model%nState=0

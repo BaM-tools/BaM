@@ -1631,6 +1631,8 @@ case(17)
 case(18)
     write(*,*) 'WARNING: Final cleanup has failed'
     write(*,*) 'Error message: '//trim(mess)
+case(19)
+    write(*,*) 'WARNING: No state prediction will be performed.'
 case(100)
     write(*,*) ''
     write(*,*) '*********************************'
@@ -2509,8 +2511,12 @@ if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
 nstate=size(DoState)
 if(nstate>0) then ! read whether state prediction is required
     read(unt,*,iostat=err) DoState
-    if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
-    if(any(Dostate)) then ! at leas one state prediction, keep reading
+    if(err/=0) then ! Do not fail, just skip state prediction with a warning
+        call BaM_ConsoleMessage(19,'')
+        DoState=.false.
+        err=0
+    endif
+    if(any(Dostate)) then ! at least one state prediction, keep reading
         read(unt,*,iostat=err) SpagFiles_S
         if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
         read(unt,*,iostat=err) DoTranspose_S

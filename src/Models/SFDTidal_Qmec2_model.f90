@@ -109,7 +109,7 @@ endif
 
 ! Make sense of inputs and theta
 Be=theta(1)    !effective width B_e [m]
-bevs=theta(2)  !effective riverbed elevation from sea level [m] (he_qmec = -bevs)
+bevs=theta(2)  !effective riverbed elevation from sea level [m] (he_qmec = (d1+d2)/2 - bevs)
 delta=theta(3) !riverbed error leveling [m] (dzeta_qmec = d2 - d1 + delta)
 ne=theta(4)    !effective Manning's coefficient [s m^(-1/3)]
 d1=theta(5)    !upstream chart datum [m]
@@ -134,7 +134,7 @@ dy = y2 - y1           ! Difference between the two stations   (dh_qmec + dzeta_
 ym = (y1 + y2)/2._mrk  ! Mean between the two stations (hm_qmec = ym - (d1+d2)/2)
 
 ! Geometry parameters for a rectangular cross-section
-Ae = Be*(ym - bevs)          ! Mean cross sectional area
+Ae = Be*(ym - bevs)          ! Mean cross sectional area   (hm_qmec + he_qmec) = ( ym - (d1+d2)/2 + (d1+d2)/2 - bevs )
 Pe = Be + 2._mrk*(ym - bevs) ! Wetted perimeter
 Rhe = Ae/Pe                  ! Hydraulic radius
 

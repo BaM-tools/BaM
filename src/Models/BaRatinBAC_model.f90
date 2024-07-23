@@ -157,13 +157,15 @@ subroutine BaRatinBAC_XtraRead(file,xtra,err,mess)
 !^**********************************************************************
 !^* Programmer: Ben Renard, Irstea Lyon
 !^**********************************************************************
-!^* Last modified: 10/01/2019
+!^* Last modified: 23/07/2024
 !^**********************************************************************
 !^* Comments: Additional restriction compared with original BaRatin:
 !^*           a new control cannot take over A SUM of controls.
 !^*           Reason: analytical analysis of the continuity equation has
 !^*           not been thoroughly performed yet, and the continuity
 !^*           function may well have more than 2 roots max.
+!^*           July 2024: Added a few additional checks, possibly partly
+!^*           redundant with the previous restriction, but better safe than sorry
 !^**********************************************************************
 !^* References: Mansanarez et al. (2019) Shift happens! Adjusting
 !^*             stage-discharge rating curves to riverbed morphological
@@ -224,6 +226,26 @@ if(nrange>1) then
             err=1
             mess=trim(procname)//':FATAL: the number of active controls is not allowed to decrease'&
                                  &'when stage increases. Use original BaRatin for such configuration.'
+            return
+        endif
+        if(all( xtra%rpm1(i,1:(i-1)) - xtra%rpm1(i-1,1:(i-1)) == 0 )&
+          .and. xtra%rpm1(i,i)==1 .and. xtra%rpm1(i-1,i)==0) then
+            ! control addition case : OK, do nothing
+        elseif( xtra%rpm1(i-1,i-1)==1 .and. xtra%rpm1(i-1,i)==0&
+          .and. xtra%rpm1(i,i-1)==0 .and. xtra%rpm1(i,i)==1 ) then
+            ! control replacement case : check that only the latest control is replaced
+            if(i>2) then
+                if( .not.all( xtra%rpm1(i,1:(i-2)) - xtra%rpm1(i-1,1:(i-2)) == 0 ) ) then
+                    err=2
+                    mess=trim(procname)//':FATAL: unsupported control matrix: '&
+                                         &'unsupported control replacement.'
+                    return
+                endif
+            endif
+        else
+            ! Should never arrive here?
+            err=3
+            mess=trim(procname)//':FATAL: unsupported control matrix.'
             return
         endif
     enddo
@@ -299,10 +321,10 @@ do j=ncontrol,2,-1 ! the loop starts with the higher control
     ! determine lower/higher bounds for the current activation stage
     lbound=max(b(j),b(j-1))
     if(j==ncontrol) then;hbound=hmax;else;hbound=k(j+1);endif
-    ! compute current activation stage depending on the case: replacement or addition
-    if( sum(ControlMatrix(j,:)) > 1 ) then ! control is added to previous one(s)
+    ! compute current activation stage depending on the case: addition or replacement
+    if( all( ControlMatrix(j,1:(j-1)) - ControlMatrix(j-1,1:(j-1)) == 0 ) ) then ! addition
         k(j)=b(j);ktype(j)=0
-    else
+    else ! replacement
         call solveContinuity(a1=a(j-1),b1=b(j-1),c1=c(j-1),&
                              a2=a(j),b2=b(j),c2=c(j),&
                              lbound=lbound,hbound=hbound,&

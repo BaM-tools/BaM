@@ -20,7 +20,7 @@ implicit none
 character(len_stdStrD),parameter::Config_file_def="Config_BaM.txt"
 character(len_stdStrD),parameter::priorCorrFile="PriorCorrelation.txt"
 character(len_stdStrD),parameter::MonitorExt=".monitor"
-character(len_stdStrD),parameter::version="0.3.1 February 2023"
+character(len_stdStrD),parameter::version="0.4.7 July 2024"
 real(mrk),parameter::defaultstd=0.1_mrk
 !-----------------------
 ! Config files
@@ -72,8 +72,8 @@ logical::PrintCounter
 type(XspagType)::Xspag
 !-----------------------
 ! Misc.
-integer(mik)::i,err,nobs,nc,nhead,nsim,narg,seed
-logical::IsMCMCLoaded
+integer(mik)::i,j,err,nobs,nc,nhead,nsim,narg,seed
+logical::IsMCMCLoaded,exists
 character(len_vLongStr)::mess,datafile,arg
 !-----------------------
 
@@ -186,6 +186,18 @@ call Config_Read_Data(file=filePath,&
                       YCol=YCol,YuCol=YuCol,YbCol=YbCol,YbindxCol=YbindxCol,&
                       err=err,mess=mess)
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+
+! Does datafile exists?
+INQUIRE(FILE=trim(datafile),EXIST=exists)
+if(.not. exists) then ! try a path relative to workspace
+    INQUIRE(FILE=trim(workspace)//trim(datafile),EXIST=exists)
+    if(exists) then ! it was indeed a relative path
+        datafile=trim(workspace)//trim(datafile)
+    else ! fail
+        call BaM_ConsoleMessage(-1,'data file not found, neither at '//trim(datafile)//&
+                                   ' nor at '//trim(workspace)//trim(datafile))
+    endif
+endif
 
 allocate(X(nobs,model%nX),Xu(nobs,model%nX),Xb(nobs,model%nX),Xbindx(nobs,model%nX))
 allocate(Y(nobs,model%nY),Yu(nobs,model%nY),Yb(nobs,model%nY),Ybindx(nobs,model%nY))
@@ -388,6 +400,20 @@ if(DoPred) then
                             DoState,SpagFiles_S,DoTranspose_S,DoEnvelop_S,EnvelopFiles_S,&
                             err,mess)
         if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+        ! Do spaghetti files exist?
+        do j=1,size(XSpag_Files)
+            INQUIRE(FILE=trim(XSpag_Files(j)),EXIST=exists)
+            if(.not. exists) then ! try a path relative to workspace
+                INQUIRE(FILE=trim(workspace)//trim(XSpag_Files(j)),EXIST=exists)
+                if(exists) then ! it was indeed a relative path
+                    XSpag_Files(j)=trim(workspace)//trim(XSpag_Files(j))
+                else ! fail
+                    call BaM_ConsoleMessage(-1,'Input spaghetti file not found, neither at '//&
+                                               trim(XSpag_Files(j))//&
+                                               ' nor at '//trim(workspace)//trim(XSpag_Files(j)))
+                endif
+            endif
+        enddo
         ! read spaghettis
         call BaM_ReadSpag(Xspag,XSpag_Files,err,mess)
         if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif

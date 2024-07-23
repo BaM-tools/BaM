@@ -1752,7 +1752,7 @@ subroutine BaM_PrintHelp()
 
     write(*,'(a)') 'usage: BaM [OPTIONS]'
     write(*,'(a)') 'available options:'
-    write(*,'(a)') '  -cf path, --config path: set path to main config file'
+    write(*,'(a)') '  -cf path, --config path:    set path to main config file'
     write(*,'(a)') '  -sd k, --seed k:            set seed to k (k should be an integer)'
     write(*,'(a)') '  -rd, --random:              randomize seed (=> non-reproducible MCMC runs)'
     write(*,'(a)') '  -v, --version:              print version information and exit'

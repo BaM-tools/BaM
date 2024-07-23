@@ -629,7 +629,7 @@ case(MDL_SFDTidal_Qmec2)
     model%nDpar=0
     model%nState=3
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
-    model%StateName=(/'pressure_gradient','bottom_friction  ','advection        '/)
+    model%StateName=(/'pressure ','friction ','advection'/)
 case(MDL_Recession_h)
     model%nDpar=0
     model%nState=0

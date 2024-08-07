@@ -10,5 +10,5 @@ A recent BaM executable for your system (Windows or Linux) can be downloaded [he
 Alternatively, the executable can be recompiled from sources using the provided makefile or Code::Blocks project. Files from the following projects are needed for this purpose:
 
 1. [BMSL](https://github.com/benRenard/BMSL)
-2. miniDMSL (available soon!)
+3. [miniDMSL](https://github.com/benRenard/miniDMSL)
 

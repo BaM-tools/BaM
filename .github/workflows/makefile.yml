@@ -19,8 +19,9 @@ jobs:
       run: |
         cd ..
         git clone https://github.com/benRenard/miniDMSL.git miniDMSL 
-           
-    #- name: Install dependencies
-    #  run: |
-    #    cd makefile
-    #    make
+        git clone https://github.com/benRenard/BMSL.git BMSL 
+        
+    - name: make
+      run: |
+        cd makefile
+        make

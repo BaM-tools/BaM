@@ -27,7 +27,7 @@ jobs:
         make
     
     - name: Upload executable
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-dists
-          path: makefile/BaM*
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-dists
+        path: makefile/BaM*

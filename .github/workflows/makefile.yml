@@ -32,7 +32,7 @@ jobs:
         name: BaM executable
         path: makefile/BaM.exe
         
-	- name: Test executable
+    - name: Test executable
       run: |
         cd makefile
         ./BaM.exe --version

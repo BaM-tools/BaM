@@ -31,3 +31,9 @@ jobs:
       with:
         name: BaM executable
         path: makefile/BaM.exe
+        
+	- name: Test executable
+      run: |
+        cd makefile
+        ./BaM.exe --version
+        ./BaM.exe

@@ -1076,7 +1076,7 @@ if(present(whichOUT)) then
     do t=1,nOBS
         if(nIN>0) varval(1:nIN)=IN(t,:)
         OUT(t,1)=evalf(whichOUT,varval)
-        if(EvalErrType>0) then
+        if(EvalErrType>0 .or. OUT(t,1)/=OUT(t,1)) then ! the second condition aims at detecting NAs
             feas(t)=.false.
             OUT(t,1)=undefRN
         endif
@@ -1087,7 +1087,7 @@ else
         if(nIN>0) varval(1:nIN)=IN(t,:)
         do k=1,nOUT
             OUT(t,k)=evalf(k,varval)
-            if(EvalErrType>0) then
+            if(EvalErrType>0 .or. OUT(t,k)/=OUT(t,k)) then
                 feas(t)=.false.
                 OUT(t,k)=undefRN
             endif

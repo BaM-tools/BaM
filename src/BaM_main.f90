@@ -20,7 +20,7 @@ implicit none
 character(len_stdStrD),parameter::Config_file_def="Config_BaM.txt"
 character(len_stdStrD),parameter::priorCorrFile="PriorCorrelation.txt"
 character(len_stdStrD),parameter::MonitorExt=".monitor"
-character(len_stdStrD),parameter::version="0.4.7 July 2024"
+character(len_stdStrD),parameter::version="0.4.8 January 2025"
 real(mrk),parameter::defaultstd=0.1_mrk
 !-----------------------
 ! Config files

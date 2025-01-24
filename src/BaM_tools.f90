@@ -1203,15 +1203,15 @@ do i=1,size(SpagFiles)
             if(err/=0) then;call BaM_ConsoleMessage(messID_Write,trim(EnvelopFiles(i)));endif
             ! Compute envelops
             do j=1,nobs
-                mask=(Spag(:,j)==model%unfeasFlag)
-                if(removeMV .and. real(count(mask),mrk)/real(nrep,mrk) < maxMVrate) then ! remove unfeasible values
+                mask=(Spag(:,j)==model%unfeasFlag) .or. (Spag(:,j)/=Spag(:,j)) ! the second condition aims at detecting NAs since NA/=NA is true
+                if(removeMV .and. real(count(mask),mrk)/real(nrep,mrk) < maxMVrate) then ! remove unfeasible values and NAs
                     if(allocated(arr)) deallocate(arr);allocate(arr(count(.not.mask)))
                     arr=pack(Spag(:,j),.not.mask)
                 else
                     if(allocated(arr)) deallocate(arr);allocate(arr(nrep))
                     arr=Spag(:,j)
                 endif
-                if(any(arr==model%unfeasFlag)) then ! Do nothing
+                if(any(arr==model%unfeasFlag .or. arr/=arr)) then ! Do nothing
                     Env=model%unfeasFlag
                 else
                     ! Sort

@@ -54,6 +54,7 @@ use SFDTidal_Sw_correction_model
 use SFDTidal2_model
 use SFDTidalJones_model
 use SFDTidal4_model
+use SFDTidal_Qmec0_model
 use SFDTidal_Qmec_model
 use SFDTidal_Qmec2_model
 use Recession_model_h
@@ -90,7 +91,8 @@ Character(100), parameter, PUBLIC:: &
                     MDL_SFDTidal2="MDL_SFDTidal2",& ! Stage-Fall-Discharge rating curve for tidal rivers with water slope correction
                     MDL_SFDTidalJones="MDL_SFDTidalJones",& ! Stage-Fall-Discharge rating curve for tidal rivers with water slope correction
                     MDL_SFDTidal4="MDL_SFDTidal4",& ! Stage-Fall-Discharge rating curve for tidal rivers with water slope correction
-                    MDL_SFDTidal_Qmec="MDL_SFDTidal_Qmec",& ! Stage-Fall-Discharge rating curve for tidal rivers with Qmec model
+                    MDL_SFDTidal_Qmec0="MDL_SFDTidal_Qmec0",& ! Stage-Fall-Discharge rating curve for tidal rivers with original Qmec model
+                    MDL_SFDTidal_Qmec="MDL_SFDTidal_Qmec",& ! Stage-Fall-Discharge rating curve for tidal rivers with our "best" Qmec model
                     MDL_SFDTidal_Qmec2="MDL_SFDTidal_Qmec2",& ! Stage-Fall-Discharge rating curve for tidal rivers with Qmec2 model
                     MDL_Recession_h="MDL_Recession_h", & ! Recession 2-exponential regression for h(t)
                     MDL_Segmentation="MDL_Segmentation",& ! Segmentation of a time series
@@ -188,6 +190,8 @@ case(MDL_SFDTidalJones)
     call SFDTidalJones_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_SFDTidal4)
     call SFDTidal4_GetParNumber(npar=npar,err=err,mess=mess)
+case(MDL_SFDTidal_Qmec0)
+    call SFDTidal_Qmec0_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_SFDTidal_Qmec)
     call SFDTidal_Qmec_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_SFDTidal_Qmec2)
@@ -327,6 +331,9 @@ case(MDL_SFDTidal4)
     call SFDTidal4_Apply(IN=X,theta=theta,OUT=Y(:,1),&
                         feas=vfeas,err=err,mess=mess)
 
+case(MDL_SFDTidal_Qmec0)
+    call SFDTidal_Qmec0_Apply(h1=X(:,1),h2=X(:,2),theta=theta,Q=Y(:,1),&
+                        feas=vfeas,err=err,mess=mess)
 case(MDL_SFDTidal_Qmec)
     call SFDTidal_Qmec_Apply(h1=X(:,1),h2=X(:,2),theta=theta,Q=Y(:,1),&
                         feas=vfeas,err=err,mess=mess)
@@ -464,6 +471,8 @@ case(MDL_SFDTidal2)
 case(MDL_SFDTidalJones)
     ! nothing to read
 case(MDL_SFDTidal4)
+    ! nothing to read
+case(MDL_SFDTidal_Qmec0)
     ! nothing to read
 case(MDL_SFDTidal_Qmec)
     ! nothing to read
@@ -618,6 +627,10 @@ case(MDL_SFDTidalJones)
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
 case(MDL_SFDTidal4)
+    model%nDpar=0
+    model%nState=0
+    allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
+case(MDL_SFDTidal_Qmec0)
     model%nDpar=0
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))

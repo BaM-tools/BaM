@@ -62,7 +62,8 @@ Models = \
 	$(Models_DIR)DynamicVegetation_model.f90           \
 	$(Models_DIR)TidalODE_model.f90                    \
 	$(Models_DIR)TidalRemenieras_model.f90             \
-	$(Models_DIR)SFDTidal_Sw_correction_model.f90	   \
+	$(Models_DIR)SFDTidal_Sw_correction_model.f90      \
+	$(Models_DIR)SFDTidal_Qmec0_model.f90              \
 	$(Models_DIR)SFDTidal_Qmec_model.f90               \
 	$(Models_DIR)SFDTidal_Qmec2_model.f90              \
 	$(Models_DIR)SMASH/SMASH_model.f90                 \

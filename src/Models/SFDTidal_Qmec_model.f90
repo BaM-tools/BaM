@@ -93,7 +93,7 @@ integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='SFDTidal_Qmec_Apply'
-real(mrk)::y0, A0, be, delta, ne, phi, d1, d2, c, g,Q0, dx, dt, pg, bf, ad, width
+real(mrk)::y0, A0, be, delta, ne, phi, d1, d2, c, g,Q0, dx, dt, pg, bf, ad, width, R0
 real(mrk)::dydt1, dydt2
 real(mrk)::y1(size(h1)),y2(size(h2)),dy(size(h1)),ym(size(h1)),Ae(size(h1)),Pe(size(h1)),Rhe(size(h1))
 integer(mik)::nm, m,k
@@ -113,7 +113,7 @@ k=k+1;y0=theta(k)     !typical water level at virtual effective section [m]. Sho
 k=k+1;A0=theta(k)     !corresponding typical area A0 [m^2]
 k=k+1;be=theta(k)     !effective riverbed elevation [m] (he_qmec = (d1+d2)/2 - be)
 k=k+1;delta=theta(k)  !riverbed error leveling [m] (dzeta_qmec = d2 - d1 + delta)
-k=k+1;phi=theta(k)    !effective squared Manning's coefficient divided by (A0*(y0-be))^c [2DO: compute unit]
+k=k+1;phi=theta(k)    !f/(A0*R0) [2DO: compute unit]
 k=k+1;d1=theta(k)     !upstream chart datum [m]
 k=k+1;d2=theta(k)     !downstream chart datum [m]
 k=k+1;c=theta(k)      !exponent[]. Should in general be fixed to 4/3
@@ -132,12 +132,13 @@ y1 = h1+d1
 y2 = h2+d2
 
 ! Intermediate calculations
-ne=sqrt(phi*(A0*(y0-be))**c)
-dy = y2 - y1           ! Difference between the two stations   (dh_qmec + dzeta_qmec = dy + delta) (see pressure gradient calculation)
+width=A0/(y0-be)
+R0=A0/(width+2._mrk*(y0-be))
+ne=sqrt( phi * (1._mrk / (8._mrk*g) ) * A0 * (R0**c) )
+dy = y2 - y1           ! Difference between the two stations (dh_qmec + dzeta_qmec = dy + delta) (see pressure gradient calculation)
 ym = (y1 + y2)/2._mrk  ! Mean between the two stations (hm_qmec = ym - (d1+d2)/2)
 
 ! Geometry parameters for a rectangular cross-section
-width=A0/(y0-be)
 Ae = width*(ym - be)         ! Mean cross sectional area   (hm_qmec + he_qmec) = ( ym - (d1+d2)/2 + (d1+d2)/2 - be )
 Pe = width + 2._mrk*(ym - be) ! Wetted perimeter
 Rhe = Ae/Pe                  ! Hydraulic radius

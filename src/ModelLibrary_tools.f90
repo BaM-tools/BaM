@@ -383,7 +383,8 @@ case(MDL_SMASH)
     call SMASH_Run(projectDir=model%xtra%cp1(2),communicationDir=model%xtra%cp1(5),&
                    QSIMfile=model%xtra%cp1(6),theta=theta,Y=Y,feas=feas,err=err,mess=mess)
 case(MDL_MAGE)
-    call MAGE_Run(exeFile=model%xtra%cs1,projectDir=model%xtra%cs2,REPfile=model%xtra%cs3,&
+    call MAGE_Run(exeFile=model%xtra%cs1,version=trim(model%xtra%cs2),&
+                  projectDir=model%xtra%cs3,REPfile=model%xtra%cs4,&
                   theta=theta,Y=Y,feas=feas,err=err,mess=mess)
 case(MDL_HydraulicControl_section)
     call HydraulicControl_section_Apply(H=X(:,1),theta=theta,hAwMatrix=model%xtra%rpm1,&
@@ -689,7 +690,7 @@ case(MDL_MAGE)
     model%nState=0
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
     ! Load MAGE
-    call MAGE_setUp(projectDir=trim(model%xtra%cs2),REPfile=trim(model%xtra%cs3),&
+    call MAGE_setUp(version=trim(model%xtra%cs2),projectDir=trim(model%xtra%cs3),REPfile=trim(model%xtra%cs4),&
                     Zfile=model%xtra%cp1,ZnCol=(/model%xtra%is1,model%xtra%is2/),&
                     doExp=(/model%xtra%ls1,model%xtra%ls2/),err=err,mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif

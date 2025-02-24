@@ -1,4 +1,5 @@
 '/home/brenard/BEN/GitHub/MAGE/mage'                              ! Mage executable
+'v7'                                                              ! Mage version
 'BaM_MAGE/Mage_Seineav3_0/'                                       ! Project directory
 'Seineav3.REP'                                                    ! REP file
 'BaM_MAGE/Zfile_Kmin.txt'                                         ! Z file containing covariates for the regression Kmin(x)=a1Z1(x)+...+apZp(x). Leave empty for no regression.

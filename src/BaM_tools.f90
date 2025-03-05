@@ -3259,6 +3259,8 @@ case('Constant')
     res=par(1)
 case('Linear')
     res=par(1)+par(2)*abs(Y)
+case('Proportional')
+    res=par(1)*abs(Y)
 case('Power')
     res=par(1)+par(2)*(abs(Y)**par(3))
 case('Exponential')
@@ -3303,7 +3305,7 @@ character(250),parameter::procname='Sigmafunk_GetParNumber'
 
 err=0;mess='';npar=undefIN
 select case(trim(funk))
-case('Constant')
+case('Constant','Proportional')
     npar=1
 case('Linear')
     npar=2
@@ -3429,6 +3431,8 @@ case(16)
     BaM_Message='Parameter vector leads to zero or unfeasible prior'
 case(17)
     BaM_Message='Parameter vector leads to zero or unfeasible hyper-distribution'
+case(18)
+    BaM_Message='FIX, VAR or STOK parameters are not allowed for remnant error parameters'
 case default
     BaM_message='unknown message ID'
 end select
@@ -3550,7 +3554,7 @@ type(PriorListType),intent(out)::prior
 integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
-character(250),parameter::procname='Config_Read_Par'
+character(250),parameter::procname='Config_Read_Par_STD'
 integer(mik)::np
 
 read(unt,*,iostat=err) parname
@@ -3560,9 +3564,8 @@ if(err/=0) then;mess=trim(procname)//':ReadError';return;endif
 read(unt,*,iostat=err) prior%dist
 if(err/=0) then;mess=trim(procname)//':ReadError';return;endif
 prior%dist=trim(prior%dist)
-if(trim(prior%dist)==FIX_str) then
-    read(unt,*,iostat=err)
-    if(err/=0) then;mess=trim(procname)//':ReadError';return;endif
+if(trim(prior%dist)==FIX_str .or. trim(prior%dist)==VAR_str .or. trim(prior%dist)==STOK_str) then
+    err=1;mess=trim(procname)//':'//trim(BaM_Message(18));return
 else
     call GetParNumber(DistID=prior%dist, npar=np, err=err, mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif

@@ -257,7 +257,7 @@ character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='ApplyModel'
 integer(mik)::i
-logical::vfeas(size(X,dim=1))
+logical::vfeas(max(1,size(X,dim=1)))
 
 err=0;mess='';feas=.true.;vfeas=.true.
 Y=model%unfeasFlag;Dpar=model%unfeasFlag;state=model%unfeasFlag

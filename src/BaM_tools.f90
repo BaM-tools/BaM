@@ -838,7 +838,7 @@ subroutine BaM_Prediction(mcmc,maxpost,nsim,&
                           Xspag,DoParametric,DoRemnant,&
                           SpagFiles,DoTranspose,DoEnvelop,EnvelopFiles,&
                           DoState,SpagFiles_S,DoTranspose_S,DoEnvelop_S,EnvelopFiles_S,&
-                          PrintCounter,MonitorFile,err,mess)
+                          PrintCounter,MonitorFile,savePrior,priorFile,err,mess)
 !^**********************************************************************
 !^* Purpose: Runs the model on calibration data using maxpost par
 !^**********************************************************************
@@ -870,6 +870,8 @@ subroutine BaM_Prediction(mcmc,maxpost,nsim,&
 !^*    15.EnvelopFiles_S, size model%nState, Name of envelop file for each state variable
 !^*    16.[PrintCounter], print a counter in console during computations?
 !^*    17.[MonitorFile], file to monitor computations
+!^*    18.[savePrior], save prior simulations?
+!^*    19.[priorFile], file where prior simulations are saved
 !^* OUT
 !^*    1.err, error code; <0:Warning, ==0:OK, >0: Error
 !^*    2.mess, error message
@@ -882,29 +884,31 @@ integer(mik),intent(in),optional::nsim
 type(XspagType),intent(in)::Xspag
 logical, intent(in)::DoParametric,DoRemnant(:),DoTranspose(:),DoEnvelop(:),&
                      DoState(:),DoTranspose_S(:),DoEnvelop_S(:)
-logical, intent(in), optional::PrintCounter
+logical, intent(in), optional::PrintCounter,savePrior
 character(*),intent(in)::SpagFiles(:),EnvelopFiles(:),&
                          SpagFiles_S(:),EnvelopFiles_S(:)
-character(*),intent(in),optional::MonitorFile
+character(*),intent(in),optional::MonitorFile,priorFile
 integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='BaM_Prediction'
-logical, parameter::printC_def=.false.
+logical, parameter::printC_def=.false.,saveP_def=.false.
 integer(mik),parameter::Nrefresh=1 ! used for counter
-logical::printC,IsMaxpost,feas
-integer(mik)::Nrep,next,rep,i,t,indx,compt,unt(MODEL%nY),unt_S(MODEL%nState),f,untMonitor
+logical::printC,saveP,IsMaxpost,feas
+integer(mik)::Nrep,next,rep,i,t,indx,compt,unt(MODEL%nY),unt_S(MODEL%nState),unt_prior,f,untMonitor,n,ncol
 real(mrk),allocatable::mode(:),MC(:,:),X(:,:),Ysim(:,:),Dpar(:),state(:,:)
 real(mrk)::theta(INFER%nFit),sig,dev
-character(250)::fmt
+character(250)::fmt,sfmt
+character(len_vLongStr)::head(INFER%nInfer+1+INFER%nDpar)
 
 err=0;mess=''
 ! check feasability
 if(any(INFER%theta%parType==VAR) .or. any(INFER%theta%parType==STOK)) then
     err=1;mess=trim(procname)//':'//trim(BaM_Message(13));return
 endif
-! handle optional counter
+! handle optional parameters
 if(present(PrintCounter)) then;printC=PrintCounter;else;printC=printC_def;endif
+if(present(savePrior)) then;saveP=savePrior;else;saveP=saveP_def;endif
 ! Number of Monte Carlo simulations
 if(.not.DoParametric .and. all(.not.DoRemnant) .and. all(Xspag%nspag==1)) then ! This is a maxpost simulation!
     IsMaxpost=.true.
@@ -932,6 +936,28 @@ else ! get prior mode and prior simulations
     else
         call BaM_GetPriorMC(MC=MC,mode=mode,err=err,mess=mess)
         if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+        ! write prior file if requested
+        if(saveP) then
+            if(.not.present(priorFile)) then
+                err=1;mess=trim(procname)//':'//trim(BaM_Message(19));return
+            endif
+            n=size(MC,dim=1);ncol=size(MC,dim=2)
+            call GetHeaders(head)
+            fmt='('//trim(number_string(ncol))//trim(fmt_numeric)//')'
+            sfmt='('//trim(number_string(ncol))//trim(fmt_string)//')'
+            ! open and write
+            call getSpareUnit(unt,err,mess)
+            if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+            open(unit=unt_prior,file=trim(priorFile), status='replace', iostat=err)
+            if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(priorFile));endif
+            write(unt_prior,trim(sfmt)) head(1:ncol)
+            if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(priorFile));endif
+            do i=1,n
+                write(unt_prior,trim(fmt)) MC(i,:)
+                if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(priorFile));endif
+            enddo
+            close(unt_prior)
+        endif
     endif
 endif
 ! handle files
@@ -1768,13 +1794,14 @@ subroutine BaM_PrintHelp()
 
     write(*,'(a)') 'usage: BaM [OPTIONS]'
     write(*,'(a)') 'available options:'
-    write(*,'(a)') '  -cf path, --config path:    set path to main config file'
-    write(*,'(a)') '  -sd k, --seed k:            set seed to k (k should be an integer)'
-    write(*,'(a)') '  -rd, --random:              randomize seed (=> non-reproducible MCMC runs)'
-    write(*,'(a)') '  -dr, --dontrun:             stop after reading config files, and before MCMC runs.'
-    write(*,'(a)') '                              Typically used when generation of INFO file is the only thing needed.'
-    write(*,'(a)') '  -v, --version:              print version information and exit'
-    write(*,'(a)') '  -h, --help:                 print help and exit'
+    write(*,'(a)') '  -cf path, --config path:      set path to main config file'
+    write(*,'(a)') '  -sp file, --saveprior file:   save prior simulations to file'
+    write(*,'(a)') '  -sd k, --seed k:              set seed to k (k should be an integer)'
+    write(*,'(a)') '  -rd, --random:                randomize seed (=> non-reproducible MCMC runs)'
+    write(*,'(a)') '  -dr, --dontrun:               stop after reading config files, and before MCMC runs.'
+    write(*,'(a)') '                                Typically used when generation of INFO file is the only thing needed.'
+    write(*,'(a)') '  -v, --version:                print version information and exit'
+    write(*,'(a)') '  -h, --help:                   print help and exit'
 end subroutine BaM_PrintHelp
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3450,6 +3477,8 @@ case(17)
     BaM_Message='Parameter vector leads to zero or unfeasible hyper-distribution'
 case(18)
     BaM_Message='FIX, VAR or STOK parameters are not allowed for remnant error parameters'
+case(19)
+    BaM_Message='Missing prior file'
 case default
     BaM_message='unknown message ID'
 end select

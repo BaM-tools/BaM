@@ -18,10 +18,11 @@ implicit none
 !-----------------------
 ! Constants
 character(len_stdStrD),parameter::Config_file_def="Config_BaM.txt"
+character(len_stdStrD),parameter::Prior_file_def="PriorSimulations.txt"
 character(len_stdStrD),parameter::priorCorrFile="PriorCorrelation.txt"
 character(len_stdStrD),parameter::infoFile="INFO_BaM.txt"
 character(len_stdStrD),parameter::MonitorExt=".monitor"
-character(len_stdStrD),parameter::version="1.0.3 March 2025"
+character(len_stdStrD),parameter::version="1.0.4 March 2025"
 real(mrk),parameter::defaultstd=0.1_mrk
 !-----------------------
 ! Config files
@@ -59,7 +60,7 @@ type(ModelType)::model
 !-----------------------
 ! Post-processing
 real(mrk), pointer::maxpost(:),mcmc(:,:),logpost(:)
-character(len_longStr)::Residual_File,Cooking_File,Summary_File,DIC_File,xtendedMCMC_File
+character(len_longStr)::Residual_File,Cooking_File,Summary_File,DIC_File,xtendedMCMC_File,priorFile
 character(len_vlongStr)::dummy_File
 !-----------------------
 ! Prediction
@@ -74,7 +75,7 @@ type(XspagType)::Xspag
 !-----------------------
 ! Misc.
 integer(mik)::i,j,err,nobs,nc,nhead,nsim,narg,seed
-logical::IsMCMCLoaded,exists,earlyStop
+logical::IsMCMCLoaded,exists,earlyStop,savePrior
 character(len_vLongStr)::mess,datafile,arg
 !-----------------------
 
@@ -86,6 +87,9 @@ character(len_vLongStr)::mess,datafile,arg
 call BaM_ConsoleMessage(1,'')
 IsMCMCLoaded=.false.
 earlyStop=.false.
+savePrior=.false.
+priorFile=Prior_file_def
+
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 ! INTERPRET COMMAND LINE ARGUMENTS
@@ -103,6 +107,14 @@ do while (i<=narg)
             Config_file=trim(arg);i=i+1
         else
             call BaM_ConsoleMessage(-1,'-cf requires a path to a file')
+        endif
+     case ('-sp', '--saveprior')
+        savePrior=.true.;i=i+1
+        if(i<=narg) then
+            call get_command_argument(i,arg)
+            priorFile=trim(arg);i=i+1
+        else
+            call BaM_ConsoleMessage(-1,'--saveprior requires a file name')
         endif
      case ('-sd', '--seed')
         i=i+1
@@ -254,6 +266,7 @@ if(earlyStop) then ! user just wanted to write the INFO file
     call BaM_ConsoleMessage(999, '')
     STOP
 endif
+
 ! MCMC Config file
 allocate(theta_std0(size(theta0)),RemnantSigma_std0(model%nY))
 filePath=trim(workspace)//trim(Config_MCMC)
@@ -445,6 +458,7 @@ if(DoPred) then
                           SpagFiles_S=fp3,&
                           EnvelopFiles_S=fp4,&
                           MonitorFile=filePath,& ! monitoring file
+                          savePrior=savePrior,priorFile=trim(workspace)//trim(priorFile),&
                           err=err,mess=mess)
             if(err>0) then; call BaM_ConsoleMessage(17,trim(mess));endif
         else ! posterior sampling

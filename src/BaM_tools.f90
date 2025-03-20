@@ -1646,6 +1646,8 @@ case(18)
     write(*,*) 'Error message: '//trim(mess)
 case(19)
     write(*,*) 'WARNING: No state prediction will be performed.'
+case(20)
+    write(*,*) 'Early stop requested, INFO file has been written.'
 case(100)
     write(*,*) ''
     write(*,*) '*********************************'
@@ -1747,6 +1749,7 @@ end select
 
 end subroutine BaM_ConsoleMessage
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 subroutine BaM_PrintHelp()
 !^**********************************************************************
@@ -1768,10 +1771,11 @@ subroutine BaM_PrintHelp()
     write(*,'(a)') '  -cf path, --config path:    set path to main config file'
     write(*,'(a)') '  -sd k, --seed k:            set seed to k (k should be an integer)'
     write(*,'(a)') '  -rd, --random:              randomize seed (=> non-reproducible MCMC runs)'
+    write(*,'(a)') '  -dr, --dontrun:             stop after reading config files, and before MCMC runs.'
+    write(*,'(a)') '                              Typically used when generation of INFO file is the only thing needed.'
     write(*,'(a)') '  -v, --version:              print version information and exit'
     write(*,'(a)') '  -h, --help:                 print help and exit'
 end subroutine BaM_PrintHelp
-
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !==============!

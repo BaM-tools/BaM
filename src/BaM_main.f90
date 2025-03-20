@@ -21,7 +21,7 @@ character(len_stdStrD),parameter::Config_file_def="Config_BaM.txt"
 character(len_stdStrD),parameter::priorCorrFile="PriorCorrelation.txt"
 character(len_stdStrD),parameter::infoFile="INFO_BaM.txt"
 character(len_stdStrD),parameter::MonitorExt=".monitor"
-character(len_stdStrD),parameter::version="1.0.2 March 2025"
+character(len_stdStrD),parameter::version="1.0.3 March 2025"
 real(mrk),parameter::defaultstd=0.1_mrk
 !-----------------------
 ! Config files
@@ -74,7 +74,7 @@ type(XspagType)::Xspag
 !-----------------------
 ! Misc.
 integer(mik)::i,j,err,nobs,nc,nhead,nsim,narg,seed
-logical::IsMCMCLoaded,exists
+logical::IsMCMCLoaded,exists,earlyStop
 character(len_vLongStr)::mess,datafile,arg
 !-----------------------
 
@@ -85,7 +85,7 @@ character(len_vLongStr)::mess,datafile,arg
 !---------------------------------------------------------------------
 call BaM_ConsoleMessage(1,'')
 IsMCMCLoaded=.false.
-
+earlyStop=.false.
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 ! INTERPRET COMMAND LINE ARGUMENTS
@@ -120,6 +120,9 @@ do while (i<=narg)
         endif
      case ('-rd', '--random')
         call seed_uniran(CPUtime=.true.)
+        i=i+1
+     case ('-dr', '--dontrun')
+        earlyStop=.true.
         i=i+1
     case ('-v', '--version')
         write(*,*) 'version: ', trim(version)
@@ -244,6 +247,13 @@ call LoadBamObjects(X=X,Xu=Xu,Xb=Xb,Xbindx=Xbindx,& ! observed inputs and their 
                     nstate=model%nState,err=err,mess=mess)! error handling
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 
+if(earlyStop) then ! user just wanted to write the INFO file
+    call BaM_ConsoleMessage(20, '')
+    call BaM_Cleanup(err=err,mess=mess)
+    if(err>0) then; call BaM_ConsoleMessage(18,trim(mess));endif
+    call BaM_ConsoleMessage(999, '')
+    STOP
+endif
 ! MCMC Config file
 allocate(theta_std0(size(theta0)),RemnantSigma_std0(model%nY))
 filePath=trim(workspace)//trim(Config_MCMC)

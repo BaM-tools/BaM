@@ -115,7 +115,7 @@ end type XspagType
 integer(mik),parameter,public::messID_Read=-3,messID_Open=-2,messID_Write=-8
 character(250),parameter::fmt_numeric='e15.6',fmt_string='A15'
 integer(mik),parameter::FIX=-1,STD=0,VAR=1,STOK=2 ! flags for fixed, standard, varying and stochastic parameters
-character(250),parameter::FIX_str='FIX',VAR_str='VAR',STOK_str='STOK'
+character(250),parameter::FIX_str='FIX',STD_str='STD',VAR_str='VAR',STOK_str='STOK'
 real(mrk),parameter::bias_init=0._mrk,bias_initStd=0.1_mrk
 type(InferenceType):: INFER
 type(ModelType):: MODEL
@@ -138,6 +138,7 @@ subroutine LoadBamObjects(X,Xu,Xb,Xbindx,& ! observed inputs and their uncertain
                           Parname_RemnantSigma,& ! parameter names
                           Prior_RemnantSigma,& ! priors
                           priorCorrFile,& ! name of file containing prior correlations
+                          infoFile,& ! name of file containing BaM information
                           xtra,& ! Xtra information
                           nstate,err,mess)! error handling
 !^**********************************************************************
@@ -176,7 +177,7 @@ subroutine LoadBamObjects(X,Xu,Xb,Xbindx,& ! observed inputs and their uncertain
 !^**********************************************************************
 use types_dmsl_kit, only:data_ricz_type
 use ModelLibrary_tools, only:XtraSetup
-use utilities_dmsl_kit,only:number_string
+use utilities_dmsl_kit,only:number_string,getSpareUnit
 use linalg_dmsl_kit,only:choles_invrt
 
 real(mrk), intent(in)::X(:,:),Xu(:,:),Xb(:,:)
@@ -186,7 +187,7 @@ character(*), intent(in)::ID
 type(ParType), intent(in):: theta(:)
 type(slist), intent(in):: Parname_RemnantSigma(:)
 type(plist), intent(in):: Prior_RemnantSigma(:)
-character(*),intent(in)::RemnantSigma_funk(:),priorCorrFile
+character(*),intent(in)::RemnantSigma_funk(:),priorCorrFile,infoFile
 type(data_ricz_type),intent(in),optional:: xtra
 integer(mik), intent(out)::err,nstate
 character(*),intent(out)::mess
@@ -237,10 +238,18 @@ enddo
 if(allocated(INFER%nXb)) deallocate(INFER%nXb);allocate(INFER%nXb(MODEL%nX))
 if(allocated(INFER%nYb)) deallocate(INFER%nYb);allocate(INFER%nYb(MODEL%nY))
 do j=1,MODEL%nX
-    INFER%nXb(j)=maxval(INFER%Xbindx(:,j))
+    if(size(INFER%Xbindx(:,j))==0) then ! may happen for 0-data calibration
+        INFER%nXb(j)=0
+    else
+        INFER%nXb(j)=maxval(INFER%Xbindx(:,j))
+    endif
 enddo
 do j=1,MODEL%nY
-    INFER%nYb(j)=maxval(INFER%Ybindx(:,j))
+   if(size(INFER%Ybindx(:,j))==0) then ! may happen for 0-data calibration
+        INFER%nYb(j)=0
+    else
+        INFER%nYb(j)=maxval(INFER%Ybindx(:,j))
+    endif
 enddo
 !----------------------
 ! Model
@@ -403,6 +412,10 @@ else
         INFER%priorM(i,i)=INFER%priorM(i,i)-1._mrk
     enddo
 endif
+
+! Conclude by writing INFO file
+call writeBamInfo(infoFile,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 
 end subroutine LoadBamObjects
 
@@ -3980,5 +3993,115 @@ write (unt,'(A)') trim(number_string(i))//'/'//trim(number_string(n))
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+function collapse_c(x)
+! collapse a vector of characters into a long string using a comma separator
+character(*), intent(in)::x(:)
+character(len_uLongStr)::collapse_c
+integer(mik)::i
+collapse_c='['
+do i=1,size(x)
+    collapse_c=trim(collapse_c)//'"'//trim(x(i))//'"'
+    if(i<size(x)) then;collapse_c=trim(collapse_c)//',';endif
+enddo
+collapse_c=trim(collapse_c)//']'
+end function collapse_c
+
+function collapse_i(x)
+! collapse a vector of integers into a long string using a comma separator
+use utilities_dmsl_kit,only:number_string
+integer(mik), intent(in)::x(:)
+character(len_uLongStr)::collapse_i
+integer(mik)::i
+collapse_i='['
+do i=1,size(x)
+    collapse_i=trim(collapse_i)//trim(number_string(x(i)))
+    if(i<size(x)) then;collapse_i=trim(collapse_i)//',';endif
+enddo
+collapse_i=trim(collapse_i)//']'
+end function collapse_i
+
+function collapse_s(x)
+! collapse a vector of slist objects into a long string using a comma separator
+type(slist), intent(in)::x(:)
+character(len_uLongStr)::collapse_s
+integer(mik)::i
+collapse_s='['
+do i=1,size(x)
+    collapse_s=trim(collapse_s)//trim(collapse_c(x(i)%s))
+    if(i<size(x)) then;collapse_s=trim(collapse_s)//',';endif
+enddo
+collapse_s=trim(collapse_s)//']'
+end function collapse_s
+
+function collapse_p(x)
+! collapse a vector of parameters objects into a long string using a comma separator
+type(ParType), intent(in)::x(:)
+character(len_uLongStr)::collapse_p
+integer(mik)::i
+character(5)::foo
+collapse_p='['
+do i=1,size(x)
+    select case(x(i)%parType)
+    case(-1)
+        foo=FIX_str
+    case(0)
+        foo=STD_str
+    case(1)
+        foo=VAR_str
+    case(2)
+        foo=STOK_str
+    end select
+    collapse_p=trim(collapse_p)//'"'//trim(foo)//'"'
+    if(i<size(x)) then;collapse_p=trim(collapse_p)//',';endif
+enddo
+collapse_p=trim(collapse_p)//']'
+end function collapse_p
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine writeBamInfo(infoFile,err,mess)
+! Write INFO file
+use utilities_dmsl_kit,only:number_string,getSpareUnit
+character(*),intent(in)::infoFile
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+! locals
+character(250),parameter::procname='writeBamInfo'
+integer(mik)::unt
+character(250),allocatable::head(:)
+
+if(allocated(head)) deallocate(head);allocate(head(INFER%nInfer+1+INFER%nDpar))
+call GetHeaders(head)
+call getSpareUnit(unt,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+open(unit=unt,file=trim(infoFile), status='replace',iostat=err)
+if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(infoFile));endif
+write(unt,*) '"ID":','"'//trim(MODEL%ID)//'"'
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"nX":',trim(number_string(MODEL%nX))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"nY":',trim(number_string(MODEL%nY))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"parName":',trim(collapse_c(MODEL%parname))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"parType":',trim(collapse_p(INFER%theta))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"dParName":',trim(collapse_c(MODEL%dparname))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"stateName":',trim(collapse_c(MODEL%statename))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"structuralParName":',trim(collapse_s(INFER%Parname_RemnantSigma))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"estimatedX":',trim(collapse_i(INFER%nXerror))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"estimatedXbias":',trim(collapse_i(INFER%nXb))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"estimatedYbias":',trim(collapse_i(INFER%nYb))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+write(unt,*) '"MCMCheaders":',trim(collapse_c(head))
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(infoFile));endif
+close(unt)
+end subroutine writeBamInfo
 
 end module BaM_tools

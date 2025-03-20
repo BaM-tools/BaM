@@ -19,8 +19,9 @@ implicit none
 ! Constants
 character(len_stdStrD),parameter::Config_file_def="Config_BaM.txt"
 character(len_stdStrD),parameter::priorCorrFile="PriorCorrelation.txt"
+character(len_stdStrD),parameter::infoFile="INFO_BaM.txt"
 character(len_stdStrD),parameter::MonitorExt=".monitor"
-character(len_stdStrD),parameter::version="1.0.0 March 2025"
+character(len_stdStrD),parameter::version="1.0.2 March 2025"
 real(mrk),parameter::defaultstd=0.1_mrk
 !-----------------------
 ! Config files
@@ -238,6 +239,7 @@ call LoadBamObjects(X=X,Xu=Xu,Xb=Xb,Xbindx=Xbindx,& ! observed inputs and their 
                     Parname_RemnantSigma=Parname_RemnantSigma,& ! names
                     Prior_RemnantSigma=Prior_RemnantSigma,& ! priors
                     priorCorrFile=trim(workspace)//trim(priorCorrFile),&
+                    infoFile=trim(workspace)//trim(infoFile),&
                     xtra=model%xtra,&
                     nstate=model%nState,err=err,mess=mess)! error handling
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif

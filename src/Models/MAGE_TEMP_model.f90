@@ -113,8 +113,8 @@ character(*),intent(out)::mess
 character(250),parameter::procname='MAGE_TEMP_Run'
 integer(mik),parameter::outFileNCOL=2
 integer(mik)::i,n,unt,k,ok
-character(250)::forma,head(outFileNCOL),project,line
-character(len_uLongStr)::cmdString
+character(250)::forma,head(outFileNCOL),project
+character(len_uLongStr)::cmdString,line
 real(mrk), pointer::foo(:,:)
 real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb)),line_val(outFileNCOL)
 logical::keepgoing
@@ -122,7 +122,7 @@ logical::keepgoing
 ! Init
 err=0;mess='';feas=.true.;Y=undefRN
 n=size(RUGb)
-forma='(A1,I3,6x,2F10.0,2F10.2)'
+forma='(A1,I3,6x,2f10.3,2f10.2)'
 
 ! Size check
 k=size(theta)
@@ -166,11 +166,14 @@ if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 project=replacedString(trim(REPfile),'.REP','',.true.)
 do i=1,size(mage_extraire_args)
     cmdString='cd '//trim(projectDir)//'&&'//&
-    trim(mage_extraire_file)//' '//project//&
-    mage_extraire_args(i)
+    trim(mage_extraire_file)//' '//trim(project)//' '//&
+    trim(mage_extraire_args(i))
+    call execute_command_line (trim(cmdString),wait=.true.,exitStat=err,cmdMsg=mess)
+    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
     ! rename
-    err=rename(project//'.RES',outFiles(i))
-    if(err/=0) then;mess=trim(procname)//': problem renaming .RES file';return;endif
+    cmdString='cd '//trim(projectDir)//'&&'//'mv '//trim(project)//'.res '//trim(outFiles(i))
+    call execute_command_line(trim(cmdString),wait=.true.,exitStat=err,cmdMsg=mess)
+    if(err/=0) then;mess=trim(procname)//': problem renaming .res file';return;endif
 enddo
 
 ! Read outputs into Y
@@ -186,7 +189,7 @@ do i=1,size(outFiles)
         if(err/=0) then;mess=trim(procname)//':problem reading RES file';return;endif
         keepgoing=.true.
         do while(keepgoing)
-            read(unt,*,iostat=ok) line
+            read(unt,'(A)',iostat=ok) line
             if(ok/=0) then
                 keepgoing=.false.
             else if(line(1:1)=='*') then
@@ -322,7 +325,7 @@ character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='MAGE_TEMP_setUp'
 integer(mik)::unt,i,n,k,j,nskip
-character(250)::foo,prefix,var,ib,pk,mode,dt0,forma
+character(250)::foo,prefix,var,ib,pk,mode,dt0,forma,project
 character(len_uLongStr)::line,fname
 character(len_uLongStr),allocatable::fnames(:)
 real(mrk)::c1,c2
@@ -349,8 +352,9 @@ do i=1,n
 enddo
 k=size(mage_extraire_args)
 if(allocated(outFiles)) deallocate(outFiles);allocate(outFiles(k))
+project = replacedString(trim(REPfile),'.REP','',.true.)
 do i=1,k
-    outFiles(i)=replacedString(mage_extraire_args(i),' ','_',.true.)//'.RES'
+    outFiles(i)=trim(project)//'_'//replacedString(trim(mage_extraire_args(i)),' ','_',.true.)//'.res'
 enddo
 close(unt)
 
@@ -375,7 +379,7 @@ if(allocated(RUGb)) deallocate(RUGb)
 allocate(RUGx(n+1),RUGb(n))
 rewind(unt)
 do i=1,nskip;read(unt,*);enddo
-forma='(1x,I3,6x,4F10.0)'
+forma='(1x,I3,6x,4f10.0)'
 do i=1,n
     read(unt,forma,iostat=err) RUGb(i),RUGx(i),RUGx(i+1),c1,c2
     if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(projectDir)//trim(RUGfile);return;endif

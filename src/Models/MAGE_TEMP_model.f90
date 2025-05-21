@@ -101,7 +101,7 @@ subroutine MAGE_TEMP_Run(exeFile,version,projectDir,REPfile,&
 !^*     4. err, error code; <0:Warning, ==0:OK, >0: Error
 !^*     5. mess, error message
 !^**********************************************************************
-use utilities_dmsl_kit,only:getSpareUnit,replacedString,number_string,getNumItemsInFile
+use utilities_dmsl_kit,only:getSpareUnit,replacedString,number_string,getNumItemsInFile, countSubstringInString
 use DataRW_tools,only:DatRead,ReadSeparatedFile
 character(*), intent(in)::exeFile,version,projectDir,REPfile,mage_extraire_file,mage_extraire_args(:)
 real(mrk), intent(in)::theta(:)
@@ -169,7 +169,8 @@ open(unit=unt,file=trim(projectDir)//trim(project)//trim('.TRA'),status='old',io
 if(err/=0) then;mess=trim(procname)//':problem opening TRA file';return;endif
 call getNumItemsInFile(unt=unt,preRwnd=.true.,nskip=0,nitems=nitems,postPos=0,jchar=line,err=err,message=mess)
 if(err/=0) then;mess=trim(procname)//':problem reading TRA file';return;endif
-if(trim(line) /= '****************************** FIN NORMALE DE MAGE ****************************') then
+ok = countSubstringInString(line,'FIN NORMALE DE MAGE')
+if(ok == 0) then
     feas=.false.;return
 endif
 

@@ -101,7 +101,7 @@ subroutine MAGE_TEMP_Run(exeFile,version,projectDir,REPfile,&
 !^*     4. err, error code; <0:Warning, ==0:OK, >0: Error
 !^*     5. mess, error message
 !^**********************************************************************
-use utilities_dmsl_kit,only:getSpareUnit,replacedString,number_string
+use utilities_dmsl_kit,only:getSpareUnit,replacedString,number_string,getNumItemsInFile
 use DataRW_tools,only:DatRead,ReadSeparatedFile
 character(*), intent(in)::exeFile,version,projectDir,REPfile,mage_extraire_file,mage_extraire_args(:)
 real(mrk), intent(in)::theta(:)
@@ -112,8 +112,8 @@ character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='MAGE_TEMP_Run'
 integer(mik),parameter::outFileNCOL=2
-integer(mik)::i,n,unt,k,ok
-character(250)::forma,head(outFileNCOL),project
+integer(mik)::i,n,unt,k,ok,nitems
+character(250)::forma,head(outFileNCOL),project,TRAfile
 character(len_uLongStr)::cmdString,line
 real(mrk), pointer::foo(:,:)
 real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb)),line_val(outFileNCOL)
@@ -123,6 +123,7 @@ logical::keepgoing
 err=0;mess='';feas=.true.;Y=undefRN
 n=size(RUGb)
 forma='(A1,I3,6x,2f10.3,2f10.2)'
+project=replacedString(trim(REPfile),'.REP','',.true.)
 
 ! Size check
 k=size(theta)
@@ -161,9 +162,18 @@ close(unt)
 cmdString='cd '//trim(projectDir)//'&&'//trim(exeFile)//' '//trim(REPfile)
 call execute_command_line (trim(cmdString),wait=.true.,exitStat=err,cmdMsg=mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+! Verify MAGE ran correctly
+call getSpareUnit(unt,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+open(unit=unt,file=trim(projectDir)//trim(project)//trim('.TRA'),status='old',iostat=err)
+if(err/=0) then;mess=trim(procname)//':problem opening TRA file';return;endif
+call getNumItemsInFile(unt=unt,preRwnd=.true.,nskip=0,nitems=nitems,postPos=0,jchar=line,err=err,message=mess)
+if(err/=0) then;mess=trim(procname)//':problem reading TRA file';return;endif
+if(trim(line) /= '****************************** FIN NORMALE DE MAGE ****************************') then
+    feas=.false.;return
+endif
 
 ! Call mage_extraire
-project=replacedString(trim(REPfile),'.REP','',.true.)
 do i=1,size(mage_extraire_args)
     cmdString='cd '//trim(projectDir)//'&&'//&
     trim(mage_extraire_file)//' '//trim(project)//' '//&

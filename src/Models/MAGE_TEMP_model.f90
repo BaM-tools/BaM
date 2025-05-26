@@ -161,14 +161,20 @@ close(unt)
 ! Call mage
 cmdString='cd '//trim(projectDir)//'&&'//trim(exeFile)//' '//trim(REPfile)
 call execute_command_line (trim(cmdString),wait=.true.,exitStat=err,cmdMsg=mess)
-if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+if(err/=0) then
+    err = 0
+    feas=.false.
+    mess=trim(procname)//':'//trim(mess);return
+endif
 ! Verify MAGE ran correctly
+
 call getSpareUnit(unt,err,mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 open(unit=unt,file=trim(projectDir)//trim(project)//trim('.TRA'),status='old',iostat=err)
 if(err/=0) then;mess=trim(procname)//':problem opening TRA file';return;endif
 call getNumItemsInFile(unt=unt,preRwnd=.true.,nskip=0,nitems=nitems,postPos=0,jchar=line,err=err,message=mess)
 if(err/=0) then;mess=trim(procname)//':problem reading TRA file';return;endif
+close(unt)
 ok = countSubstringInString(line,'FIN NORMALE DE MAGE')
 if(ok == 0) then
     feas=.false.;return
@@ -197,7 +203,7 @@ do i=1,size(outFiles)
         call getSpareUnit(unt,err,mess)
         if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
         open(unit=unt,file=trim(projectDir)//trim(outFiles(i)),status='old',iostat=err)
-        if(err/=0) then;mess=trim(procname)//':problem reading RES file';return;endif
+        if(err/=0) then;mess=trim(procname)//':problem opening RES file';return;endif
         keepgoing=.true.
         do while(keepgoing)
             read(unt,'(A)',iostat=ok) line

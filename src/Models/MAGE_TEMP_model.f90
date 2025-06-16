@@ -21,10 +21,11 @@ module MAGE_TEMP_model
 !~**********************************************************************
 
 use kinds_dmsl_kit ! numeric kind definitions from DMSL
+use, intrinsic :: iso_fortran_env, only: real32, real64
 
 implicit none
 Private
-public :: MAGE_TEMP_GetParNumber, MAGE_TEMP_Run, MAGE_TEMP_XtraRead, MAGE_TEMP_SetUp
+public :: MAGE_TEMP_GetParNumber, MAGE_TEMP_Run, MAGE_TEMP_XtraRead, MAGE_TEMP_SetUp, mage_res
 
 ! Module variables
 character(len_uLongStr)::RUGfile='' ! .RUG file specifying rugosities
@@ -35,7 +36,174 @@ real(mrk), allocatable::ZxKmoy(:,:) ! covariates Z's of the regression Kmoy(x)=a
 logical::applyExpKmin,applyExpKmoy ! apply exponential transformation to computed K's to ensure positivity?
 character(len_uLongStr),allocatable::outFiles(:) ! list of files where MAGE outputs (Qsim) are read
 
+type mage_res
+  integer :: ibmax, ismax ! nombre de biefs et nombre de sections
+  integer, allocatable :: is1(:), is2(:) ! pointeurs sur première et dernière sections du bief
+  real(kind=real64), dimension(:), allocatable :: tQ, tZ ! pas de temps
+  real(kind=real32), dimension(:), allocatable :: pk ! pk
+  real(kind=real32), dimension(:,:), allocatable :: valuesQ, valuesZ ! valeurs
+  contains
+    procedure :: read_bin
+    procedure :: get
+end type mage_res
+
+real(mrk), allocatable, dimension(:) :: x, t, z, q
+integer, allocatable, dimension(:) :: x_ptr, t_ptr
+
 Contains
+
+subroutine read_bin(self, filename, err, mess)
+
+  implicit none
+  ! prototype
+  class(mage_res), intent(inout) :: self
+  character(len=*), intent(in) :: filename
+  ! variables locales
+  integer :: lu ! unité fichier
+  character :: line*80
+  integer :: mage_version, ntq, ntz, np, i
+  integer :: nmaxq, nmaxz, qptr, zptr
+  integer, parameter :: dnmax = 1000
+  real(kind=real64) :: t
+  real(kind=real64), dimension(:), allocatable :: tmp1 ! tableau temporaire
+  real(kind=real32), dimension(:), allocatable :: val ! tableau temporaire
+  real(kind=real32), dimension(:,:), allocatable :: tmp2 ! tableau temporaire
+  character :: a*1
+  integer(mik), intent(out)::err ! i/o status
+  character(*),intent(out)::mess
+  character(8),parameter::procname='read_bin'
+
+  ! ouverture du fichier bin
+  open(newunit=lu,file=trim(filename),status='old',form='unformatted',iostat=err)
+  if (err /= 0) then
+    mess=trim(procname)//': Problem opening file '//trim(filename)
+    return
+  endif
+
+  ! lecture première ligne
+  read(lu) self%ibmax, self%ismax, mage_version
+  if (mage_version <= 80) then
+    ! on a un fichier BIN avec l'ancien entête
+    err=1
+    mess=trim(procname)//': FATAL: MAGEv7 is not supported'
+    return
+  endif
+
+  ! allocation des tableaux
+  nmaxq = 1000
+  nmaxz = 1000
+  qptr = 0
+  zptr = 0
+  allocate (self%tQ(nmaxq), self%tZ(nmaxz))
+  allocate (self%valuesQ(self%ismax, nmaxq), self%valuesZ(self%ismax, nmaxz))
+  allocate (val(self%ismax))
+  allocate (self%is1(self%ibmax), self%is2(self%ibmax))
+  ! suite de l'entête
+  read(lu) (self%is1(i),self%is2(i),i=1,self%ibmax)
+  allocate(self%pk(self%ismax))
+  read(lu) (self%pk(i),i=1,self%ismax)
+  read(lu)
+
+  do
+    read(lu,iostat=err) np,t,a,(val(i),i=1,np)
+    if (err < 0) exit ! fin du fichier
+    if (a == "Q") then ! débit
+      qptr = qptr + 1
+      if (qptr > nmaxq) then  ! re-allocation mémoire
+        allocate(tmp2(self%ismax, nmaxq+dnmax)) ! on ajoute dnmax à la taille allouée
+        tmp2(1:self%ismax, 1:nmaxq) = self%valuesQ(1:self%ismax, 1:nmaxq) !on copie les anciennes valeurs de valuesQ
+        call move_alloc(tmp2, self%valuesQ) ! valuesQ pointe sur l'espace mémoire de tmp2, tmp2 est désalloué
+        allocate(tmp1(nmaxq+dnmax))
+        tmp1(1:nmaxq) = self%tQ(1:nmaxq)
+        call move_alloc(tmp1, self%tQ)
+        nmaxq = nmaxq+dnmax
+      endif
+      self%tQ(qptr) = t
+      self%valuesQ(:, qptr) = val(:)
+    elseif (a == "Z") then ! cote
+      zptr = zptr + 1
+      if (zptr > nmaxz) then  ! re-allocation mémoire
+        allocate(tmp2(self%ismax, nmaxz+dnmax)) ! on ajoute dnmax à la taille allouée
+        tmp2(1:self%ismax, 1:nmaxz) = self%valuesZ(1:self%ismax, 1:nmaxz) !on copie les anciennes valeurs de valuesZ
+        call move_alloc(tmp2, self%valuesZ) ! valuesZ pointe sur l'espace mémoire de tmp2, tmp2 est désalloué
+        allocate(tmp1(nmaxz+dnmax))
+        tmp1(1:nmaxz) = self%tZ(1:nmaxz)
+        call move_alloc(tmp1, self%tZ)
+        nmaxz = nmaxz+dnmax
+      endif
+      self%tZ(zptr) = t
+      self%valuesZ(:, zptr) = val(:)
+    else
+      cycle
+    endif
+  enddo
+  err = 0
+
+  ! réallocation à la bonne taille
+  ! Q
+  allocate(tmp2(self%ismax, qptr))
+  tmp2(1:self%ismax, 1:qptr) = self%valuesQ(1:self%ismax, 1:qptr)
+  call move_alloc(tmp2, self%valuesQ)
+  allocate(tmp1(qptr))
+  tmp1(1:qptr) = self%tQ(1:qptr)
+  call move_alloc(tmp1, self%tQ)
+  ! Z
+  allocate(tmp2(self%ismax, zptr))
+  tmp2(1:self%ismax, 1:zptr) = self%valuesZ(1:self%ismax, 1:zptr)
+  call move_alloc(tmp2, self%valuesZ)
+  allocate(tmp1(zptr))
+  tmp1(1:zptr) = self%tZ(1:zptr)
+  call move_alloc(tmp1, self%tZ)
+
+end subroutine read_bin
+
+function get(self, timesteps, pk, variable)
+
+  implicit none
+  ! prototype
+  class(mage_res), target :: self
+  real(kind=real64), dimension(:) :: pk, timesteps
+  character :: variable*1
+  real(kind=real32), dimension(:), allocatable :: get
+  ! variables locales
+  real(kind=real64), dimension(:), pointer :: t ! pas de temps
+  real(kind=real32), dimension(:,:), allocatable :: tmp2 ! tableau temporaire
+  integer :: i, j, ptr, pkptr, tvalptr, pkvalptr
+  real(kind=real32), dimension(:,:), pointer :: values
+  real(kind=real32) :: ratio_t, ratio_pk, v1, v2
+
+  if (size(pk) .ne. size(timesteps)) stop
+
+  if (variable == "Q" .or. variable == "q") then ! débit
+    values => self%valuesQ
+    t => self%tQ
+  elseif (variable == "Z" .or. variable == "z") then ! cote
+    values => self%valuesZ
+    t => self%tZ
+  endif
+
+  allocate(get(size(pk)))
+
+  do ptr = 1, size(get)
+    do i=1, size(t)-1
+       if (t(i) < timesteps(ptr) .and. t(i+1) >= timesteps(ptr)) then
+          do j=1, self%ismax-1
+             if (self%pk(j) < pk(ptr) .and. self%pk(j+1) >= pk(ptr)) then
+                ! trouvé !
+                ratio_pk = (pk(ptr) - self%pk(j))/(self%pk(j+1) - self%pk(j))
+                ratio_t = (timesteps(ptr) - t(i))/(t(i+1) - t(i))
+                v1 = values(j, i)*(1 - ratio_pk) + values(j+1, i)*(ratio_pk)
+                v2 = values(j, i+1)*(1 - ratio_pk) + values(j+1, i+1)*(ratio_pk)
+                get(ptr) = v1*(1 - ratio_t) + v2*(ratio_t)
+                exit
+             endif
+          enddo
+          exit
+       endif
+    enddo
+ enddo
+
+end function get
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -102,10 +270,9 @@ subroutine MAGE_TEMP_Run(exeFile,version,projectDir,REPfile,&
 !^*     5. mess, error message
 !^**********************************************************************
 use utilities_dmsl_kit,only:getSpareUnit,replacedString,number_string,getNumItemsInFile, countSubstringInString
-use DataRW_tools,only:DatRead,ReadSeparatedFile
 character(*), intent(in)::exeFile,version,projectDir,REPfile,mage_extraire_file,mage_extraire_args(:)
 real(mrk), intent(in)::theta(:)
-real(mrk), intent(out)::Y(:,:)
+real(mrk), intent(inout)::Y(:,:)
 logical, intent(out)::feas
 integer(mik), intent(out)::err
 character(*),intent(out)::mess
@@ -113,11 +280,13 @@ character(*),intent(out)::mess
 character(250),parameter::procname='MAGE_TEMP_Run'
 integer(mik),parameter::outFileNCOL=2
 integer(mik)::i,n,unt,k,ok,nitems
-character(250)::forma,head(outFileNCOL),project,TRAfile
+character(250)::forma,head(outFileNCOL)
 character(len_uLongStr)::cmdString,line
 real(mrk), pointer::foo(:,:)
 real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb)),line_val(outFileNCOL)
 logical::keepgoing
+character(:), allocatable :: project
+type(mage_res) :: res
 
 ! Init
 err=0;mess='';feas=.true.;Y=undefRN
@@ -180,54 +349,12 @@ if(ok == 0) then
     feas=.false.;return
 endif
 
-! Call mage_extraire
-do i=1,size(mage_extraire_args)
-    cmdString='cd '//trim(projectDir)//'&&'//&
-    trim(mage_extraire_file)//' '//trim(project)//' '//&
-    trim(mage_extraire_args(i))
-    call execute_command_line (trim(cmdString),wait=.true.,exitStat=err,cmdMsg=mess)
-    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
-    ! rename
-    cmdString='cd '//trim(projectDir)//'&&'//'mv '//trim(project)//'.res '//trim(outFiles(i))
-    call execute_command_line(trim(cmdString),wait=.true.,exitStat=err,cmdMsg=mess)
-    if(err/=0) then;mess=trim(procname)//': problem renaming .res file';return;endif
-enddo
+! read .BIN
+call res%read_bin(trim(projectDir)//project//'.TRA', err, mess) ! on remplit l'objet
+z = res%get(t, x, "Z")
 
-! Read outputs into Y
-do i=1,size(outFiles)
-    k=0
-    select case(version)
-    case('7','v7')
-        err=1;mess=trim(procname)//': FATAL: MAGEv7 is not supported';return
-    case('8','v8')
-        call getSpareUnit(unt,err,mess)
-        if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
-        open(unit=unt,file=trim(projectDir)//trim(outFiles(i)),status='old',iostat=err)
-        if(err/=0) then;mess=trim(procname)//':problem opening RES file';return;endif
-        keepgoing=.true.
-        do while(keepgoing)
-            read(unt,'(A)',iostat=ok) line
-            if(ok/=0) then
-                keepgoing=.false.
-            else if(line(1:1)=='*') then
-                cycle
-            else
-                k=k+1
-                read(line,*,iostat=err) line_val
-                if(err/=0) then;mess=trim(procname)//':problem reading RES file line number:'//trim(number_string(k));return;endif
-                if(k>size(Y,dim=1)) then
-                    err=1
-                    mess=trim(procname)//':FATAL: number of lines in RES file (k) exceeds number of rows in Y:k='//&
-                         trim(number_string(k))
-                    return
-                endif
-                Y(k,i)=line_val(outFileNCOL)
-            endif
-        enddo
-        close(unt)
-    case default
-        if(err/=0) then;mess=trim(procname)//':FATAL: MAGE version is not supported';return;endif
-    end select
+do i=1, size(z)
+   Y(x_ptr(i), t_ptr(i)) = z(i)
 enddo
 
 end subroutine MAGE_TEMP_Run
@@ -263,7 +390,7 @@ integer(mik), intent(out)::err
 character(*),intent(out)::mess
 ! locals
 character(250),parameter::procname='MAGE_XtraRead'
-integer(mik)::unt
+integer(mik)::unt, s
 
 err=0;mess=''
 
@@ -293,15 +420,18 @@ if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return
 read(unt,*,iostat=err) xtra%ls2    ! 10. apply exponential transformation to computed  Kmoy's?
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 ! mage_extraire stuff
-read(unt,*,iostat=err) xtra%cs7 ! 11. mage_extraire exe
+read(unt,*,iostat=err) s ! 11. size of data coordinates
+allocate(x(s),t(s),x_ptr(s),t_ptr(s))
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
-read(unt,*,iostat=err) xtra%is3 ! 12. number of extracted series
+read(unt,*,iostat=err) x ! 12. x coordinates
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
-if(associated(xtra%cp1)) nullify(xtra%cp1);allocate(xtra%cp1(xtra%is3))
-read(unt,*,iostat=err) xtra%cp1 ! 11. mage_extraire exe
+read(unt,*,iostat=err) t ! 13. t coordinates
+if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
+read(unt,*,iostat=err) x_ptr ! 14. x pointer: x coordinates in Y matrix
+if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
+read(unt,*,iostat=err) t_ptr ! 15. t pointer: t coordinates in Y matrix
 if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(file);return;endif
 close(unt)
-
 
 end subroutine MAGE_TEMP_XtraRead
 
@@ -326,7 +456,7 @@ subroutine MAGE_TEMP_setUp(version,projectDir,REPfile,Zfile,ZnCol,doExp,mage_ext
 !^*     1. version, MAGE version
 !^*     2. projectDir, MAGE project directory
 !^*     3. REPfile, MAGE .REP file
-!^*     4. Zfile, containing ovariates for K-Z regression
+!^*     4. Zfile, containing covariates for K-Z regression
 !^*     5. doExp, apply exponential transformation to computed  K's?
 !^*     6. mage_extraire_args, arguments to mage_extraire, defines output variables
 !^* OUT

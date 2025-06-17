@@ -34,7 +34,6 @@ integer(mik), allocatable::RUGb(:) ! "Bief" (reach?) index
 real(mrk), allocatable::ZxKmin(:,:) ! covariates Z's of the regression Kmin(x)=a1Z1(x)+...+apZp(x). Dimension size(RUGb)*p.
 real(mrk), allocatable::ZxKmoy(:,:) ! covariates Z's of the regression Kmoy(x)=a1Z1(x)+...+apZp(x). Dimension size(RUGb)*p.
 logical::applyExpKmin,applyExpKmoy ! apply exponential transformation to computed K's to ensure positivity?
-character(len_uLongStr),allocatable::outFiles(:) ! list of files where MAGE outputs (Qsim) are read
 
 type mage_res
   integer :: ibmax, ismax ! nombre de biefs et nombre de sections
@@ -138,6 +137,7 @@ subroutine read_bin(self, filename, err, mess)
     endif
   enddo
   err = 0
+  close(lu)
 
   ! réallocation à la bonne taille
   ! Q
@@ -280,10 +280,10 @@ character(*),intent(out)::mess
 character(250),parameter::procname='MAGE_TEMP_Run'
 integer(mik),parameter::outFileNCOL=2
 integer(mik)::i,n,unt,k,ok,nitems
-character(250)::forma,head(outFileNCOL)
+character(250)::forma
 character(len_uLongStr)::cmdString,line
 real(mrk), pointer::foo(:,:)
-real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb)),line_val(outFileNCOL)
+real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb))
 logical::keepgoing
 character(:), allocatable :: project
 type(mage_res) :: res
@@ -350,11 +350,11 @@ if(ok == 0) then
 endif
 
 ! read .BIN
-call res%read_bin(trim(projectDir)//project//'.TRA', err, mess) ! on remplit l'objet
+call res%read_bin(trim(projectDir)//project//'.BIN', err, mess) ! on remplit l'objet
 z = res%get(t, x, "Z")
 
 do i=1, size(z)
-   Y(x_ptr(i), t_ptr(i)) = z(i)
+   Y(t_ptr(i), x_ptr(i)) = z(i)
 enddo
 
 end subroutine MAGE_TEMP_Run
@@ -496,12 +496,6 @@ do i=1,n
     read(unt,'(A)',iostat=err) line
     if(err>0) then;mess=trim(procname)//':problem reading file '//trim(REPfile);return;endif
     if(line(1:3)=='RUG') RUGfile=trim(line(5:))
-enddo
-k=size(mage_extraire_args)
-if(allocated(outFiles)) deallocate(outFiles);allocate(outFiles(k))
-project = replacedString(trim(REPfile),'.REP','',.true.)
-do i=1,k
-    outFiles(i)=trim(project)//'_'//replacedString(trim(mage_extraire_args(i)),' ','_',.true.)//'.res'
 enddo
 close(unt)
 

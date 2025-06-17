@@ -35,7 +35,7 @@ BMSL = \
 	$(BMSL_DIR)Distribution_tools.f90            \
 	$(BMSL_DIR)MCMC_tools.f90                    \
 	$(BMSL_DIR)MCMCStrategy_tools.f90            \
-	$(BMSL_DIR)BayesianEstimation_tools.f90 
+	$(BMSL_DIR)BayesianEstimation_tools.f90
 
 # Define Models files
 Models = \
@@ -70,12 +70,12 @@ Models = \
 	$(Models_DIR)MAGE_model.f90	                       \
 	$(Models_DIR)MAGE_TEMP_model.f90	               \
 	$(Models_DIR)HydraulicControl_section_model.f90
-	
+
 # Define BaM files
 BaM = \
 	$(BaM_DIR)ModelLibrary_tools.f90       \
 	$(BaM_DIR)BaM_tools.f90                \
-	$(BaM_DIR)BaM_main.f90 
+	$(BaM_DIR)BaM_main.f90
 
 all:build_exe
 

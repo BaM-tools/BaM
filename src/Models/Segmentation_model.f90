@@ -117,7 +117,7 @@ mu =theta(1:nS)
 select case (option)
 case(1) ! parameters are shift times
     tau =theta((nS+1):)
-    duration(1)=tau(1)
+    duration(1)=  1._mrk! any positive number will do, since durations are only used to test their positivity
     if(nS>2) then
         do i=2,nS-1
             duration(i)=tau(i)-tau(i-1)

@@ -1,0 +1,6 @@
+"Constant"    ! Function f used in sdev=f(Qrc) 
+1             ! Number of parameters gamma for f
+"gamma"       ! Parameter name -----
+1.0           ! Initial guess
+"FlatPrior+"  ! Prior distribution
+              ! Prior parameters

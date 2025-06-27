@@ -29,7 +29,7 @@ real(mrk),parameter::defaultstd=0.1_mrk
 character(len_vLongStr)::workspace,Config_file,filePath,filePath2
 character(len_longStr)::Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
                 Config_MCMC,Config_Cooking,Config_summary,&
-                Config_Residual,Config_Pred_Master
+                Config_Residual,Config_Pred_Master,Config_Inputs
 character(len_longStr),pointer::Config_RemnantSigma(:),Config_Pred(:)
 character(len_vlongStr),allocatable::Config_RemnantList(:)
 !-----------------------
@@ -75,7 +75,7 @@ type(XspagType)::Xspag
 !-----------------------
 ! Misc.
 integer(mik)::i,j,err,nobs,nc,nhead,nsim,narg,seed
-logical::IsMCMCLoaded,exists,earlyStop,savePrior
+logical::IsMCMCLoaded,exists,earlyStop,savePrior,oneRun
 character(len_vLongStr)::mess,datafile,arg
 !-----------------------
 
@@ -88,6 +88,7 @@ call BaM_ConsoleMessage(1,'')
 IsMCMCLoaded=.false.
 earlyStop=.false.
 savePrior=.false.
+oneRun=.false.
 priorFile=Prior_file_def
 
 !---------------------------------------------------------------------
@@ -136,6 +137,9 @@ do while (i<=narg)
      case ('-dr', '--dontrun')
         earlyStop=.true.
         i=i+1
+     case ('-or', '--onerun')
+        oneRun=.true.
+        i=i+1
     case ('-v', '--version')
         write(*,*) 'version: ', trim(version)
         STOP
@@ -160,6 +164,18 @@ endif
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 call BaM_ConsoleMessage(100,'')
+
+if(oneRun) then
+    ! 2DO: increase BaM version number
+    !call Config_Read_oneRun(trim(Config_file),&
+    !             workspace,Config_Model,Config_Xtra,Config_Inputs,&
+    !             err,mess)
+    !if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    ! READ X
+    ! call ApplyModel(model,X,theta,Y,Dpar,state,feas,err,mess)
+    ! WRITE Y
+    STOP
+endif
 
 ! Read main config file
 call Config_Read(trim(Config_file),&

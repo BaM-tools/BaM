@@ -31,14 +31,14 @@ Private
 public :: &! main subroutines to handle the probabilistic model behind BaM
           LoadBamObjects,BaM_Fit,BaM_ReadData,BaM_CookMCMC,BaM_SummarizeMCMC,BaM_computeDIC,&
           ! Read config files
-          Config_Read,Config_Read_Model,Config_Read_Xtra,Config_Read_Data,&
+          Config_Read,Config_Read_oneRun,Config_Read_Model,Config_Read_Xtra,Config_Read_Data,&
           Config_Read_RemnantSigma,Config_Read_MCMC,Config_Read_RunOptions,&
           Config_Read_Residual,Config_Read_Cook,Config_Read_Summary,&
-          Config_Read_Pred_Master,Config_Read_Pred,&
+          Config_Read_Pred_Master,Config_Read_Pred,Config_Read_Inputs,&
           Config_Finalize,&
-          BaM_ConsoleMessage,BaM_PrintHelp,&
+          BaM_ConsoleMessage,BaM_PrintHelp,BaM_getDataFile,&
           ! Post-processing tools
-          BaM_LoadMCMC,BaM_Residual,BaM_Prediction,BaM_ReadSpag,BaM_Cleanup
+          BaM_LoadMCMC,BaM_Residual,BaM_Prediction,BaM_ReadSpag,BaM_ReadInputs,BaM_Cleanup
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! variables globally available to this module
@@ -494,6 +494,51 @@ call Wextract(XbindxCol,W,fooX);Xbindx=nint(fooX)
 call Wextract(YbindxCol,W,fooY);Ybindx=nint(fooY)
 
 end subroutine BaM_ReadData
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine BaM_getDataFile(datafile,workspace,err,mess)
+!^**********************************************************************
+!^* Purpose: determine path to datafile
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE
+!^**********************************************************************
+!^* Last modified: 30/06/2025
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* INOUT
+!^*    1.datafile
+!^* IN
+!^*    1.workspace
+!^* OUT
+!^*    1.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    2.mess, error message
+!^**********************************************************************
+character(*), intent(inout)::datafile
+character(*), intent(in)::workspace
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+! locals
+character(250),parameter::procname='BaM_getDataFile'
+logical:: exists
+
+err=0;mess=''
+INQUIRE(FILE=trim(datafile),EXIST=exists)
+if(.not. exists) then ! try a path relative to workspace
+    INQUIRE(FILE=trim(workspace)//trim(datafile),EXIST=exists)
+    if(exists) then ! it was indeed a relative path
+        datafile=trim(workspace)//trim(datafile)
+    else ! fail
+        err=-1
+        mess='data file not found, neither at '//trim(datafile)//' nor at '//trim(workspace)//trim(datafile)
+    endif
+endif
+end subroutine BaM_getDataFile
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1137,6 +1182,52 @@ do i=1,model%nX
 enddo
 
 end subroutine BaM_ReadSpag
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine BaM_ReadInputs(file,X,err,mess)
+!^**********************************************************************
+!^* Purpose: Read  input variables
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE
+!^**********************************************************************
+!^* Last modified: 30/06/2025
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^*    1.file, file containing inputs
+!^* OUT
+!^*    1.X, input matrix
+!^*    2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    3.mess, error message
+!^**********************************************************************
+use utilities_dmsl_kit,only:getSpareUnit
+character(*), intent(in)::file
+real(mrk),intent(out)::X(:,:)
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+!locals
+character(250),parameter::procname='BaM_ReadInputs'
+integer(mik)::i,n,unt
+
+err=0;mess='';X=undefRN
+n=size(X,dim=1)
+call getSpareUnit(unt,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+open(unit=unt,file=trim(file), status='old',iostat=err)
+if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
+do i=1,n
+    read(unt,*,iostat=err) X(i,:)
+    if(err>0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+enddo
+close(unt)
+
+end subroutine BaM_ReadInputs
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1833,7 +1924,7 @@ subroutine Config_Read(file,&
 !^* IN
 !^*    1.file
 !^* OUT
-!^*    1. All parameters in Config_Model + prior lists
+!^*    1. All parameters in Config_BaM
 !^*    2.err, error code; <0:Warning, ==0:OK, >0: Error
 !^*    3.mess, error message
 !^**********************************************************************
@@ -1888,6 +1979,58 @@ if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
 close(unt)
 
 end subroutine Config_Read
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine Config_Read_oneRun(file,&
+                       workspace,Config_Model,Config_Xtra,InputFile,&
+                       err,mess)
+!^**********************************************************************
+!^* Purpose: Read main config file when --onerun option is activated
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE
+!^**********************************************************************
+!^* Last modified: 30/06/2025
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^*    1.file
+!^* OUT
+!^*    1. All parameters in Config_BaM
+!^*    2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    3.mess, error message
+!^**********************************************************************
+use utilities_dmsl_kit,only:getSpareUnit,countSubstringInString
+character(*), intent(in)::file
+integer(mik), intent(out)::err
+character(*),intent(out)::mess,workspace,Config_Model,Config_Xtra,InputFile
+! locals
+character(250),parameter::procname='Config_Read_oneRun',sep=","
+character(len_uLongStr)::foo
+integer(mik)::n,unt
+
+err=0;mess=''
+
+call getSpareUnit(unt,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+open(unit=unt,file=trim(file), status='old', iostat=err)
+if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
+read(unt,*,iostat=err) workspace
+if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+read(unt,*,iostat=err) Config_Model
+if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+read(unt,*,iostat=err) Config_Xtra
+if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+read(unt,*,iostat=err) InputFile
+if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+close(unt)
+
+end subroutine Config_Read_oneRun
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2067,6 +2210,57 @@ if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
 close(unt)
 
 end subroutine Config_Read_Data
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine Config_Read_Inputs(file,&
+                            DataFile,nHeader,nobs,ncol,&
+                            err,mess)
+!^**********************************************************************
+!^* Purpose: Read Config_Inputs
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE
+!^**********************************************************************
+!^* Last modified: 30/06/2025
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^*    1.file
+!^* OUT
+!^*    1. All parameters in Config_Inputs
+!^*    2.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    3.mess, error message
+!^**********************************************************************
+use utilities_dmsl_kit,only:getSpareUnit
+character(*), intent(in)::file
+integer(mik), intent(out)::err,nHeader,nobs,ncol
+character(*),intent(out)::mess,DataFile
+! locals
+character(250),parameter::procname='Config_Read_Inputs'
+integer(mik)::unt
+
+err=0;mess=''
+
+call getSpareUnit(unt,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+open(unit=unt,file=trim(file), status='old', iostat=err)
+if(err/=0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
+read(unt,*,iostat=err) DataFile
+if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+read(unt,*,iostat=err) nHeader
+if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+read(unt,*,iostat=err) nobs
+if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+read(unt,*,iostat=err) ncol
+if(err/=0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+close(unt)
+
+end subroutine Config_Read_Inputs
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

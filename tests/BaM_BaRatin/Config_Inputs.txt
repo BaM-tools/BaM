@@ -1,0 +1,4 @@
+'BaM_BaRatin/Limni.txt' !!! Absolute path to data file
+0                       !!! number of header lines
+250                     !!! Nobs, number of rows in data file (excluding header lines)
+1                       !!! number of columns in the data file

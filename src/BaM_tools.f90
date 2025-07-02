@@ -38,7 +38,7 @@ public :: &! main subroutines to handle the probabilistic model behind BaM
           Config_Finalize,&
           BaM_ConsoleMessage,BaM_PrintHelp,BaM_getDataFile,&
           ! Post-processing tools
-          BaM_LoadMCMC,BaM_Residual,BaM_Prediction,BaM_ReadSpag,BaM_ReadInputs,BaM_Cleanup
+          BaM_LoadMCMC,BaM_Residual,BaM_Prediction,BaM_ReadSpag,BaM_ReadInputs,BaM_WriteOutputs,BaM_Cleanup
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! variables globally available to this module
@@ -1185,7 +1185,7 @@ end subroutine BaM_ReadSpag
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine BaM_ReadInputs(file,X,err,mess)
+subroutine BaM_ReadInputs(file,nhead,X,err,mess)
 !^**********************************************************************
 !^* Purpose: Read  input variables
 !^**********************************************************************
@@ -1208,6 +1208,7 @@ subroutine BaM_ReadInputs(file,X,err,mess)
 !^**********************************************************************
 use utilities_dmsl_kit,only:getSpareUnit
 character(*), intent(in)::file
+integer(mik),intent(in)::nhead
 real(mrk),intent(out)::X(:,:)
 integer(mik), intent(out)::err
 character(*),intent(out)::mess
@@ -1221,6 +1222,10 @@ call getSpareUnit(unt,err,mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 open(unit=unt,file=trim(file), status='old',iostat=err)
 if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
+do i=1,nhead
+    read(*,*,iostat=err)
+    if(err>0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
+enddo
 do i=1,n
     read(unt,*,iostat=err) X(i,:)
     if(err>0) then;call BaM_ConsoleMessage(messID_Read,trim(file));endif
@@ -1228,6 +1233,59 @@ enddo
 close(unt)
 
 end subroutine BaM_ReadInputs
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine BaM_WriteOutputs(file,head,Y,err,mess)
+!^**********************************************************************
+!^* Purpose: Write output variables
+!^**********************************************************************
+!^* Programmer: Ben Renard, INRAE
+!^**********************************************************************
+!^* Last modified: 02/07/2025
+!^**********************************************************************
+!^* Comments:
+!^**********************************************************************
+!^* References:
+!^**********************************************************************
+!^* 2Do List:
+!^**********************************************************************
+!^* IN
+!^*    1.file, destination
+!^*    2.head, headers
+!^*    3.Y, output matrix
+!^* OUT
+!^*    1.err, error code; <0:Warning, ==0:OK, >0: Error
+!^*    2.mess, error message
+!^**********************************************************************
+use utilities_dmsl_kit,only:getSpareUnit,number_string
+character(*), intent(in)::file,head(:)
+real(mrk),intent(in)::Y(:,:)
+integer(mik), intent(out)::err
+character(*),intent(out)::mess
+!locals
+character(250),parameter::procname='BaM_WriteOutputs'
+character(250)::fmt,sfmt
+integer(mik)::i,n,unt,p
+
+err=0;mess=''
+n=size(Y,dim=1);p=size(Y,dim=2)
+
+fmt='('//trim(number_string(p))//trim(fmt_numeric)//')'
+sfmt='('//trim(number_string(p))//trim(fmt_string)//')'
+call getSpareUnit(unt,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+open(unit=unt,file=trim(file), status='replace',iostat=err)
+if(err>0) then;call BaM_ConsoleMessage(messID_Open,trim(file));endif
+write(unt,trim(sfmt)) head
+if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(file));endif
+do i=1,n
+    write(unt,trim(fmt)) Y(i,:)
+    if(err>0) then;call BaM_ConsoleMessage(messID_Write,trim(file));endif
+enddo
+close(unt)
+
+end subroutine BaM_WriteOutputs
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1891,6 +1949,7 @@ subroutine BaM_PrintHelp()
     write(*,'(a)') '  -rd, --random:                randomize seed (=> non-reproducible MCMC runs)'
     write(*,'(a)') '  -dr, --dontrun:               stop after reading config files, and before MCMC runs.'
     write(*,'(a)') '                                Typically used when generation of INFO file is the only thing needed.'
+    write(*,'(a)') '  -or file, --onerun file:      run model and save simulations to file'
     write(*,'(a)') '  -v, --version:                print version information and exit'
     write(*,'(a)') '  -h, --help:                   print help and exit'
 end subroutine BaM_PrintHelp

@@ -171,6 +171,7 @@ function get(self, timesteps, pk, variable)
   integer :: i, j, ptr, pkptr, tvalptr, pkvalptr
   real(kind=real32), dimension(:,:), pointer :: values
   real(kind=real32) :: ratio_t, ratio_pk, v1, v2
+  real(kind=real32), parameter :: eps = 0.0001 ! max percision
 
   if (size(pk) .ne. size(timesteps)) stop
 
@@ -192,9 +193,23 @@ function get(self, timesteps, pk, variable)
                 ! trouvé !
                 ratio_pk = (pk(ptr) - self%pk(j))/(self%pk(j+1) - self%pk(j))
                 ratio_t = (timesteps(ptr) - t(i))/(t(i+1) - t(i))
-                v1 = values(j, i)*(1 - ratio_pk) + values(j+1, i)*(ratio_pk)
-                v2 = values(j, i+1)*(1 - ratio_pk) + values(j+1, i+1)*(ratio_pk)
-                get(ptr) = v1*(1 - ratio_t) + v2*(ratio_t)
+                if (ratio_pk < eps) then
+                    v1 = values(j, i)
+                    v2 = values(j, i+1)
+                else if (ratio_pk > 1.0 - eps) then
+                    v1 = values(j+1, i)
+                    v2 = values(j+1, i+1)
+                else
+                    v1 = values(j, i)*(1.0 - ratio_pk) + values(j+1, i)*(ratio_pk)
+                    v2 = values(j, i+1)*(1.0 - ratio_pk) + values(j+1, i+1)*(ratio_pk)
+                endif
+                if (ratio_t < eps) then
+                    get(ptr) = v1
+                else if (ratio_t > 1.0 - eps) then
+                    get(ptr) = v2
+                else
+                    get(ptr) = v1*(1.0 - ratio_t) + v2*(ratio_t)
+                endif
                 exit
              endif
           enddo
@@ -287,6 +302,8 @@ real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb))
 logical::keepgoing
 character(:), allocatable :: project
 type(mage_res) :: res
+integer, dimension(4), parameter :: t_ptr2 = (/20, 40, 60, 80/)
+integer, dimension(9), parameter :: x_ptr2 = (/2, 5, 16, 37, 58, 79, 100, 121, 162/)
 
 ! Init
 err=0;mess='';feas=.true.;Y=undefRN
@@ -356,6 +373,14 @@ z = res%get(t, x, "Z")
 do i=1, size(z)
    Y(t_ptr(i), x_ptr(i)) = z(i)
 enddo
+
+! do i=1, 4
+!     do k = 1, 9
+!         print*, "x ", res%pk(K), "t ", res%tZ(i)
+!         print*, y(i,k) - res%valuesZ(x_ptr2(k),t_ptr2(i))
+!         y(i,k) = res%valuesZ(x_ptr2(k),t_ptr2(i))
+!     enddo
+! enddo
 
 end subroutine MAGE_TEMP_Run
 

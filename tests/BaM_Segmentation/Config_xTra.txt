@@ -1,0 +1,4 @@
+2  ! number of segments
+0  ! ???
+2  ! minimum number of gaugings per segment
+1  ! ???

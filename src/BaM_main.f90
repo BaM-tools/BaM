@@ -3,16 +3,16 @@ program BaM_main
 use kinds_dmsl_kit
 use utilities_dmsl_kit,only:number_string
 use uniran1_dmsl_mod,only: seed_uniran
-use ModelLibrary_tools,only:modelType
+use ModelLibrary_tools,only:modelType,XtraSetup,XtraCleanUp,applyModel
 use BayesianEstimation_tools, only:priorListType
 use BaM_tools, only:plist,parlist,slist,parType,&
                     LoadBamObjects,BaM_ReadData,BaM_Fit,BaM_CookMCMC,BaM_SummarizeMCMC,BaM_computeDIC,&
-                    Config_Read,Config_Read_Model,Config_Read_Xtra,Config_Read_Data,&
+                    Config_Read,Config_Read_oneRun,Config_Read_Model,Config_Read_Xtra,Config_Read_Data,&
                     Config_Read_RemnantSigma,Config_Read_MCMC,Config_Read_RunOptions,&
                     Config_Read_Residual,Config_Read_Cook,Config_Read_Summary,&
-                    Config_Read_Pred_Master,Config_Read_Pred,Config_Finalize,&
+                    Config_Read_Pred_Master,Config_Read_Pred,Config_Finalize,Config_Read_Inputs,BaM_WriteOutputs,&
                     BaM_ConsoleMessage,BaM_PrintHelp,BaM_LoadMCMC,BaM_Residual,&
-                    BaM_Prediction,XspagType,BaM_ReadSpag,BaM_Cleanup
+                    BaM_Prediction,XspagType,BaM_ReadSpag,BaM_ReadInputs,BaM_Cleanup,BaM_getDataFile
 implicit none
 
 !-----------------------
@@ -22,14 +22,14 @@ character(len_stdStrD),parameter::Prior_file_def="PriorSimulations.txt"
 character(len_stdStrD),parameter::priorCorrFile="PriorCorrelation.txt"
 character(len_stdStrD),parameter::infoFile="INFO_BaM.txt"
 character(len_stdStrD),parameter::MonitorExt=".monitor"
-character(len_stdStrD),parameter::version="1.0.4 March 2025"
+character(len_stdStrD),parameter::version="1.1.0 June 2025"
 real(mrk),parameter::defaultstd=0.1_mrk
 !-----------------------
 ! Config files
 character(len_vLongStr)::workspace,Config_file,filePath,filePath2
 character(len_longStr)::Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
                 Config_MCMC,Config_Cooking,Config_summary,&
-                Config_Residual,Config_Pred_Master
+                Config_Residual,Config_Pred_Master,Config_Inputs
 character(len_longStr),pointer::Config_RemnantSigma(:),Config_Pred(:)
 character(len_vlongStr),allocatable::Config_RemnantList(:)
 !-----------------------
@@ -46,7 +46,7 @@ type(parlist),allocatable::RemnantSigma_std0(:)
 ! Data
 integer(mik),allocatable::XCol(:),XuCol(:),XbCol(:),XbindxCol(:)
 integer(mik),allocatable::YCol(:),YuCol(:),YbCol(:),YbindxCol(:)
-real(mrk), allocatable::X(:,:),Y(:,:),Xu(:,:),Yu(:,:),Xb(:,:),Yb(:,:)
+real(mrk), allocatable::X(:,:),Y(:,:),Xu(:,:),Yu(:,:),Xb(:,:),Yb(:,:),state(:,:),Dpar(:)
 integer(mik), allocatable::Xbindx(:,:),Ybindx(:,:)
 !-----------------------
 ! Inference
@@ -60,7 +60,7 @@ type(ModelType)::model
 !-----------------------
 ! Post-processing
 real(mrk), pointer::maxpost(:),mcmc(:,:),logpost(:)
-character(len_longStr)::Residual_File,Cooking_File,Summary_File,DIC_File,xtendedMCMC_File,priorFile
+character(len_longStr)::Residual_File,Cooking_File,Summary_File,DIC_File,xtendedMCMC_File,priorFile,YFile
 character(len_vlongStr)::dummy_File
 !-----------------------
 ! Prediction
@@ -68,14 +68,15 @@ integer(mik)::npred
 logical::DoParametric
 logical,allocatable::DoRemnant(:),DoTranspose(:),DoEnvelop(:),DoState(:),&
                      DoTranspose_S(:),DoEnvelop_S(:)
-character(len_longStr),allocatable::YSpag_Files(:),Envelop_Files(:),SpagFiles_S(:),EnvelopFiles_S(:)
+character(len_longStr),allocatable::YSpag_Files(:),Envelop_Files(:),SpagFiles_S(:),EnvelopFiles_S(:),head(:)
 character(len_vlongStr),allocatable::XSpag_Files(:),fp1(:),fp2(:),fp3(:),fp4(:)
 logical::PrintCounter
 type(XspagType)::Xspag
+real(mrk), allocatable::vTheta(:)
 !-----------------------
 ! Misc.
-integer(mik)::i,j,err,nobs,nc,nhead,nsim,narg,seed
-logical::IsMCMCLoaded,exists,earlyStop,savePrior
+integer(mik)::i,j,err,nobs,nc,nhead,nsim,narg,seed,ntheta
+logical::IsMCMCLoaded,earlyStop,savePrior,oneRun,feas
 character(len_vLongStr)::mess,datafile,arg
 !-----------------------
 
@@ -88,6 +89,7 @@ call BaM_ConsoleMessage(1,'')
 IsMCMCLoaded=.false.
 earlyStop=.false.
 savePrior=.false.
+oneRun=.false.
 priorFile=Prior_file_def
 
 !---------------------------------------------------------------------
@@ -136,6 +138,14 @@ do while (i<=narg)
      case ('-dr', '--dontrun')
         earlyStop=.true.
         i=i+1
+     case ('-or', '--onerun')
+        oneRun=.true.;i=i+1
+        if(i<=narg) then
+            call get_command_argument(i,arg)
+            YFile=trim(arg);i=i+1
+        else
+            call BaM_ConsoleMessage(-1,'--onerun requires a file name')
+        endif
     case ('-v', '--version')
         write(*,*) 'version: ', trim(version)
         STOP
@@ -162,22 +172,30 @@ endif
 call BaM_ConsoleMessage(100,'')
 
 ! Read main config file
-call Config_Read(trim(Config_file),&
-                 workspace,&
-                 Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
-                 Config_RemnantSigma,Config_MCMC,&
-                 Config_Cooking,Config_Summary,&
-                 Config_Residual,Config_Pred_Master,&
+if(oneRun) then
+    call Config_Read_oneRun(trim(Config_file),&
+                 workspace,Config_Model,Config_Xtra,Config_Inputs,&
                  err,mess)
+else
+    call Config_Read(trim(Config_file),&
+                     workspace,&
+                     Config_RunOptions,Config_Model,Config_Xtra,Config_Data,&
+                     Config_RemnantSigma,Config_MCMC,&
+                     Config_Cooking,Config_Summary,&
+                     Config_Residual,Config_Pred_Master,&
+                     err,mess)
+endif
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 
-! Read run options
-filePath=trim(workspace)//trim(Config_RunOptions)
-call Config_Read_RunOptions(filePath,&
-                            DoMCMC,DoSummary,&
-                            DoResidual,DoPred,&
-                            err,mess)
-if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+if(.not.oneRun) then
+    ! Read run options
+    filePath=trim(workspace)//trim(Config_RunOptions)
+    call Config_Read_RunOptions(filePath,&
+                                DoMCMC,DoSummary,&
+                                DoResidual,DoPred,&
+                                err,mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+endif
 
 ! model setup
 filePath=trim(workspace)//trim(Config_Model)
@@ -187,10 +205,46 @@ call Config_Read_Model(filePath,&
                        err,mess)
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 model%ID="MDL_"//trim(model%ID)
+ntheta=size(theta)
+model%ntheta=ntheta
 filePath=trim(workspace)//trim(Config_Xtra)
 call Config_Read_Xtra(file=filePath,&
                       ID=model%ID,xtra=model%xtra,err=err,mess=mess)
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+
+if(oneRun) then
+    ! Finish model setup (Dpar, states)
+    call XtraSetup(model,err,mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    ! READ X
+    call Config_Read_Inputs(file=trim(workspace)//trim(Config_Inputs),&
+                      DataFile=datafile,nHeader=nhead,nobs=nobs,ncol=nc,&
+                      err=err,mess=mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    call BaM_getDataFile(datafile,workspace,err,mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    allocate(X(nobs,model%nX),Y(nobs,model%nY),head(model%nY),state(nobs,model%nState),Dpar(model%nDpar),vtheta(ntheta))
+    call BaM_ReadInputs(file=trim(datafile),nhead=nhead,X=X,err=err,mess=mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    ! Apply model
+    do i=1,ntheta
+        vtheta(i)=theta(i)%init(1)
+    enddo
+    call ApplyModel(model=model,X=X,theta=vtheta,Y=Y,Dpar=Dpar,state=state,feas=feas,err=err,mess=mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    ! WRITE Y
+    do i=1,model%nY
+        head(i)='Y'//number_string(i)
+    enddo
+    filePath=trim(workspace)//trim(Yfile)
+    call BaM_WriteOutputs(file=filePath,head=head,Y=Y,err=err,mess=mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    ! model cleanup
+    call XtraCleanup(model,err,mess)
+    if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
+    ! Get out
+    STOP
+endif
 
 ! read data
 allocate(Xcol(model%nX),XuCol(model%nX),XbCol(model%nX),XbindxCol(model%nX))
@@ -204,16 +258,8 @@ call Config_Read_Data(file=filePath,&
 if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 
 ! Does datafile exists?
-INQUIRE(FILE=trim(datafile),EXIST=exists)
-if(.not. exists) then ! try a path relative to workspace
-    INQUIRE(FILE=trim(workspace)//trim(datafile),EXIST=exists)
-    if(exists) then ! it was indeed a relative path
-        datafile=trim(workspace)//trim(datafile)
-    else ! fail
-        call BaM_ConsoleMessage(-1,'data file not found, neither at '//trim(datafile)//&
-                                   ' nor at '//trim(workspace)//trim(datafile))
-    endif
-endif
+call BaM_getDataFile(datafile,workspace,err,mess)
+if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
 
 allocate(X(nobs,model%nX),Xu(nobs,model%nX),Xb(nobs,model%nX),Xbindx(nobs,model%nX))
 allocate(Y(nobs,model%nY),Yu(nobs,model%nY),Yb(nobs,model%nY),Ybindx(nobs,model%nY))
@@ -427,17 +473,8 @@ if(DoPred) then
         if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
         ! Do spaghetti files exist?
         do j=1,size(XSpag_Files)
-            INQUIRE(FILE=trim(XSpag_Files(j)),EXIST=exists)
-            if(.not. exists) then ! try a path relative to workspace
-                INQUIRE(FILE=trim(workspace)//trim(XSpag_Files(j)),EXIST=exists)
-                if(exists) then ! it was indeed a relative path
-                    XSpag_Files(j)=trim(workspace)//trim(XSpag_Files(j))
-                else ! fail
-                    call BaM_ConsoleMessage(-1,'Input spaghetti file not found, neither at '//&
-                                               trim(XSpag_Files(j))//&
-                                               ' nor at '//trim(workspace)//trim(XSpag_Files(j)))
-                endif
-            endif
+            call BaM_getDataFile(XSpag_Files(j),workspace,err,mess)
+            if(err>0) then; call BaM_ConsoleMessage(-1,trim(mess));endif
         enddo
         ! read spaghettis
         call BaM_ReadSpag(Xspag,XSpag_Files,err,mess)

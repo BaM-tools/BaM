@@ -1,0 +1,16 @@
+"Segmentation"      ! Model ID
+1                   ! nX: number of input variables
+1                   ! nY: number of output variables
+3                   ! nPar: number of parameters theta
+"mu_0"              ! Parameter name -----
+0.2836648761818172  ! Initial guess
+"FlatPrior"         ! Prior distribution
+                    ! Prior parameters
+"mu_1"              ! Parameter name -----
+0.2836648761818173  ! Initial guess
+"FlatPrior"         ! Prior distribution
+                    ! Prior parameters
+"tau_0"             ! Parameter name -----
+-3.024864E8         ! Initial guess 
+"FlatPrior"         ! Prior distribution
+                    ! Prior parameters

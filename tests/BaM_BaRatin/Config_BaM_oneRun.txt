@@ -1,0 +1,4 @@
+"BaM_BaRatin/"                                                 ! workspace
+"Config_Model.txt"                                             ! Config file: model
+"Config_ControlMatrix.txt"                                     ! Config file: xtra model information
+"Config_Inputs.txt"                                            ! Config file: Input Data

@@ -1,0 +1,3 @@
+Results_Summary.txt        ! Result file
+Results_DIC.txt            ! DIC file
+Results_MCMC_Extended.txt  ! Extended MCMC file 

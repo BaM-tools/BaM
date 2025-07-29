@@ -302,8 +302,6 @@ real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb))
 logical::keepgoing
 character(:), allocatable :: project
 type(mage_res) :: res
-integer, dimension(4), parameter :: t_ptr2 = (/20, 40, 60, 80/)
-integer, dimension(9), parameter :: x_ptr2 = (/2, 5, 16, 37, 58, 79, 100, 121, 162/)
 
 ! Init
 err=0;mess='';feas=.true.;Y=undefRN
@@ -373,14 +371,6 @@ z = res%get(t, x, "Z")
 do i=1, size(z)
    Y(t_ptr(i), x_ptr(i)) = z(i)
 enddo
-
-! do i=1, 4
-!     do k = 1, 9
-!         print*, "x ", res%pk(K), "t ", res%tZ(i)
-!         print*, y(i,k) - res%valuesZ(x_ptr2(k),t_ptr2(i))
-!         y(i,k) = res%valuesZ(x_ptr2(k),t_ptr2(i))
-!     enddo
-! enddo
 
 end subroutine MAGE_TEMP_Run
 

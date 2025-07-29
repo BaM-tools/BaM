@@ -69,6 +69,7 @@ Models = \
 	$(Models_DIR)SMASH/SMASH_model.f90                 \
 	$(Models_DIR)MAGE_model.f90	                       \
 	$(Models_DIR)MAGE_TEMP_model.f90	               \
+	$(Models_DIR)MAGE_ZQV_model.f90	               \
 	$(Models_DIR)HydraulicControl_section_model.f90
 
 # Define BaM files

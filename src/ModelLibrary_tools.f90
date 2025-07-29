@@ -67,6 +67,7 @@ use TidalRemenieras_model
 use SMASH_model
 use MAGE_model
 use MAGE_TEMP_model
+use MAGE_ZQV_model
 use HydraulicControl_section_model
 
 implicit none
@@ -105,6 +106,7 @@ Character(100), parameter, PUBLIC:: &
                     MDL_SMASH="MDL_SMASH",& ! Interface to SMASH distributed hydrological model
                     MDL_MAGE="MDL_MAGE",& ! MAGE model
                     MDL_MAGE_TEMP="MDL_MAGE_TEMP",& ! Temporary version of MAGE
+                    MDL_MAGE_ZQV="MDL_MAGE_ZQV",& ! version of MAGE always having (Z,Q,V) as output variables
                     MDL_HydraulicControl_section="MDL_HydraulicControl_section" ! general section hydraulic control
 ! Model object
 type, public:: ModelType ! the "model" object
@@ -220,6 +222,8 @@ case(MDL_MAGE)
     call MAGE_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_MAGE_TEMP)
     call MAGE_TEMP_GetParNumber(npar=npar,err=err,mess=mess)
+case(MDL_MAGE_ZQV)
+    call MAGE_ZQV_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_HydraulicControl_section)
     call HydraulicControl_section_GetParNumber(npar=npar,err=err,mess=mess)
 end select
@@ -395,6 +399,10 @@ case(MDL_MAGE_TEMP)
                   projectDir=model%xtra%cs3,REPfile=model%xtra%cs4,&
                   mage_extraire_file=model%xtra%cs7,mage_extraire_args=model%xtra%cp1,&
                   theta=theta,Y=Y,feas=feas,err=err,mess=mess)
+case(MDL_MAGE_ZQV)
+    call MAGE_ZQV_Run(exeFile=model%xtra%cs1,version=trim(model%xtra%cs2),&
+                  projectDir=model%xtra%cp1,REPfile=model%xtra%cs4,&
+                  X=X,theta=theta,Y=Y,feas=feas,err=err,mess=mess)
 case(MDL_HydraulicControl_section)
     call HydraulicControl_section_Apply(H=X(:,1),theta=theta,hAwMatrix=model%xtra%rpm1,&
                                         Q=Y(:,1),feas=vfeas,err=err,mess=mess)
@@ -511,6 +519,8 @@ case(MDL_MAGE)
     call MAGE_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
 case(MDL_MAGE_TEMP)
     call MAGE_TEMP_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
+case(MDL_MAGE_ZQV)
+    call MAGE_ZQV_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
 case(MDL_HydraulicControl_section)
     call HydraulicControl_section_XtraRead(file=file,xtra=xtra,err=err,mess=mess)
 case default
@@ -714,6 +724,15 @@ case(MDL_MAGE_TEMP)
                     Zfile=(/model%xtra%cs5,model%xtra%cs6/),ZnCol=(/model%xtra%is1,model%xtra%is2/),&
                     doExp=(/model%xtra%ls1,model%xtra%ls2/),mage_extraire_args=model%xtra%cp1,&
                     err=err,mess=mess)
+    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+case(MDL_MAGE_ZQV)
+    model%nDpar=0
+    model%nState=0
+    allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
+    ! Load MAGE
+    call MAGE_ZQV_setUp(version=trim(model%xtra%cs2),projectDir=model%xtra%cp1,REPfile=trim(model%xtra%cs4),&
+                    Zfile=(/model%xtra%cs5,model%xtra%cs6/),ZnCol=(/model%xtra%is1,model%xtra%is2/),&
+                    doExp=(/model%xtra%ls1,model%xtra%ls2/),err=err,mess=mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
 case(MDL_HydraulicControl_section)
     model%nDpar=0

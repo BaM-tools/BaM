@@ -90,6 +90,14 @@ subroutine read_bin(self, filename, err, mess)
   nmaxz = 1000
   qptr = 0
   zptr = 0
+  if(allocated(self%tQ)) deallocate(self%tQ)
+  if(allocated(self%tZ)) deallocate(self%tZ)
+  if(allocated(self%valuesQ)) deallocate(self%valuesQ)
+  if(allocated(self%valuesZ)) deallocate(self%valuesZ)
+  if(allocated(self%is1)) deallocate(self%is1)
+  if(allocated(self%is2)) deallocate(self%is2)
+  if(allocated(self%pk)) deallocate(self%pk)
+  if(allocated(val)) deallocate(val)
   allocate (self%tQ(nmaxq), self%tZ(nmaxz))
   allocate (self%valuesQ(self%ismax, nmaxq), self%valuesZ(self%ismax, nmaxz))
   allocate (val(self%ismax))

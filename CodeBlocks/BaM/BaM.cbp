@@ -129,6 +129,7 @@
 		<Unit filename="../../src/Models/HydraulicControl_section_model.f90" />
 		<Unit filename="../../src/Models/Linear_model.f90" />
 		<Unit filename="../../src/Models/MAGE_TEMP_model.f90" />
+		<Unit filename="../../src/Models/MAGE_ZQV_model.f90" />
 		<Unit filename="../../src/Models/MAGE_model.f90" />
 		<Unit filename="../../src/Models/Mixture_model.f90" />
 		<Unit filename="../../src/Models/Orthorectification_model.f90" />

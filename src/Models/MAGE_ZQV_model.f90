@@ -162,7 +162,7 @@ subroutine read_bin(self, filename, err, mess)
 
 end subroutine read_bin
 
-function get(self, timesteps, pk, variable)
+function get(self, reach, pk, timesteps, variable)
 
   implicit none
   ! prototype
@@ -178,6 +178,7 @@ function get(self, timesteps, pk, variable)
   real(kind=real32) :: ratio_t, ratio_pk, v1, v2
   real(kind=real32), parameter :: eps = 0.0001 ! max percision
 
+  if (size(reach) .ne. size(timesteps)) stop
   if (size(pk) .ne. size(timesteps)) stop
 
   if (variable == "Q" .or. variable == "q") then ! débit
@@ -193,7 +194,7 @@ function get(self, timesteps, pk, variable)
   do ptr = 1, size(get)
     do i=1, size(t)-1
        if (t(i) < timesteps(ptr) .and. t(i+1) >= timesteps(ptr)) then
-          do j=1, self%ismax-1
+          do j=self%is1(reach), self%is2(reach)
              if (self%pk(j) < pk(ptr) .and. self%pk(j+1) >= pk(ptr)) then
                 ! trouvé !
                 ratio_pk = (pk(ptr) - self%pk(j))/(self%pk(j+1) - self%pk(j))
@@ -304,6 +305,7 @@ character(len_uLongStr)::cmdString,line
 real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb))
 character(:), allocatable :: project
 real(mrk), allocatable :: tim(:),loc(:)
+integer(mik), allocatable :: reach(:)
 type(mage_res) :: res
 logical::mask(size(X,dim=1))
 
@@ -338,6 +340,7 @@ do j=1,nevents
         if(allocated(tim)) deallocate(tim)
         if(allocated(loc)) deallocate(loc)
         allocate(tim(p),loc(p))
+        reach=pack(X(:,2),mask)
         loc=pack(X(:,3),mask)
         tim=pack(X(:,4),mask)
     endif
@@ -388,9 +391,9 @@ do j=1,nevents
     ! read .BIN
     call res%read_bin(trim(projectDir(j))//project//'.BIN', err, mess) ! on remplit l'objet
 
-    Y((m+1):(m+p),1) = res%get(tim,loc,"Z")
-    Y((m+1):(m+p),2) = res%get(tim,loc,"Q")
-    Y((m+1):(m+p),3) = undefRN ! 2DO: res%get(tim,loc,"V") for velocities
+    Y((m+1):(m+p),1) = res%get(reach,loc,tim,"Z")
+    Y((m+1):(m+p),2) = res%get(reach,loc,tim,"Q")
+    Y((m+1):(m+p),3) = undefRN ! TODO: res%get(reach,loc,tim,"V") for velocities
     m=m+p
 enddo
 

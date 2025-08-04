@@ -167,6 +167,7 @@ function get(self, reach, pk, timesteps, variable)
   implicit none
   ! prototype
   class(mage_res), target :: self
+  integer(mik), dimension(:) :: reach
   real(kind=real64), dimension(:) :: pk, timesteps
   character :: variable*1
   real(kind=real32), dimension(:), allocatable :: get
@@ -194,7 +195,7 @@ function get(self, reach, pk, timesteps, variable)
   do ptr = 1, size(get)
     do i=1, size(t)-1
        if (t(i) < timesteps(ptr) .and. t(i+1) >= timesteps(ptr)) then
-          do j=self%is1(reach), self%is2(reach)
+          do j=self%is1(reach(ptr)), self%is2(reach(ptr))
              if (self%pk(j) < pk(ptr) .and. self%pk(j+1) >= pk(ptr)) then
                 ! trouvé !
                 ratio_pk = (pk(ptr) - self%pk(j))/(self%pk(j+1) - self%pk(j))

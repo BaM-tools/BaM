@@ -178,6 +178,7 @@ function get(self, reach, pk, timesteps, variable)
   real(kind=real32), dimension(:,:), pointer :: values
   real(kind=real32) :: ratio_t, ratio_pk, v1, v2
   real(kind=real32), parameter :: eps = 0.0001 ! max percision
+  logical :: trouve
 
   if (size(reach) .ne. size(timesteps)) stop
   if (size(pk) .ne. size(timesteps)) stop
@@ -193,11 +194,13 @@ function get(self, reach, pk, timesteps, variable)
   allocate(get(size(pk)))
 
   do ptr = 1, size(get)
+    trouve = .false.
     do i=1, size(t)-1
        if (t(i) < timesteps(ptr) .and. t(i+1) >= timesteps(ptr)) then
-          do j=self%is1(reach(ptr)), self%is2(reach(ptr))
+          do j=self%is1(reach(ptr)), self%is2(reach(ptr))-1
              if (self%pk(j) < pk(ptr) .and. self%pk(j+1) >= pk(ptr)) then
                 ! trouvé !
+                trouve = .true.
                 ratio_pk = (pk(ptr) - self%pk(j))/(self%pk(j+1) - self%pk(j))
                 ratio_t = (timesteps(ptr) - t(i))/(t(i+1) - t(i))
                 if (ratio_pk < eps) then
@@ -220,6 +223,10 @@ function get(self, reach, pk, timesteps, variable)
                 exit
              endif
           enddo
+          if(.not.trouve)then
+            ! TODO faire planter BaM! en renvoyant un err non nul
+            print*,"/!\ pas trouvé !",timesteps(ptr),pk(ptr),reach(ptr)
+          endif
           exit
        endif
     enddo

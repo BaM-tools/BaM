@@ -38,9 +38,9 @@ logical::applyExpKmin,applyExpKmoy ! apply exponential transformation to compute
 type mage_res
   integer :: ibmax, ismax ! nombre de biefs et nombre de sections
   integer, allocatable :: is1(:), is2(:) ! pointeurs sur première et dernière sections du bief
-  real(kind=real64), dimension(:), allocatable :: tQ, tZ ! pas de temps
+  real(kind=real64), dimension(:), allocatable :: tQ, tZ, tV ! pas de temps
   real(kind=real32), dimension(:), allocatable :: pk ! pk
-  real(kind=real32), dimension(:,:), allocatable :: valuesQ, valuesZ ! valeurs
+  real(kind=real32), dimension(:,:), allocatable :: valuesQ, valuesZ, valuesV ! valeurs
   contains
     procedure :: read_bin
     procedure :: get
@@ -57,8 +57,8 @@ subroutine read_bin(self, filename, err, mess)
   ! variables locales
   integer :: lu ! unité fichier
   character :: line*80
-  integer :: mage_version, ntq, ntz, np, i
-  integer :: nmaxq, nmaxz, qptr, zptr
+  integer :: mage_version, ntq, ntz, ntv, np, i
+  integer :: nmaxq, nmaxz, nmaxv, qptr, zptr, vptr
   integer, parameter :: dnmax = 1000
   real(kind=real64) :: t
   real(kind=real64), dimension(:), allocatable :: tmp1 ! tableau temporaire
@@ -88,18 +88,22 @@ subroutine read_bin(self, filename, err, mess)
   ! allocation des tableaux
   nmaxq = 1000
   nmaxz = 1000
+  nmaxv = 1000
   qptr = 0
   zptr = 0
+  vptr = 0
   if(allocated(self%tQ)) deallocate(self%tQ)
   if(allocated(self%tZ)) deallocate(self%tZ)
+  if(allocated(self%tV)) deallocate(self%tV)
   if(allocated(self%valuesQ)) deallocate(self%valuesQ)
   if(allocated(self%valuesZ)) deallocate(self%valuesZ)
+  if(allocated(self%valuesV)) deallocate(self%valuesV)
   if(allocated(self%is1)) deallocate(self%is1)
   if(allocated(self%is2)) deallocate(self%is2)
   if(allocated(self%pk)) deallocate(self%pk)
   if(allocated(val)) deallocate(val)
-  allocate (self%tQ(nmaxq), self%tZ(nmaxz))
-  allocate (self%valuesQ(self%ismax, nmaxq), self%valuesZ(self%ismax, nmaxz))
+  allocate (self%tQ(nmaxq), self%tZ(nmaxz), self%tV(nmaxz))
+  allocate (self%valuesQ(self%ismax, nmaxq), self%valuesZ(self%ismax, nmaxz), self%valuesV(self%ismax, nmaxv))
   allocate (val(self%ismax))
   allocate (self%is1(self%ibmax), self%is2(self%ibmax))
   ! suite de l'entête
@@ -137,6 +141,19 @@ subroutine read_bin(self, filename, err, mess)
       endif
       self%tZ(zptr) = t
       self%valuesZ(:, zptr) = val(:)
+    elseif (a == "V") then ! vitesse
+      vptr = vptr + 1
+      if (vptr > nmaxv) then  ! re-allocation mémoire
+        allocate(tmp2(self%ismax, nmaxv+dnmax)) ! on ajoute dnmax à la taille allouée
+        tmp2(1:self%ismax, 1:nmaxv) = self%valuesV(1:self%ismax, 1:nmaxv) !on copie les anciennes valeurs de valuesV
+        call move_alloc(tmp2, self%valuesV) ! valuesV pointe sur l'espace mémoire de tmp2, tmp2 est désalloué
+        allocate(tmp1(nmaxv+dnmax))
+        tmp1(1:nmaxv) = self%tV(1:nmaxv)
+        call move_alloc(tmp1, self%tV)
+        nmaxv = nmaxv+dnmax
+      endif
+      self%tV(vptr) = t
+      self%valuesV(:, vptr) = val(:)
     else
       cycle
     endif
@@ -159,26 +176,41 @@ subroutine read_bin(self, filename, err, mess)
   allocate(tmp1(zptr))
   tmp1(1:zptr) = self%tZ(1:zptr)
   call move_alloc(tmp1, self%tZ)
+  ! V
+  allocate(tmp2(self%ismax, vptr))
+  tmp2(1:self%ismax, 1:vptr) = self%valuesV(1:self%ismax, 1:vptr)
+  call move_alloc(tmp2, self%valuesV)
+  allocate(tmp1(vptr))
+  tmp1(1:vptr) = self%tV(1:vptr)
+  call move_alloc(tmp1, self%tV)
 
 end subroutine read_bin
 
-function get(self, timesteps, pk, variable)
+subroutine get(self,reach,pk,timesteps,variable,res,err,mess)
 
   implicit none
   ! prototype
-  class(mage_res), target :: self
-  real(kind=real64), dimension(:) :: pk, timesteps
-  character :: variable*1
-  real(kind=real32), dimension(:), allocatable :: get
+  class(mage_res), target, intent(in) :: self
+  integer(mik), dimension(:), intent(in) :: reach
+  real(kind=real64), dimension(:), intent(in) :: pk, timesteps
+  character, intent(in) :: variable*1
+  integer(mik), intent(out)::err
+  character(*),intent(out)::mess
+  real(kind=real64), dimension(:), intent(out) :: res
   ! variables locales
+  character(250),parameter::procname='MAGE_ZQV_get'
   real(kind=real64), dimension(:), pointer :: t ! pas de temps
   real(kind=real32), dimension(:,:), allocatable :: tmp2 ! tableau temporaire
   integer :: i, j, ptr, pkptr, tvalptr, pkvalptr
   real(kind=real32), dimension(:,:), pointer :: values
-  real(kind=real32) :: ratio_t, ratio_pk, v1, v2
+  real(kind=real32) :: v1, v2, ratio_pk
+  real(kind=real64) :: ratio_t
   real(kind=real32), parameter :: eps = 0.0001 ! max percision
+  logical :: trouvePk, trouvet
 
+  if (size(reach) .ne. size(timesteps)) stop
   if (size(pk) .ne. size(timesteps)) stop
+  if (size(res) .ne. size(timesteps)) stop
 
   if (variable == "Q" .or. variable == "q") then ! débit
     values => self%valuesQ
@@ -186,16 +218,22 @@ function get(self, timesteps, pk, variable)
   elseif (variable == "Z" .or. variable == "z") then ! cote
     values => self%valuesZ
     t => self%tZ
+  elseif (variable == "V" .or. variable == "v") then ! vitesse
+    values => self%valuesV
+    t => self%tV
   endif
 
-  allocate(get(size(pk)))
-
-  do ptr = 1, size(get)
+  do ptr = 1, size(res)
+    trouvePk = .false.
+    trouvet = .false.
     do i=1, size(t)-1
        if (t(i) < timesteps(ptr) .and. t(i+1) >= timesteps(ptr)) then
-          do j=1, self%ismax-1
+          ! trouvé !
+          trouvet = .true.
+          do j=self%is1(reach(ptr)), self%is2(reach(ptr))-1
              if (self%pk(j) < pk(ptr) .and. self%pk(j+1) >= pk(ptr)) then
                 ! trouvé !
+                trouvePk = .true.
                 ratio_pk = (pk(ptr) - self%pk(j))/(self%pk(j+1) - self%pk(j))
                 ratio_t = (timesteps(ptr) - t(i))/(t(i+1) - t(i))
                 if (ratio_pk < eps) then
@@ -209,21 +247,29 @@ function get(self, timesteps, pk, variable)
                     v2 = values(j, i+1)*(1.0 - ratio_pk) + values(j+1, i+1)*(ratio_pk)
                 endif
                 if (ratio_t < eps) then
-                    get(ptr) = v1
+                    res(ptr) = v1
                 else if (ratio_t > 1.0 - eps) then
-                    get(ptr) = v2
+                    res(ptr) = v2
                 else
-                    get(ptr) = v1*(1.0 - ratio_t) + v2*(ratio_t)
+                    res(ptr) = v1*(1.0 - ratio_t) + v2*(ratio_t)
                 endif
                 exit
              endif
           enddo
+          if(.not.trouvePk)then
+             mess=trim(procname)//" value not found in Mage result file (bad Pk)"
+             err=1;return
+          endif
           exit
        endif
     enddo
+    if(.not.trouvet)then
+       mess=trim(procname)//" value not found in Mage result file (bad timestamp)"
+       err=1;return
+    endif
  enddo
 
-end function get
+end subroutine get
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -304,6 +350,7 @@ character(len_uLongStr)::cmdString,line
 real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb))
 character(:), allocatable :: project
 real(mrk), allocatable :: tim(:),loc(:)
+integer(mik), allocatable :: reach(:)
 type(mage_res) :: res
 logical::mask(size(X,dim=1))
 
@@ -338,6 +385,7 @@ do j=1,nevents
         if(allocated(tim)) deallocate(tim)
         if(allocated(loc)) deallocate(loc)
         allocate(tim(p),loc(p))
+        reach=pack(X(:,2),mask)
         loc=pack(X(:,3),mask)
         tim=pack(X(:,4),mask)
     endif
@@ -388,9 +436,9 @@ do j=1,nevents
     ! read .BIN
     call res%read_bin(trim(projectDir(j))//project//'.BIN', err, mess) ! on remplit l'objet
 
-    Y((m+1):(m+p),1) = res%get(tim,loc,"Z")
-    Y((m+1):(m+p),2) = res%get(tim,loc,"Q")
-    Y((m+1):(m+p),3) = undefRN ! 2DO: res%get(tim,loc,"V") for velocities
+    call res%get(reach,loc,tim,"Z",Y((m+1):(m+p),1),err,mess)
+    call res%get(reach,loc,tim,"Q",Y((m+1):(m+p),2),err,mess)
+    call res%get(reach,loc,tim,"V",Y((m+1):(m+p),3),err,mess)
     m=m+p
 enddo
 

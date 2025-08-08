@@ -29,7 +29,7 @@ public :: MAGE_ZQV_GetParNumber, MAGE_ZQV_Run, MAGE_ZQV_XtraRead, MAGE_ZQV_SetUp
 
 ! Module variables
 character(len_uLongStr)::RUGfile='' ! .RUG file specifying rugosities
-real(mrk), allocatable::RUGx(:) ! x's at which rugosities are specified
+real(mrk), allocatable::RUGx_start(:),RUGx_end(:) ! x's defining constant-rugosity patches
 integer(mik), allocatable::RUGb(:) ! "Bief" (reach?) index
 real(mrk), allocatable::ZxKmin(:,:) ! covariates Z's of the regression Kmin(x)=a1Z1(x)+...+apZp(x). Dimension size(RUGb)*p.
 real(mrk), allocatable::ZxKmoy(:,:) ! covariates Z's of the regression Kmoy(x)=a1Z1(x)+...+apZp(x). Dimension size(RUGb)*p.
@@ -359,7 +359,7 @@ do j=1,nevents
     end select
 
     do i=1,n
-        write(unt,forma) 'K',RUGb(i),RUGx(i),RUGx(i+1),Kmin(i),Kmoy(i)
+        write(unt,forma) 'K',RUGb(i),RUGx_start(i),RUGx_end(i),Kmin(i),Kmoy(i)
     enddo
     close(unt)
 
@@ -547,14 +547,15 @@ open(unit=unt,file=trim(projectDir(1))//trim(RUGfile), status='old', iostat=err)
 if(err>0) then;mess=trim(procname)//':problem opening file '//trim(projectDir(1))//trim(RUGfile);return;endif
 call getNumItemsInFile(unt=unt,preRwnd=.true.,nskip=nskip,nitems=n,postPos=0,jchar=foo,err=err,message=mess)
 if(err>0) then;mess=trim(procname)//trim(mess);return;endif
-if(allocated(RUGx)) deallocate(RUGx)
+if(allocated(RUGx_start)) deallocate(RUGx_start)
+if(allocated(RUGx_end)) deallocate(RUGx_end)
 if(allocated(RUGb)) deallocate(RUGb)
-allocate(RUGx(n+1),RUGb(n))
+allocate(RUGx_start(n),RUGx_end(n),RUGb(n))
 rewind(unt)
 do i=1,nskip;read(unt,*);enddo
 forma='(1x,I3,6x,4f10.0)'
 do i=1,n
-    read(unt,forma,iostat=err) RUGb(i),RUGx(i),RUGx(i+1),c1,c2
+    read(unt,forma,iostat=err) RUGb(i),RUGx_start(i),RUGx_end(i),c1,c2
     if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(projectDir(1))//trim(RUGfile);return;endif
 enddo
 close(unt)

@@ -317,7 +317,6 @@ subroutine get_rug(self,reach,pk,rug_min,rug_moy,err,mess)
        mess=trim(procname)//" value not found in Mage RUG file (bad Pk)"
        err=1;return
     endif
-    exit
  enddo
 
 end subroutine get_rug

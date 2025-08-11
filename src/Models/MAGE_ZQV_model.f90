@@ -489,7 +489,7 @@ do j=1,nevents
     call res%get(reach,loc,tim,"Z",Y((m+1):(m+p),1),err,mess)
     call res%get(reach,loc,tim,"Q",Y((m+1):(m+p),2),err,mess)
     call res%get(reach,loc,tim,"V",Y((m+1):(m+p),3),err,mess)
-    call rug%get(reach,loc,Y((m+1):(m+p),3),Y((m+1):(m+p),4),err,mess)
+    call rug%get(reach,loc,Y((m+1):(m+p),4),Y((m+1):(m+p),5),err,mess)
     m=m+p
 enddo
 

@@ -303,7 +303,7 @@ subroutine get_rug(self,reach,pk,rug_min,rug_moy,err,mess)
   do ptr = 1, size(pk)
     trouvePk = .false.
     do j=1,size(self%ib)
-      if (self%ib(j) == pk(ptr)) then
+      if (self%ib(j) == reach(ptr)) then
          if (self%x_start(j) < pk(ptr) .and. self%x_end(j) >= pk(ptr)) then
             ! trouvé !
             trouvePk = .true.

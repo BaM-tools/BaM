@@ -28,12 +28,19 @@ Private
 public :: MAGE_ZQV_GetParNumber, MAGE_ZQV_Run, MAGE_ZQV_XtraRead, MAGE_ZQV_SetUp, mage_res
 
 ! Module variables
-character(len_uLongStr)::RUGfile='' ! .RUG file specifying rugosities
-real(mrk), allocatable::RUGx_start(:),RUGx_end(:) ! x's defining constant-rugosity patches
-integer(mik), allocatable::RUGb(:) ! "Bief" (reach?) index
-real(mrk), allocatable::ZxKmin(:,:) ! covariates Z's of the regression Kmin(x)=a1Z1(x)+...+apZp(x). Dimension size(RUGb)*p.
-real(mrk), allocatable::ZxKmoy(:,:) ! covariates Z's of the regression Kmoy(x)=a1Z1(x)+...+apZp(x). Dimension size(RUGb)*p.
-logical::applyExpKmin,applyExpKmoy ! apply exponential transformation to computed K's to ensure positivity?
+type mage_rug
+  character(len_uLongStr)::file='' ! .RUG file specifying rugosities
+  real(mrk), allocatable::x_start(:),x_end(:) ! x's defining constant-rugosity patches
+  real(mrk), allocatable::kmin(:),kmoy(:) ! rugosity values
+  integer(mik), allocatable::ib(:) ! "indice Bief" (reach?) index
+  real(mrk), allocatable::ZxKmin(:,:) ! covariates Z's of the regression Kmin(x)=a1Z1(x)+...+apZp(x). Dimension size(rug%ib)*p.
+  real(mrk), allocatable::ZxKmoy(:,:) ! covariates Z's of the regression Kmoy(x)=a1Z1(x)+...+apZp(x). Dimension size(rug%ib)*p.
+  logical::applyExpKmin,applyExpKmoy ! apply exponential transformation to computed K's to ensure positivity?
+  contains
+    procedure :: get => get_rug
+end type mage_rug
+
+type(mage_rug) :: rug ! variable globale au module
 
 type mage_res
   integer :: ibmax, ismax ! nombre de biefs et nombre de sections
@@ -43,7 +50,7 @@ type mage_res
   real(kind=real32), dimension(:,:), allocatable :: valuesQ, valuesZ, valuesV ! valeurs
   contains
     procedure :: read_bin
-    procedure :: get
+    procedure :: get => get_res
 end type mage_res
 
 Contains
@@ -186,7 +193,7 @@ subroutine read_bin(self, filename, err, mess)
 
 end subroutine read_bin
 
-subroutine get(self,reach,pk,timesteps,variable,res,err,mess)
+subroutine get_res(self,reach,pk,timesteps,variable,res,err,mess)
 
   implicit none
   ! prototype
@@ -269,7 +276,51 @@ subroutine get(self,reach,pk,timesteps,variable,res,err,mess)
     endif
  enddo
 
-end subroutine get
+end subroutine get_res
+
+
+subroutine get_rug(self,reach,pk,rug_min,rug_moy,err,mess)
+
+  implicit none
+  ! prototype
+  class(mage_rug), target, intent(in) :: self
+  integer(mik), dimension(:), intent(in) :: reach
+  real(kind=real64), dimension(:), intent(in) :: pk
+  integer(mik), intent(out)::err
+  character(*),intent(out)::mess
+  real(kind=real64), dimension(:), intent(out) :: rug_min
+  real(kind=real64), dimension(:), intent(out) :: rug_moy
+  ! variables locales
+  character(250),parameter::procname='MAGE_ZQV_get_min'
+  integer :: j, ptr
+  real(kind=real32), parameter :: eps = 0.0001 ! max percision
+  logical :: trouvePk
+
+  if (size(reach) .ne. size(pk)) stop
+  if (size(pk) .ne. size(rug_min)) stop
+  if (size(pk) .ne. size(rug_moy)) stop
+
+  do ptr = 1, size(pk)
+    trouvePk = .false.
+    do j=1,size(self%ib)
+      if (self%ib(j) == pk(ptr)) then
+         if (self%x_start(j) < pk(ptr) .and. self%x_end(j) >= pk(ptr)) then
+            ! trouvé !
+            trouvePk = .true.
+            rug_min(ptr) = self%Kmin(j)
+            rug_moy(ptr) = self%Kmoy(j)
+            exit
+         endif
+      endif
+    enddo
+    if(.not.trouvePk)then
+       mess=trim(procname)//" value not found in Mage RUG file (bad Pk)"
+       err=1;return
+    endif
+    exit
+ enddo
+
+end subroutine get_rug
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -301,7 +352,7 @@ character(*),intent(out)::mess
 character(250),parameter::procname='MAGE_ZQV_GetParNumber'
 
 err=0;mess=''
-npar=size(ZxKmin,dim=2)+size(ZxKmoy,dim=2)
+npar=size(rug%ZxKmin,dim=2)+size(rug%ZxKmoy,dim=2)
 
 end subroutine MAGE_ZQV_GetParNumber
 
@@ -347,7 +398,6 @@ character(250),parameter::procname='MAGE_ZQV_Run'
 integer(mik)::i,j,n,unt,k,ok,nitems,nevents,p,m
 character(250)::forma
 character(len_uLongStr)::cmdString,line
-real(mrk)::Kmin(size(RUGb)),Kmoy(size(RUGb))
 character(:), allocatable :: project
 real(mrk), allocatable :: tim(:),loc(:)
 integer(mik), allocatable :: reach(:)
@@ -356,23 +406,23 @@ logical::mask(size(X,dim=1))
 
 ! Init
 err=0;mess='';feas=.true.;Y=undefRN
-n=size(RUGb)
+n=size(rug%ib)
 nevents=size(projectDir)
 forma='(A1,I3,6x,2f10.3,2f10.2)'
 project=replacedString(trim(REPfile),'.REP','',.true.)
 
 ! Size check
 k=size(theta)
-if(k /= (size(ZxKmin,dim=2)+size(ZxKmoy,dim=2))) then
+if(k /= (size(rug%ZxKmin,dim=2)+size(rug%ZxKmoy,dim=2))) then
     mess=trim(procname)//': length of theta should be equal to the total number of columns in Zfiles'
     err=1;return
 endif
 
 ! Compute Kmin and Kmoy from regression
-Kmin=matmul(ZxKmin, theta( 1:size(ZxKmin,dim=2) ) )
-Kmoy=matmul(ZxKmoy, theta( (size(ZxKmin,dim=2)+1):k ) )
-if(applyExpKmin) Kmin=exp(Kmin)
-if(applyExpKmoy) Kmoy=exp(Kmoy)
+rug%Kmin=matmul(rug%ZxKmin, theta( 1:size(rug%ZxKmin,dim=2) ) )
+rug%Kmoy=matmul(rug%ZxKmoy, theta( (size(rug%ZxKmin,dim=2)+1):k ) )
+if(rug%applyExpKmin) rug%Kmin=exp(rug%Kmin)
+if(rug%applyExpKmoy) rug%Kmoy=exp(rug%Kmoy)
 
 m=0
 do j=1,nevents
@@ -393,7 +443,7 @@ do j=1,nevents
     ! Write Kmin and Kmoy in .RUG file
     call getSpareUnit(unt,err,mess)
     if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
-    open(unit=unt,file=trim(projectDir(j))//trim(RUGfile),status='replace',iostat=err)
+    open(unit=unt,file=trim(projectDir(j))//trim(rug%file),status='replace',iostat=err)
     if(err/=0) then;mess=trim(procname)//':problem creating RUG file';return;endif
     select case(version)
     case('7','v7')
@@ -407,7 +457,7 @@ do j=1,nevents
     end select
 
     do i=1,n
-        write(unt,forma) 'K',RUGb(i),RUGx_start(i),RUGx_end(i),Kmin(i),Kmoy(i)
+        write(unt,forma) 'K',rug%ib(i),rug%x_start(i),rug%x_end(i),rug%Kmin(i),rug%Kmoy(i)
     enddo
     close(unt)
 
@@ -439,6 +489,7 @@ do j=1,nevents
     call res%get(reach,loc,tim,"Z",Y((m+1):(m+p),1),err,mess)
     call res%get(reach,loc,tim,"Q",Y((m+1):(m+p),2),err,mess)
     call res%get(reach,loc,tim,"V",Y((m+1):(m+p),3),err,mess)
+    call rug%get(reach,loc,Y((m+1):(m+p),3),Y((m+1):(m+p),4),err,mess)
     m=m+p
 enddo
 
@@ -555,7 +606,6 @@ integer(mik)::unt,i,n,k,j,nskip
 character(250)::foo,prefix,var,ib,pk,mode,dt0,forma,project
 character(len_uLongStr)::line,fname
 character(len_uLongStr),allocatable::fnames(:)
-real(mrk)::c1,c2
 real(mrk),allocatable::Zx(:,:)
 
 ! Init
@@ -575,7 +625,7 @@ if(allocated(fnames)) deallocate(fnames);allocate(fnames(n))
 do i=1,n
     read(unt,'(A)',iostat=err) line
     if(err>0) then;mess=trim(procname)//':problem reading file '//trim(REPfile);return;endif
-    if(line(1:3)=='RUG') RUGfile=trim(line(5:))
+    if(line(1:3)=='RUG') rug%file=trim(line(5:))
 enddo
 close(unt)
 
@@ -588,28 +638,28 @@ case('8','v8')
 case default
     if(err/=0) then;mess=trim(procname)//':FATAL: MAGE version is not supported';return;endif
 end select
-if(RUGfile=='') then;err=1;mess=trim(procname)//'FATAL: no .RUG file found';return;endif
+if(rug%file=='') then;err=1;mess=trim(procname)//'FATAL: no .RUG file found';return;endif
 call getSpareUnit(unt,err,mess)
 if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
-open(unit=unt,file=trim(projectDir(1))//trim(RUGfile), status='old', iostat=err)
-if(err>0) then;mess=trim(procname)//':problem opening file '//trim(projectDir(1))//trim(RUGfile);return;endif
+open(unit=unt,file=trim(projectDir(1))//trim(rug%file), status='old', iostat=err)
+if(err>0) then;mess=trim(procname)//':problem opening file '//trim(projectDir(1))//trim(rug%file);return;endif
 call getNumItemsInFile(unt=unt,preRwnd=.true.,nskip=nskip,nitems=n,postPos=0,jchar=foo,err=err,message=mess)
 if(err>0) then;mess=trim(procname)//trim(mess);return;endif
-if(allocated(RUGx_start)) deallocate(RUGx_start)
-if(allocated(RUGx_end)) deallocate(RUGx_end)
-if(allocated(RUGb)) deallocate(RUGb)
-allocate(RUGx_start(n),RUGx_end(n),RUGb(n))
+if(allocated(rug%x_start)) deallocate(rug%x_start)
+if(allocated(rug%x_end)) deallocate(rug%x_end)
+if(allocated(rug%ib)) deallocate(rug%ib)
+allocate(rug%x_start(n),rug%x_end(n),rug%ib(n),rug%Kmin(n),rug%Kmoy(n))
 rewind(unt)
 do i=1,nskip;read(unt,*);enddo
 forma='(1x,I3,6x,4f10.0)'
 do i=1,n
-    read(unt,forma,iostat=err) RUGb(i),RUGx_start(i),RUGx_end(i),c1,c2
-    if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(projectDir(1))//trim(RUGfile);return;endif
+    read(unt,forma,iostat=err) rug%ib(i),rug%x_start(i),rug%x_end(i),rug%Kmin(i),rug%Kmoy(i)
+    if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(projectDir(1))//trim(rug%file);return;endif
 enddo
 close(unt)
 
 ! Read Z file
-n=size(RUGb)
+n=size(rug%ib)
 do j=1,2
     if(Zfile(j)=='') then
         if(allocated(Zx)) deallocate(Zx);allocate(Zx(n,n))
@@ -636,18 +686,18 @@ do j=1,2
         close(unt)
     endif
     if(j==1) then ! Applies to Kmin
-        if(allocated(ZxKmin)) deallocate(ZxKmin);allocate(ZxKmin(size(Zx,dim=1),size(Zx,dim=2)))
-        ZxKmin=Zx
+        if(allocated(rug%ZxKmin)) deallocate(rug%ZxKmin);allocate(rug%ZxKmin(size(Zx,dim=1),size(Zx,dim=2)))
+        rug%ZxKmin=Zx
     else ! Applies to Kmoy
-        if(allocated(ZxKmoy)) deallocate(ZxKmoy);allocate(ZxKmoy(size(Zx,dim=1),size(Zx,dim=2)))
-        ZxKmoy=Zx
+        if(allocated(rug%ZxKmoy)) deallocate(rug%ZxKmoy);allocate(rug%ZxKmoy(size(Zx,dim=1),size(Zx,dim=2)))
+        rug%ZxKmoy=Zx
     endif
 enddo
 if(allocated(Zx)) deallocate(Zx)
 
 ! exp. transformation
-applyExpKmin=doExp(1)
-applyExpKmoy=doExp(2)
+rug%applyExpKmin=doExp(1)
+rug%applyExpKmoy=doExp(2)
 
 end subroutine MAGE_ZQV_setUp
 

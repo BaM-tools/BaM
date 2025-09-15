@@ -1,0 +1,63 @@
+name: Build on Windows, Linux and MacOS
+
+# Build on MacOS currently fails with the following error: 
+
+# ld: library 'crt0.o' not found
+# collect2: error: ld returned 1 exit status
+# make: *** [build_exe] Error 1
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            exe_name: BaM.exe
+            test_cmd: .\BaM.exe --version
+          - os: ubuntu-latest
+            exe_name: BaM
+            test_cmd: ./BaM --version
+          - os: macos-latest
+            exe_name: BaM
+            test_cmd: ./BaM --version
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gfortran (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install gcc
+          GF_BIN="$(ls $(brew --prefix)/bin/gfortran* 2>/dev/null | sort -V | tail -n1)"
+          if [ -z "$GF_BIN" ]; then
+            echo "gfortran binary not found in $(brew --prefix)/bin" >&2
+            exit 1
+          fi
+          sudo ln -sf "$GF_BIN" /usr/local/bin/gfortran
+          echo "Symlinked $GF_BIN -> /usr/local/bin/gfortran"
+          
+      - name: Verify gfortran
+        run: gfortran --version
+
+      - name: Install dependencies
+        run: |
+          cd ..
+          git clone https://github.com/benRenard/miniDMSL.git miniDMSL 
+          git clone https://github.com/benRenard/BMSL.git BMSL 
+
+      - name: Call make
+        run: |
+          cd makefile
+          make
+
+      - name: Test executable
+        run: |
+          cd makefile
+          ${{ matrix.test_cmd }}

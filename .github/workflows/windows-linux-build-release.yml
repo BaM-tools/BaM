@@ -1,0 +1,77 @@
+name: Build on Windows and Linux and create a release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on:  ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            test_cmd: .\BaM.exe --version
+          - os: ubuntu-latest
+            test_cmd: ./BaM --version
+
+    steps:
+      - uses: actions/checkout@v4
+          
+      - name: Verify gfortran
+        run: gfortran --version
+
+      - name: Install dependencies
+        run: |
+          cd ..
+          git clone https://github.com/benRenard/miniDMSL.git miniDMSL 
+          git clone https://github.com/benRenard/BMSL.git BMSL 
+
+      - name: Call make
+        run: |
+          cd makefile
+          make
+
+      - name: Test executable
+        run: |
+          cd makefile
+          ${{ matrix.test_cmd }}
+
+      - name: Rename artifact (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          cd makefile/
+          mv BaM BaM-${VERSION}-linux
+
+      - name: Rename artifact (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $version = "${env:GITHUB_REF}".Replace("refs/tags/", "")
+          cd makefile
+          Rename-Item BaM.exe "BaM-$version-windows.exe"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BaM-${{ matrix.os }}
+          path: makefile/BaM-*
+          
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: BaM ${{ github.ref_name }}
+          generate_release_notes: true
+          files: artifacts/**/*
+

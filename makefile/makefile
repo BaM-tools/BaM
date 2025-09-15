@@ -1,5 +1,5 @@
 #========================================================================
-# Makefile to build BaM for LINUX based on MiniDMSL
+# Makefile to build BaM for LINUX/WINDOWS/MACOS based on MiniDMSL
 #========================================================================
 #
 

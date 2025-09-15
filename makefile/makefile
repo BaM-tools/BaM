@@ -5,7 +5,7 @@
 
 # Define the Fortran Compiler and its options
 FC  = gfortran
-FLAGS = -fcheck=all -Wall -O3 # DEBUG: -fcheck=all -Wall -g -O0
+FLAGS = -fcheck=all -Wall -O3 -static # DEBUG: -fcheck=all -Wall -g -O0
 
 # Define directories
 DMSL_DIR = ../../miniDMSL/src/

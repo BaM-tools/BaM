@@ -415,10 +415,14 @@ if(err>0) then;mess=trim(procname)//':'//trim(mess);return;endif
 if(.not.feas) vfeas=.false.
 feas=all(vfeas)
 do i=1,model%nY
-    where(.not.vfeas) Y(:,i)=model%unfeasFlag
+    if(size(Y(:,i))>0) then
+        where(.not.vfeas) Y(:,i)=model%unfeasFlag
+    endif
 enddo
 do i=1,model%nState
-    where(.not.vfeas) state(:,i)=model%unfeasFlag
+    if(size(state(:,i))>0) then
+        where(.not.vfeas) state(:,i)=model%unfeasFlag
+    endif
 enddo
 
 end subroutine ApplyModel

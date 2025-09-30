@@ -67,9 +67,9 @@ jobs:
       - name: Zip artifact (Windows)
         if: runner.os == 'Windows'
         run: |
-          $version = "${env:GITHUB_REF}".Replace("refs/tags/", "")
+          $VERSION = "${env:GITHUB_REF}".Replace("refs/tags/", "")
           cd makefile
-          Compress-Archive -Path BaM.exe -DestinationPath "BaM-$version_Windows.zip"
+          Compress-Archive -Path BaM.exe -DestinationPath "BaM-${VERSION}_Windows.zip"
 
       - uses: actions/upload-artifact@v4
         with:

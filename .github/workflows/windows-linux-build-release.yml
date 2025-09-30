@@ -20,17 +20,34 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-          
+
+      - name: Install MSYS2 (Windows only)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: mingw-w64-x86_64-gcc-fortran make
+
       - name: Verify gfortran
         run: gfortran --version
+        shell: bash
 
       - name: Install dependencies
         run: |
           cd ..
           git clone https://github.com/benRenard/miniDMSL.git miniDMSL 
           git clone https://github.com/benRenard/BMSL.git BMSL 
+        shell: bash
 
-      - name: Call make
+      - name: Call make (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cd makefile
+          make
+
+      - name: Call make (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
         run: |
           cd makefile
           make
@@ -74,4 +91,3 @@ jobs:
           name: BaM ${{ github.ref_name }}
           generate_release_notes: true
           files: artifacts/**/*
-

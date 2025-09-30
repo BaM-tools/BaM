@@ -57,24 +57,24 @@ jobs:
           cd makefile
           ${{ matrix.test_cmd }}
 
-      - name: Rename artifact (Linux)
+      - name: Zip artifact (Linux)
         if: runner.os == 'Linux'
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
           cd makefile/
-          mv BaM BaM-${VERSION}-linux
+          zip "BaM-${VERSION}_Linux.zip" BaM
 
-      - name: Rename artifact (Windows)
+      - name: Zip artifact (Windows)
         if: runner.os == 'Windows'
         run: |
           $version = "${env:GITHUB_REF}".Replace("refs/tags/", "")
           cd makefile
-          Rename-Item BaM.exe "BaM-$version-windows.exe"
+          Compress-Archive -Path BaM.exe -DestinationPath "BaM-$version_Windows.zip"
 
       - uses: actions/upload-artifact@v4
         with:
           name: BaM-${{ matrix.os }}
-          path: makefile/BaM-*
+          path: makefile/BaM-*.zip
           
   release:
     runs-on: ubuntu-latest

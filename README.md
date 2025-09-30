@@ -7,7 +7,7 @@ The current code is a computational engine and mostly aims at generating MCMC sa
 ### Getting BaM executable
 A recent BaM executable for your system (Windows or Linux) can be downloaded [here](https://github.com/BaM-tools/BaM/releases/latest/).
 
-Alternatively, the executable can be recompiled from sources using the provided makefile or Code::Blocks project. Files from the following projects are needed for this purpose:
+Alternatively, the executable can be recompiled from sources using the provided [makefile](https://github.com/BaM-tools/BaM/blob/main/makefile/makefile) or [Code::Blocks project](https://github.com/BaM-tools/BaM/tree/main/CodeBlocks/BaM). Files from the following projects are needed for this purpose:
 
 1. [BMSL](https://github.com/benRenard/BMSL)
 2. [miniDMSL](https://github.com/benRenard/miniDMSL)

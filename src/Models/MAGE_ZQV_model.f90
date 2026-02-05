@@ -238,7 +238,8 @@ subroutine get_res(self,reach,pk,timesteps,variable,res,err,mess)
           ! trouvé !
           trouvet = .true.
           do j=self%is1(reach(ptr)), self%is2(reach(ptr))-1
-             if (self%pk(j) < pk(ptr) .and. self%pk(j+1) >= pk(ptr)) then
+             if ((self%pk(j) <= pk(ptr) .and. self%pk(j+1) >= pk(ptr)) &
+             .or. (self%pk(j) >= pk(ptr) .and. self%pk(j+1) <= pk(ptr))) then
                 ! trouvé !
                 trouvePk = .true.
                 ratio_pk = (pk(ptr) - self%pk(j))/(self%pk(j+1) - self%pk(j))
@@ -304,7 +305,8 @@ subroutine get_rug(self,reach,pk,rug_min,rug_moy,err,mess)
     trouvePk = .false.
     do j=1,size(self%ib)
       if (self%ib(j) == reach(ptr)) then
-         if (self%x_start(j) < pk(ptr) .and. self%x_end(j) >= pk(ptr)) then
+         if ((self%x_start(j) <= pk(ptr) .and. self%x_end(j) >= pk(ptr)) &
+             .or. (self%x_start(j) >= pk(ptr) .and. self%x_end(j) <= pk(ptr))) then
             ! trouvé !
             trouvePk = .true.
             rug_min(ptr) = self%Kmin(j)

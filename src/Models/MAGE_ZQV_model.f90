@@ -766,7 +766,6 @@ do j=1,nEvt
     if(allocated(hyd(j)%text)) deallocate(hyd(j)%text);allocate(hyd(j)%text(n))
     if(allocated(hyd(j)%iTime)) deallocate(hyd(j)%iTime);allocate(hyd(j)%iTime(n))
     if(allocated(hyd(j)%iInflow)) deallocate(hyd(j)%iInflow);allocate(hyd(j)%iInflow(n))
-    write(*,*) size(hyd(j)%text),'ok'
     ! First read to get raw lines and numbefr of inflows
     do i=1,n
         read(unt,'(A)',iostat=err) hyd(j)%text(i)

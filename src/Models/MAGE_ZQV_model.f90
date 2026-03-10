@@ -42,6 +42,19 @@ end type mage_rug
 
 type(mage_rug) :: rug ! variable globale au module
 
+type mage_hyd
+  character(len_uLongStr)::file='' ! .HYD file for inflows
+  character(len_uLongStr),allocatable::text(:)! content of HYD file in plain text
+  integer(mik)::nInflows=0 ! number of inflow time series
+  integer(mik),allocatable::istart(:),iend(:) ! indices defining each inflows block
+  type(realVector),allocatable::Qin(:)
+  type(stringVector),allocatable::dates(:)
+  integer(mik),allocatable::iInflow(:)! Inflow index associated with each line of .HYD file
+  integer(mik),allocatable::iTime(:)! Time step associated with each line of .HYD file
+end type mage_hyd
+
+type(mage_hyd), allocatable:: hyd(:) ! variable globale au module
+
 type mage_res
   integer :: ibmax, ismax ! nombre de biefs et nombre de sections
   integer, allocatable :: is1(:), is2(:) ! pointeurs sur première et dernière sections du bief
@@ -52,6 +65,14 @@ type mage_res
     procedure :: read_bin
     procedure :: get => get_res
 end type mage_res
+
+type realVector
+    real(mrk), allocatable::vec(:)
+end type realVector
+
+type stringVector
+    character(len_LongStr), allocatable::vec(:)
+end type stringVector
 
 Contains
 
@@ -279,7 +300,6 @@ subroutine get_res(self,reach,pk,timesteps,variable,res,err,mess)
 
 end subroutine get_res
 
-
 subroutine get_rug(self,reach,pk,rug_min,rug_moy,err,mess)
 
   implicit none
@@ -351,9 +371,13 @@ integer(mik), intent(out)::npar,err
 character(*),intent(out)::mess
 ! locals
 character(250),parameter::procname='MAGE_ZQV_GetParNumber'
+integer(mik)::i
 
 err=0;mess=''
 npar=size(rug%ZxKmin,dim=2)+size(rug%ZxKmoy,dim=2)
+do i=1,size(hyd)
+    npar=npar+size(hyd%nInflows)
+enddo
 
 end subroutine MAGE_ZQV_GetParNumber
 
@@ -396,7 +420,7 @@ integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='MAGE_ZQV_Run'
-integer(mik)::i,j,n,unt,k,ok,nitems,nevents,p,m
+integer(mik)::i,j,n,unt,k,ok,nitems,nevents,p,m,npar,iInflow
 character(250)::forma
 character(len_uLongStr)::cmdString,line
 character(:), allocatable :: project
@@ -404,6 +428,7 @@ real(mrk), allocatable :: tim(:),loc(:)
 integer(mik), allocatable :: reach(:)
 type(mage_res) :: res
 logical::mask(size(X,dim=1))
+real(mrk)::mult
 
 ! Init
 err=0;mess='';feas=.true.;Y=undefRN
@@ -413,11 +438,13 @@ forma='(A1,I3,6x,2f10.3,2f10.2)'
 project=replacedString(trim(REPfile),'.REP','',.true.)
 
 ! Size check
-k=size(theta)
-if(k /= (size(rug%ZxKmin,dim=2)+size(rug%ZxKmoy,dim=2))) then
-    mess=trim(procname)//': length of theta should be equal to the total number of columns in Zfiles'
+call MAGE_ZQV_GetParNumber(npar,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+if(size(theta)/=npar) then
+    mess=trim(procname)//': length of theta is incorrect'
     err=1;return
 endif
+k=size(rug%ZxKmin,dim=2)+size(rug%ZxKmoy,dim=2) ! RUG parameters
 
 ! Compute Kmin and Kmoy from regression
 rug%Kmin=matmul(rug%ZxKmin, theta( 1:size(rug%ZxKmin,dim=2) ) )
@@ -459,6 +486,23 @@ do j=1,nevents
 
     do i=1,n
         write(unt,forma) 'K',rug%ib(i),rug%x_start(i),rug%x_end(i),rug%Kmin(i),rug%Kmoy(i)
+    enddo
+    close(unt)
+
+    ! Write HYD file
+    call getSpareUnit(unt,err,mess)
+    if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+    open(unit=unt,file=trim(projectDir(j))//trim(hyd(j)%file),status='replace',iostat=err)
+    if(err/=0) then;mess=trim(procname)//':problem creating HYD file';return;endif
+    do i=1,size(hyd(j)%text)
+        if(hyd(j)%text(i)(1:1)=='$' .or. hyd(j)%text(i)(1:1)=='*') then
+            write(unt,'(A)') trim(hyd(j)%text(i))
+        else
+            iInflow=hyd(j)%iInflow(i)
+            mult=theta(k+sum(hyd(1:j)%nInflows)-hyd(1)%nInflows+iInflow)
+            write(unt,'(A10,F10.3)') adjustl(trim(hyd(j)%dates(iInflow)%vec(hyd(j)%iTime(i)))),&
+                                     mult*hyd(j)%Qin(iInflow)%vec(hyd(j)%iTime(i))
+        endif
     enddo
     close(unt)
 
@@ -603,14 +647,16 @@ integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='MAGE_ZQV_setUp'
-integer(mik)::unt,i,n,k,j,nskip
-character(250)::foo,prefix,var,ib,pk,mode,dt0,forma,project
+integer(mik)::unt,i,n,k,j,m,p,nskip,nEvt,state
+character(250)::foo,prefix,var,ib,pk,mode,dt0,forma,project,hydFile
 character(len_uLongStr)::line,fname
-character(len_uLongStr),allocatable::fnames(:)
 real(mrk),allocatable::Zx(:,:)
 
 ! Init
 err=0;mess=''
+nEvt=size(projectDir)
+if(allocated(hyd)) deallocate(hyd);allocate(hyd(nEvt))
+hydFile=''
 
 ! Open REP file
 call getSpareUnit(unt,err,mess)
@@ -622,11 +668,11 @@ if(err>0) then;mess=trim(procname)//trim(mess);return;endif
 
 ! Interpret REP file
 k=0
-if(allocated(fnames)) deallocate(fnames);allocate(fnames(n))
 do i=1,n
     read(unt,'(A)',iostat=err) line
     if(err>0) then;mess=trim(procname)//':problem reading file '//trim(REPfile);return;endif
     if(line(1:3)=='RUG') rug%file=trim(line(5:))
+    if(line(1:3)=='HYD') hydFile=trim(line(5:))
 enddo
 close(unt)
 
@@ -699,6 +745,77 @@ if(allocated(Zx)) deallocate(Zx)
 ! exp. transformation
 rug%applyExpKmin=doExp(1)
 rug%applyExpKmoy=doExp(2)
+
+! Read HYD files
+select case(version)
+case('8','v8')
+    ! OK
+case default
+    if(err/=0) then;mess=trim(procname)//':FATAL: MAGE version is not supported';return;endif
+end select
+if(hydFile=='') then;err=1;mess=trim(procname)//'FATAL: no .HYD file found';return;endif
+call getSpareUnit(unt,err,mess)
+if(err/=0) then;mess=trim(procname)//':'//trim(mess);return;endif
+do j=1,nEvt
+    open(unit=unt,file=trim(projectDir(j))//trim(hydFile), status='old', iostat=err)
+    if(err>0) then;mess=trim(procname)//':problem opening file '//trim(projectDir(j))//trim(hydFile);return;endif
+    call getNumItemsInFile(unt=unt,preRwnd=.true.,nskip=0,nitems=n,postPos=0,jchar=foo,err=err,message=mess)
+    if(err>0) then;mess=trim(procname)//trim(mess);return;endif
+    hyd(j)%file=hydFile
+    hyd(j)%nInflows=0
+    if(allocated(hyd(j)%text)) deallocate(hyd(j)%text);allocate(hyd(j)%text(n))
+    if(allocated(hyd(j)%iTime)) deallocate(hyd(j)%iTime);allocate(hyd(j)%iTime(n))
+    if(allocated(hyd(j)%iInflow)) deallocate(hyd(j)%iInflow);allocate(hyd(j)%iInflow(n))
+    write(*,*) size(hyd(j)%text),'ok'
+    ! First read to get raw lines and numbefr of inflows
+    do i=1,n
+        read(unt,'(A)',iostat=err) hyd(j)%text(i)
+        if(err/=0) then;mess=trim(procname)//':problem reading file '//trim(projectDir(j))//trim(hydFile);return;endif
+        if(hyd(j)%text(i)(1:1)=='$') hyd(j)%nInflows=hyd(j)%nInflows+1
+    enddo
+    close(unt)
+    ! Second read to get positions and values
+    if(allocated(hyd(j)%istart)) deallocate(hyd(j)%istart)
+    if(allocated(hyd(j)%iend)) deallocate(hyd(j)%iend)
+    allocate(hyd(j)%istart(hyd(j)%nInflows),hyd(j)%iend(hyd(j)%nInflows))
+    state=0 ! 1 means being on an inflow line
+    k=0
+    do i=1,n
+        if(hyd(j)%text(i)(1:1)=='$' .or. hyd(j)%text(i)(1:1)=='*') then
+            state=0
+            hyd(j)%iInflow(i)=0
+            hyd(j)%iTime(i)=0
+        else
+            if(state==0) then
+                k=k+1
+                state=1
+                hyd(j)%istart(k)=i
+                hyd(j)%iend(k)=i
+            else
+                hyd(j)%iend(k)=hyd(j)%iend(k)+1
+            endif
+            hyd(j)%iInflow(i)=k
+            hyd(j)%iTime(i)=hyd(j)%iend(k)-hyd(j)%istart(k)+1
+
+        endif
+    enddo
+    ! Third read to get dates and Qs
+    if(allocated(hyd(j)%dates)) deallocate(hyd(j)%dates)
+    if(allocated(hyd(j)%Qin)) deallocate(hyd(j)%Qin)
+    allocate(hyd(j)%dates(hyd(j)%nInflows),hyd(j)%Qin(hyd(j)%nInflows))
+    do m=1,hyd(j)%nInflows
+        p=hyd(j)%iend(m)-hyd(j)%istart(m)+1
+        if(allocated(hyd(j)%dates(m)%vec)) deallocate(hyd(j)%dates(m)%vec)
+        if(allocated(hyd(j)%Qin(m)%vec)) deallocate(hyd(j)%Qin(m)%vec)
+        allocate(hyd(j)%dates(m)%vec(p),hyd(j)%Qin(m)%vec(p))
+        k=0
+        do i=hyd(j)%istart(m),hyd(j)%iend(m)
+           k=k+1
+           read(hyd(j)%text(i),*,iostat=err) hyd(j)%dates(m)%vec(k),hyd(j)%Qin(m)%vec(k)
+           if(err/=0) then;mess=trim(procname)//':problem reading inflows in '//trim(projectDir(j))//trim(hydFile);return;endif
+        enddo
+    enddo
+enddo
 
 end subroutine MAGE_ZQV_setUp
 

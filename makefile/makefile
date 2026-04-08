@@ -66,6 +66,7 @@ Models = \
 	$(Models_DIR)SFDTidal_Qmec0_model.f90              \
 	$(Models_DIR)SFDTidal_Qmec_model.f90               \
 	$(Models_DIR)SFDTidal_Qmec2_model.f90              \
+	$(Models_DIR)SFDTidal_QmecMS_model.f90               \
 	$(Models_DIR)SMASH/SMASH_model.f90                 \
 	$(Models_DIR)MAGE_model.f90	                       \
 	$(Models_DIR)MAGE_TEMP_model.f90	               \

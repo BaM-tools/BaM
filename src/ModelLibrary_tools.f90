@@ -57,6 +57,7 @@ use SFDTidal4_model
 use SFDTidal_Qmec0_model
 use SFDTidal_Qmec_model
 use SFDTidal_Qmec2_model
+use SFDTidal_QmecMS_model
 use Recession_model_h
 use Segmentation_model
 use TextFile_model
@@ -96,6 +97,7 @@ Character(100), parameter, PUBLIC:: &
                     MDL_SFDTidal_Qmec0="MDL_SFDTidal_Qmec0",& ! Stage-Fall-Discharge rating curve for tidal rivers with original Qmec model
                     MDL_SFDTidal_Qmec="MDL_SFDTidal_Qmec",& ! Stage-Fall-Discharge rating curve for tidal rivers with our "best" Qmec model
                     MDL_SFDTidal_Qmec2="MDL_SFDTidal_Qmec2",& ! Stage-Fall-Discharge rating curve for tidal rivers with Qmec2 model
+                    MDL_SFDTidal_QmecMS="MDL_SFDTidal_QmecMS",& ! Stage-Fall-Discharge rating curve for tidal rivers with the Manning-Strickler version of Qmec
                     MDL_Recession_h="MDL_Recession_h", & ! Recession 2-exponential regression for h(t)
                     MDL_Segmentation="MDL_Segmentation",& ! Segmentation of a time series
                     MDL_TextFile="MDL_TextFile",& ! model written in a text file
@@ -200,6 +202,8 @@ case(MDL_SFDTidal_Qmec)
     call SFDTidal_Qmec_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_SFDTidal_Qmec2)
     call SFDTidal_Qmec2_GetParNumber(npar=npar,err=err,mess=mess)
+case(MDL_SFDTidal_QmecMS)
+    call SFDTidal_QmecMS_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_Recession_h)
     call Recession_h_GetParNumber(npar=npar,err=err,mess=mess)
 case(MDL_Segmentation)
@@ -348,6 +352,10 @@ case(MDL_SFDTidal_Qmec)
                         feas=vfeas,err=err,mess=mess)
 case(MDL_SFDTidal_Qmec2)
     call SFDTidal_Qmec2_Apply(h1=X(:,1),h2=X(:,2),theta=theta,Q=Y(:,1),&
+                        pressure_gradient=state(:,1),bottom_friction=state(:,2),advection=state(:,3),&
+                        feas=vfeas,err=err,mess=mess)
+case(MDL_SFDTidal_QmecMS)
+    call SFDTidal_QmecMS_Apply(h1=X(:,1),h2=X(:,2),theta=theta,Q=Y(:,1),&
                         pressure_gradient=state(:,1),bottom_friction=state(:,2),advection=state(:,3),&
                         feas=vfeas,err=err,mess=mess)
 case(MDL_Recession_h)
@@ -500,6 +508,8 @@ case(MDL_SFDTidal_Qmec0)
 case(MDL_SFDTidal_Qmec)
     ! nothing to read
 case(MDL_SFDTidal_Qmec2)
+    ! nothing to read
+case(MDL_SFDTidal_QmecMS)
     ! nothing to read
 case(MDL_Recession_h)
     ! nothing to read
@@ -667,6 +677,11 @@ case(MDL_SFDTidal_Qmec)
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
     model%StateName=(/'pressure ','friction ','advection'/)
 case(MDL_SFDTidal_Qmec2)
+    model%nDpar=0
+    model%nState=3
+    allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))
+    model%StateName=(/'pressure ','friction ','advection'/)
+case(MDL_SFDTidal_QmecMS)
     model%nDpar=0
     model%nState=3
     allocate(model%DparName(model%nDpar));allocate(model%StateName(model%nState))

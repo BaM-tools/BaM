@@ -139,6 +139,7 @@
 		<Unit filename="../../src/Models/SFDTidalJones_model.f90" />
 		<Unit filename="../../src/Models/SFDTidal_Qmec0_model.f90" />
 		<Unit filename="../../src/Models/SFDTidal_Qmec2_model.f90" />
+		<Unit filename="../../src/Models/SFDTidal_QmecMS_model.f90" />
 		<Unit filename="../../src/Models/SFDTidal_Qmec_model.f90" />
 		<Unit filename="../../src/Models/SFDTidal_Sw_correction_model.f90" />
 		<Unit filename="../../src/Models/SFDTidal_model.f90" />

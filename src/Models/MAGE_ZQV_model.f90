@@ -376,9 +376,8 @@ integer(mik)::i
 err=0;mess=''
 npar=size(rug%ZxKmin,dim=2)+size(rug%ZxKmoy,dim=2)
 do i=1,size(hyd)
-    npar=npar+size(hyd%nInflows)
+    npar=npar+hyd(i)%nInflows
 enddo
-
 end subroutine MAGE_ZQV_GetParNumber
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

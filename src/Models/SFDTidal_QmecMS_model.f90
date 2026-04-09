@@ -94,8 +94,7 @@ integer(mik), intent(out)::err
 character(*),intent(out)::mess
 !locals
 character(250),parameter::procname='SFDTidal_QmecMS_Apply'
-real(mrk)::y0, A0, be, delta, ne, phi, d1, d2, c, g,Q0, dx, dt, pg, bf, ad, width, R0
-real(mrk)::dydt1, dydt2
+real(mrk)::y0, A0, be, delta, ne, phi, d1, d2, c, g,dx, width, R0
 real(mrk)::y1(size(h1)),y2(size(h2)),dy(size(h1)),ym(size(h1)),Ae(size(h1)),Pe(size(h1)),Rhe(size(h1))
 integer(mik)::nm, m,k
 
@@ -121,7 +120,7 @@ k=k+1;g=theta(k)      !gravity[m/s2]
 k=k+1;dx=theta(k)     !distance between stations
 
 ! Check feasability
-if(A0<=0._mrk .or. (y0-be)<=0._mrk .or. phi<=0._mrk .or. c<=0._mrk .or. g<=0._mrk .or. dx<=0._mrk .or. dt<=0._mrk) then
+if(A0<=0._mrk .or. (y0-be)<=0._mrk .or. phi<=0._mrk .or. c<=0._mrk .or. g<=0._mrk .or. dx<=0._mrk) then
     feas=.false.;return
 endif
 
@@ -149,7 +148,7 @@ endif
 ! run model
 do m=1,nm
     Q(m) = (1._mrk/ne) * Rhe(m)**(0.5_mrk*c) * Ae(m) * sqrt(abs((dy(m)+delta)/dx))
-    if((dy(m)+delta)<0) Q(m)=-1._mrk*Q(m)
+    if((dy(m)+delta)>0._mrk) Q(m)=-1._mrk*Q(m)
 enddo
 
 end subroutine SFDTidal_QmecMS_Apply

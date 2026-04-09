@@ -82,9 +82,12 @@ subroutine SFDTidal_Qmec2_Apply(h1,h2,theta,Q,pressure_gradient,bottom_friction,
 !^*     3. theta, parameter vector
 !^* OUT
 !^*     1. Q, discharge
-!^*     2. feas, feasible?
-!^*     3. err, error code; <0:Warning, ==0:OK, >0: Error
-!^*     4. mess, error message
+!^*     2. pressure_gradient, pressure gradient term
+!^*     3. bottom_friction, bottom friction term
+!^*     4. advection, advection term
+!^*     5. feas, feasible?
+!^*     6. err, error code; <0:Warning, ==0:OK, >0: Error
+!^*     7. mess, error message
 !^**********************************************************************
 real(mrk), intent(in)::h1(:),h2(:),theta(:)
 real(mrk), intent(out)::Q(:),pressure_gradient(:), bottom_friction(:), advection(:)

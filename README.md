@@ -20,4 +20,4 @@ Here is the procedure to compile BaM using the makefile:
 
 You should see many messages and after a few minutes at most the executable file `BaM` should be created into the makefile directory.
 
-Developper tools such as the `make` utility and the `gfortran` compiler must be installed on your machine for this procedure to work. This should be natively the case on most computers, but if not you can install the [GNU compiler selection](https://gcc.gnu.org/install/binaries.html).
+Developper tools such as the `make` utility and the `gfortran` compiler must be installed on your machine for this procedure to work. This should be natively the case on most computers, but if not you can install the [GNU Compiler Collection](https://gcc.gnu.org/install/binaries.html).

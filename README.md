@@ -5,7 +5,7 @@ BaM (Bayesian Modeling) is a framework aimed at estimating a model using a bayes
 The current code is a computational engine and mostly aims at generating MCMC samples from the posterior distribution associated with the model and the data, and to use these MCMC samples to make predictions. It is implemented as an executable file controlled by a set of configuration text files. BaM is still under active development and the documentation of configuration files is hence incomplete, but useful information may be found [here](https://github.com/BaM-tools/BaMdocs). It is also possible to use BaM with the R package [RBaM](https://github.com/BaM-tools/RBaM). 
 
 ### Getting BaM executable
-A recent BaM executable for your system (Windows or Linux - MacOS not available yet) can be downloaded [here](https://github.com/BaM-tools/BaM/releases/latest/).
+A recent BaM executable for your system (Windows, Linux or macOS) can be downloaded [here](https://github.com/BaM-tools/BaM/releases/latest/).
 
 Alternatively, the executable can be recompiled from sources using the provided [makefile](https://github.com/BaM-tools/BaM/blob/main/makefile/makefile) or [Code::Blocks project](https://github.com/BaM-tools/BaM/tree/main/CodeBlocks/BaM). Files from the following projects are needed for this purpose:
 

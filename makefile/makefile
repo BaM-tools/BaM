@@ -5,7 +5,21 @@
 
 # Define the Fortran Compiler and its options
 FC  = gfortran
-FLAGS = -fcheck=all -Wall -O3 -static # DEBUG: -fcheck=all -Wall -g -O0
+# macOS does not support fully static executables: Apple ships no crt0.o and no
+# static libSystem, so `-static` there fails with "ld: library 'crt0.o' not found".
+# Link only the compiler runtime statically on macOS; keep `-static` elsewhere.
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+  # Statically link the compiler's own runtime libraries instead. libquadmath
+  # needs naming explicitly: it is not covered by -static-libgfortran, and
+  # without it the executable keeps a dynamic dependency on libquadmath.0.dylib
+  # and will not start on a machine that has no gfortran installed.
+  STATIC_FLAGS = -static-libgfortran -static-libgcc -static-libquadmath
+else
+  STATIC_FLAGS = -static
+endif
+
+FLAGS = -fcheck=all -Wall -O3 $(STATIC_FLAGS) # DEBUG: -fcheck=all -Wall -g -O0
 
 # Define directories
 DMSL_DIR = ../../miniDMSL/src/

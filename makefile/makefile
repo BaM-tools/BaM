@@ -63,6 +63,7 @@ Models = \
 	$(Models_DIR)SFDTidal4_model.f90                   \
 	$(Models_DIR)SFDTidalJones_model.f90               \
 	$(Models_DIR)StageGradientDischarge_model.f90      \
+	$(Models_DIR)Vegetation_SH_model.f90               \
 	$(Models_DIR)Vegetation_model.f90                  \
 	$(Models_DIR)SWOT_model.f90                        \
 	$(Models_DIR)SedimentTransport_model.f90           \

@@ -35,5 +35,9 @@
 *.layout
 *.depend
 
+# Codium language servers file
+.fortls
+
+
 # Others
 misc
